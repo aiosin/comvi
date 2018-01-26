@@ -30,7 +30,22 @@
 \usepackage{amsmath}
 \usepackage{microtype}
 \usepackage[normalem]{ulem}
-\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+
+% options for TODO: either use red bold font for litle annotations (which do not work very well)
+
+%\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+
+% following commands are 'non standard' and not bundled with template, delete it problems occur
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommand{\unsure}[1]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,inline]{#1}}
+\newcommand{\change}[1]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,inline]{#1}}
+\newcommand{\info}[1]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,inline]{#1}}
+\newcommand{\improvement}[1]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,inline]{#1}}
+\newcommand{\thiswillnotshow}[1]{\todo[disable,inline]{#1}}
+
+
 
 \captionsetup[table]{justification=justified,singlelinecheck=false}
 \captionsetup[figure]{justification=justified,singlelinecheck=false}
@@ -49,7 +64,7 @@
 %% This is how authors are specified in the journal style
 
 %% indicate IEEE Member or Student Member in form indicated below
-\author{Hugo Schmid$^\dag$, Heinz M\"uller$^\ddag$, and Martin Maier$^*$}
+\author{Wilhelm Buchm\"uller, Shoma Kaiser, Damir Ravilija, Enis ...}
 \authorfooter{
 %% insert punctuation at end of each item
 \begin{tabular}{cccc}
@@ -108,12 +123,16 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 \maketitle
 %
 \firstsection{Introduction} %for journal use above \firstsection{..} instead
+TODO's Beispiel Bitte entsprechend benutzen:
 %
-\todo{Cite some stuff: bullshit~\cite{lipsa2011visualization} and simulation~\cite{hocker:084707}.}
+\improvement{Cite some stuff: bullshit~\cite{lipsa2011visualization} and simulation~\cite{hocker:084707}.}
 %
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+\unsure{unsure}
+\change{change}
+\info{info}
+\improvement{improvement}
+\thiswillnotshow{thiswillnotshow}
 
 Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse
 
@@ -166,6 +185,7 @@ bolts & 23,312,134.3 & 22.1 \\
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
+We would like to thank our supervisors M. Krone and F. Fries(?) as well as our project examiner Prof. ... . We are grateful for the experience and knowledge that working on this project has given us.
 This work was partially funded by cake and cookies.
 }
 

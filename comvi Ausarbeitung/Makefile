@@ -8,8 +8,7 @@ build:
 	pdflatex -synctex=1 comvi
 
 clean:
-	rm -f *.aux *.bbl *.blg *.glo *.idx *.log *.toc *.out 
-*.synctex.gz
+	rm -f *.aux *.bbl *.blg *.glo *.idx *.log *.toc *.out *.synctex.gz
 
 cleanall: clean
-rm -f *.ps *.pdf *.dvi
+	rm -f *.ps *.pdf *.dvi
