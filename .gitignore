@@ -370,3 +370,10 @@ venv.bak/
 *.out
 *.app
 
+
+
+
+
+
+########Project specific#####
+programming/SSIM/jpg/**
