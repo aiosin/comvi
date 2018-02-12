@@ -26,13 +26,13 @@ def single_channel_ssim():
     for i in range(0,3):
         #do for single channel and add results to dict
         for im1 in files:
-        for im2 in files:
-            x = imread(im1)
-            y = imread(im2)
-            x = x[:,:,i]  
-            y = y[:,:,i]      
-            ssim = compare_ssim(x,y,multichannel=True)
-            print("SSIM between: ", str(im1), "and: ", str(im2), ssim)
+            for im2 in files:
+                x = imread(im1)
+                y = imread(im2)
+                x = x[:,:,i]  
+                y = y[:,:,i]      
+                ssim = compare_ssim(x,y,multichannel=True)
+                print("SSIM between: ", str(im1), "and: ", str(im2), ssim)
 
 if __name__ == '__main__':
     main()
