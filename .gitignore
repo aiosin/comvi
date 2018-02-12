@@ -377,3 +377,4 @@ venv.bak/
 
 ########Project specific#####
 programming/SSIM/jpg/**
+programming/SSIM/test-dataset/**
