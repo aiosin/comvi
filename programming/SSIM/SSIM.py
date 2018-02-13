@@ -3,6 +3,7 @@ from skimage.io import imread
 from skimage.transform import resize
 from itertools import combinations
 
+from sklearn.cluster import DBSCAN
 import sys
 import os
 
@@ -12,7 +13,16 @@ def main():
 	print("skimage SSIM test")
 	print("-----------------")
 	pairwise_ssim()
+	files = os.listdir(os.curdir)
+	files = filter(lambda x: x.endswith(fformats),files)
+	DBSCAN(metric=ddistance,algorithm='brute').fit(files)
 
+def ddistance(x,y):
+	x = imread(x)
+	y = imread(y)
+	x = resize(x,(100,100))
+	y = resize(y,(100,100))
+	return compare_ssim(x,y,multichannel=True)
 
 
 def pairwise_ssim():
@@ -31,6 +41,7 @@ def pairwise_ssim():
 	print(sims)
 	with open("results",mode='w') as f:
 		f.write(sims)
+	return sims
 
 def single_channel_ssim():
 	files = os.listdir(os.curdir)
