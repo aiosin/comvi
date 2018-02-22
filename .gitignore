@@ -370,7 +370,8 @@ venv.bak/
 *.out
 *.app
 
-
+# VS specific
+.vs/
 
 
 
