@@ -23,6 +23,8 @@ GLint compileShader(GLenum type, const char *path);
 GLint linkProgram(std::vector<GLint> shaders);
 void detachingDeletingShaders(GLint program, std::vector<GLint> shaders);
 void textureLoading(GLuint texture, GLchar* imagePath);
+void bufferArrayObjInitialization(GLuint VBO, GLuint VAO, GLuint EBO, 
+                                  std::vector<GLfloat> vertices, std::vector<GLint> indices);
 
 static int WINDOW_WIDTH = 1024;
 static int WINDOW_HEIGHT = 768;
@@ -59,7 +61,7 @@ int main()
     glfwSetFramebufferSizeCallback(g_window, framebufferSizeCallback);
     glfwSetScrollCallback(g_window, scrollCallback);
 
-    // Loading OpenGL function pointerss
+    // Loading OpenGL function pointers
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
         std::cerr << "Failed to load OpenGL context" << std::endl;
@@ -83,26 +85,22 @@ int main()
     GLint shaderProgram = linkProgram({ vertexShader, fragmentShader });
     detachingDeletingShaders(shaderProgram, { vertexShader, fragmentShader });
 
-    GLuint VBO, VAO, EBO;
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     
-    float vertices[] = {
+    std::vector<GLfloat> vertices = {
         0.5f,  0.25f, 0.0f, 1.0f, 1.0f,
         0.5f,  -0.25f, 0.0f, 1.0f, 0.0f,
         -0.5f, -0.25f, 0.0f, 0.0f, 0.0f,
         -0.5f,  0.25f, 0.0f, 0.0f, 1.0f
     };
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    std::vector<GLfloat> smallVertices = {
+        0.2f,  0.1f, 0.0f, 1.0f, 1.0f,
+        0.2f,  -0.1f, 0.0f, 1.0f, 0.0f,
+        -0.2f, -0.1f, 0.0f, 0.0f, 0.0f,
+        -0.2f,  0.1f, 0.0f, 0.0f, 1.0f
+    };
 
-    GLuint indices[] = {
+    std::vector<GLint> indices = {
         0, 1, 3,
         1, 2, 3  
     };
@@ -115,14 +113,20 @@ int main()
         glm::vec3(0.0f, -1.0f, 0.0f)
     };
 
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    GLuint VBO, VAO, EBO;
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &EBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    GLuint sVBO, sVAO, sEBO;
+    glGenBuffers(1, &sVBO);
+    glGenVertexArrays(1, &sVAO);
+    glGenBuffers(1, &sEBO);
 
+    bufferArrayObjInitialization(VBO, VAO, EBO, vertices, indices);
+    bufferArrayObjInitialization(sVBO, sVAO, sEBO, smallVertices, indices);
 
+    
     GLuint texture;
 
     glGenTextures(1, &texture);
@@ -154,25 +158,43 @@ int main()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
+        
 
         glm::mat4 view = glm::lookAt(g_cameraPos, g_cameraPos + g_cameraOppDir, g_cameraUp);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-        // debug
-        /*for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                std::cout << "view" << j << " " << view[i][j] << std::endl;
-            }
-        }*/
-        for (GLuint i = 0; i < 4; ++i)
+        if (g_cameraPos.z < 0.5f)
         {
-            glm::mat4 model;
-            model = glm::translate(model, clusterPositions[i]);
-            glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(sVAO);
+            for (GLuint i = 0; i < 4; ++i)
+            {
+                for (GLuint j = 0; j < 4; ++j)
+                {
+                    glm::mat4 model;
+                    model = glm::translate(model, clusterPositions[i] + 0.3f * clusterPositions[j]);
+                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                }
+            }
         }
-
+        else 
+        {
+            glBindVertexArray(VAO);
+            // debug
+            /*for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+            std::cout << "view" << j << " " << view[i][j] << std::endl;
+            }
+            }*/
+            for (GLuint i = 0; i < 4; ++i)
+            {
+                glm::mat4 model;
+                model = glm::translate(model, clusterPositions[i]);
+                glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+        }
+        
         glfwSwapBuffers(g_window);
         glfwPollEvents();
     }
@@ -180,6 +202,9 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &sVAO);
+    glDeleteBuffers(1, &sVBO);
+    glDeleteBuffers(1, &sEBO);
 
     // Terminate GLFW
     glfwTerminate();
@@ -192,7 +217,8 @@ Reads a file on the given path and returns its content in std::string.
 @param path path to a file
 @return std::string that contains content of file
 */
-std::string readFile(std::string path) {
+std::string readFile(std::string path) 
+{
     std::ifstream inf(path);
     char result[MAX_PATH];
     int bytes = GetModuleFileName(NULL, result, MAX_PATH);
@@ -273,7 +299,6 @@ GLint compileShader(GLenum type, const char *path)
     return shader;
 }
 
-
 /**
 Links given shaders into one shader program and returns the corresponding object.
 
@@ -306,6 +331,23 @@ void detachingDeletingShaders(GLint program, std::vector<GLint> shaders)
         glDetachShader(program, shader);
         glDeleteShader(shader);
     }
+}
+
+void bufferArrayObjInitialization(GLuint VBO, GLuint VAO, GLuint EBO,
+                                  std::vector<GLfloat> vertices, std::vector<GLint> indices)
+{
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLint) * indices.size(), indices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 /**
