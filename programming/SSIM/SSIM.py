@@ -1,5 +1,6 @@
 from skimage.measure import compare_ssim
 from skimage.io import imread
+from skimage.measure import structural_similarity
 from skimage.transform import resize
 from itertools import combinations
 from sklearn.metrics.pairwise import pairwise_distances
