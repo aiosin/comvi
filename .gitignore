@@ -373,7 +373,8 @@ venv.bak/
 # VS specific
 .vs/
 
-
+#VSCOde specific
+./vscode
 
 
 ########Project specific#####
