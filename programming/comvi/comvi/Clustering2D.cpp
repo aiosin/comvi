@@ -110,13 +110,13 @@ public:
     KMeans(std::vector< std::vector<double> > data, int K = 2)
         : m_K{ K }, m_data{ data }, m_centroids{ K }
     {
-        for (int i = 0; i < data.size(); ++i)
+        /*for (int i = 0; i < data.size(); ++i)
         {
             for (int j = 0; j < data[i].size(); ++j)
             {
                 std::cout << "Vec " << i << ": " << m_data[i][j] << std::endl;
             }
-        }
+        }*/
         // Initialize current cluster of every vector
         for (int i = 0; i < data.size(); ++i)
             m_current_clusters.push_back(-1);
@@ -170,9 +170,10 @@ public:
                 }
             }
 
+            m_clusters[nearest_centroid.first].push_back(m_data[i]);
             if (nearest_centroid.first != m_current_clusters[i])
             {
-                std::cout << "i: " << i << m_current_clusters.size() << std::endl;
+                // std::cout << "i: " << i << m_current_clusters.size() << std::endl;
                 num_of_reassigned += 1;
                 m_clusters[nearest_centroid.first].push_back(m_data[i]);
                 m_current_clusters[i] = nearest_centroid.first;
@@ -218,12 +219,16 @@ public:
             count += 1;
             // debug
             std::cout << "Iteration: " << count << " Number of reassignments: " << num_of_reassigned << std::endl;
+            for (int i = 0; i < m_clusters.size(); ++i)
+            {
+                std::cout << "\tCluster " << i << " size:" << m_clusters[i].size() << std::endl;
+            }
             num_of_reassigned = reassignment();
         }
     }
 };
 
-int Nmain()
+int nmain()
 {
     // Testing whether it is grayscale
 
