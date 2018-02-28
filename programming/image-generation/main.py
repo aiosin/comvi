@@ -6,6 +6,8 @@ import multiprocessing
 import json
 
 def extractpdb(path=None):
+    #current test dataset will have ~1500 imags
+    #to reduce computation 
     fileendings = ('.json')
     file = None
     #return value that 
@@ -32,12 +34,27 @@ def extractpdb(path=None):
         with open(file,mode='r') as f:
             raw = f.read()
             #file is relatively big, this could be optimized
-            json_parsed = json.load(raw)
+            json_parsed = json.loads(raw)
+            pdb = [key['groupValue'] for key in json_parsed]
     #else branch for debugging purposes
+    #with explicit None return
     else:
+        print("no file detected")
+        return None
+
+#stub for all pdb's available 
+#in the database
+#full list:
+#http://www.rcsb.org/pdb/json/getCurrent
+#around 140000 items
+def fetchall():
+    pass
+#use https://www.rcsb.org/pages/download/http
+#to download pdb's to prepare the "pipeline"
+#for the next step
+def fetchpdb(pdblist):
+    if type(pdblist) == type([]):
         pass
-
-
 
 def main():
     pass
