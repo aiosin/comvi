@@ -7,6 +7,8 @@ from sklearn.metrics.pairwise import pairwise_distances
 import numpy as np
 from functools import partial
 
+from scipy.spatial import distance
+
 from sklearn.cluster import DBSCAN
 import sys
 import os
@@ -42,6 +44,11 @@ def ddistance(files,x,y):
 	x = resize(x,(100,100))
 	y = resize(y,(100,100))
 	return compare_ssim(x,y,multichannel=True)
+
+
+#alternative ddistance function for 1-D feature arrays (use feature array from dimred.py)
+def cosine_similarity(vec1, vec2):
+	return 1-distance.cosine(vec1,vec2)
 
 '''
 pairwise_ssim: calculates pairwise SSIM distances between a set of images and writes the results to file
