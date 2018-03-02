@@ -1,15 +1,24 @@
-from skimage.io import imread
-import skimage.measure
+import os
+import cv2
+
 import numpy as np
 import matplotlib.pyplot as plt
-import cv2
+
+import skimage.measure
+
+
+from skimage.io import imread
 from skimage.exposure import histogram
-from  scipy.stats import skew, kurtosis, entropy, energy_distance
+from skimage.transform import resize
+
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from skimage.transform import resize
-import os
+
+from scipy.stats import skew, kurtosis, entropy, energy_distance
+
 from pprint import pprint
+
+
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga'])
 
 def readimages(path=None):
