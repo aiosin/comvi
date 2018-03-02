@@ -371,10 +371,10 @@ venv.bak/
 *.app
 
 # VS specific
-.vs/
+.vs/*
 
 #VSCOde specific
-./vscode
+.vscode/*
 
 
 ########Project specific#####

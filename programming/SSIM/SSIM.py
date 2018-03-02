@@ -1,18 +1,21 @@
+import sys
+import os
+import pickle
+import numpy as np
+
+from functools import partial
+from itertools import combinations
+
 from skimage.measure import compare_ssim
 from skimage.io import imread
 from skimage.measure import structural_similarity
 from skimage.transform import resize
-from itertools import combinations
-from sklearn.metrics.pairwise import pairwise_distances
-import numpy as np
-from functools import partial
 
 from scipy.spatial import distance
 
 from sklearn.cluster import DBSCAN
-import sys
-import os
-import pickle
+from sklearn.metrics.pairwise import pairwise_distances
+
 
 fformats = ('.png','.jpeg','.jpg')
 
