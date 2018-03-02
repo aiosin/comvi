@@ -8,12 +8,14 @@ import requests as re
 import shutil as sh
 import json
 
-#needed for 
+#needed for launcing megamol
 import subprocess
 
 #if parallel execution will be a priority at some point
+#(multiple instances of megamol)
 import threading
 import multiprocessing
+
 def extractpdb(path=None):
 	#current test dataset will have ~1500 imags
 	#to reduce computation 
