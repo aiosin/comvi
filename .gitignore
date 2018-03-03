@@ -376,6 +376,7 @@ venv.bak/
 #VSCOde specific
 .vscode/*
 
+imagenet/*
 
 ########Project specific#####
 programming/SSIM/jpg/**
