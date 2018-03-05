@@ -5,11 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import skimage.measure
-
+import mahotas as mh
 
 from skimage.io import imread
 from skimage.exposure import histogram
 from skimage.transform import resize
+
 
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
@@ -19,8 +20,11 @@ from scipy.stats import skew, kurtosis, entropy, energy_distance
 from pprint import pprint
 
 
-_fformats = tuple(['.jpg', '.png', ',jpeg', '.tga'])
-
+_fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
+#TODO: separate feature extraction and 'data aggretation'
+#idea: make separate function 'feature_extraction' and
+#another function 'read_image'
+#
 def readimages(path=None):
     #cannot create empty array with numpy
     #workaround 
@@ -36,10 +40,13 @@ def readimages(path=None):
             except FileNotFoundError as e:
                 continue
             i+=1
-            image = resize(image,(100,100))
+            #IMPORTANT:
+            image = resize(image,(128,128))
             image_flat = imread(file,flatten=True)
-            image_flat = resize(image_flat,(100,100))
+            #
+            image_flat = resize(image_flat,(128,128))
 
+            #separating channels using
             r_im = image[:,:,0]
             g_im = image[:,:,1]
             b_im = image[:,:,2]
@@ -69,6 +76,9 @@ def readimages(path=None):
             r_ent = entropy(r_hist)
             g_ent = entropy(g_hist)
             b_ent = entropy(b_hist)
+            r_haralick = textural_features(r_im)
+            g_haralick = textural_features(g_im)
+            b_haralick = textural_features(b_im)
             fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
                                 g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
                                 b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent)).ravel()
@@ -93,7 +103,22 @@ def doPCA(arr):
     return X
     
     
+#return textural features for a given image
+#called haralick features
+#these are the following 13 or 14 features calculated per directions (?):
+#(directions are important for glcm - grey level correlcation matrix)
+#"Angular Second Moment","Contrast","Correlation","Sum of Squares: Variance",
+#"Inverse Difference Moment","Sum Average","Sum Variance","Sum Entropy",
+#"Entropy","Difference Variance","Difference Entropy",
+# "Information Measure of Correlation 1",
+# "Information Measure of Correlation 2",n Coefficient"
+#
+def textural_features(im):
+    #TODO: horrible one liner => expand
+    #returns featurearray of size (4*14,) = (64,)
+    return features = mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
     
+
 
 
 
