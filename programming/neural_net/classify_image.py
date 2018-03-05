@@ -15,6 +15,7 @@ import tensorflow as tf
 '''
 Source: https://www.tensorflow.org/tutorials/image_recognition
 Original Source Copyright 2015 The TensorFlow Authors. All Rights Reserved
+Source modified
 '''
 DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
 
