@@ -114,10 +114,33 @@ def doPCA(arr):
 # "Information Measure of Correlation 2",n Coefficient"
 #
 def textural_features(im):
-    #TODO: horrible one liner => expand
+    #TODO: horrible one liner, not readable => expand
     #returns featurearray of size (4*14,) = (64,)
     return features = mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
     
+#TODO: implement
+#REMINDER: we're only interested in the biggest one based on which we will 
+#again extract shape, density, entropy, and other features
+#aswell as detecting specs of color
+def biggest_regions(im):
+    #we want a binary image, so needs type int (any int)
+    #and two distinct 
+    assert im.dtype.name.contains('int')
+    assert len(im.unique) == 2
+
+    #earlier approach, similar to floodfill algorithm
+    #create array of arrays which initially hold the coordinates of all
+    #"positive" values of the image
+    #further assumption is that all "negative" values are 0
+    #use: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.nonzero.html
+    #coords = zip(*np.nonzero(im))
+    #TODO: test with connectivity 1 and 2
+
+    labels = skimage.measure.label(im,connectivity=1)
+    unique, counts = numpy.unique(labels, return_counts=True)
+    values = [i for i in zip(unique,counts)]
+    value = sorted(values,key=lambda x: x[1])
+
 
 
 
