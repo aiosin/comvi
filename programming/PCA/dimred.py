@@ -31,6 +31,7 @@ def readimages(path=None):
     imdata = []
     i=0
     if(path is None):
+        #REMINDER change to relative rather than absolute path
        	files = os.listdir("/home/zython/comvi/programming/SSIM/jpg")
        	files = list(filter(lambda x: x.endswith(_fformats),files))
         for file in files:
@@ -122,7 +123,7 @@ def textural_features(im):
 #REMINDER: we're only interested in the biggest one based on which we will 
 #again extract shape, density, entropy, and other features
 #aswell as detecting specs of color
-def biggest_regions(im):
+def biggest_region(im):
     #we want a binary image, so needs type int (any int)
     #and two distinct 
     assert im.dtype.name.contains('int')
@@ -136,13 +137,41 @@ def biggest_regions(im):
     #coords = zip(*np.nonzero(im))
     #TODO: test with connectivity 1 and 2
 
+    #create label matrix (see connected regions post on SO)
     labels = skimage.measure.label(im,connectivity=1)
+    #extract unique labels and count of those labels
     unique, counts = numpy.unique(labels, return_counts=True)
     values = [i for i in zip(unique,counts)]
-    value = sorted(values,key=lambda x: x[1])
+    #sort for biggest label and save it in value
+    value = sorted(values,key=lambda x: x[1],reverse=True)[0]
+    #(lazy ?) return biggest region as binary matrix since true 
+    return  (labels == value).astype(int)
+
+#TODO: implement
+# copmutes biggest n regions
+def biggest_regions(im, n = 8):
+    pass
 
 
-
+#compute shape feature array 
+#input is binary (greyscale) image matrix (V x € im : x = 0 ^ x = 1)
+def shape_features(im,fourier=False):
+	features = []
+    #make fourier descriptors for shape
+    if fourier:
+        #get contours
+        contour = cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+        #get centroid
+        moments = cv2.moments(im)
+        x = int(moments["m10"] / moments["m00"])
+        y = int(moments["m01"] / moments["m00"] )
+        #get curve from centroid
+        #do fft on said curve
+        #return the first ~16 coefficients (change if too vague)
+        
+	#normal image moments since they are scale translation and rotaion invariant
+    return cv2.HuMoments(im)
+	
 
 
 def main():
