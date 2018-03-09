@@ -16,7 +16,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
 from scipy.stats import skew, kurtosis, entropy, energy_distance
-
+from scipy.spatial import distance
 from pprint import pprint
 
 
@@ -160,13 +160,45 @@ def shape_features(im,fourier=False):
     #make fourier descriptors for shape
     if fourier:
         #get contours
-        contour = cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+        contours = cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+        #TODO: make really sure image is binary 
+        #255 * 1 = 255
+        #255 * 0 = 0
+        im = im *255
+
+        #sorted order is ascending, [-1] is largest
+        contour = sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
+
+        black = np.zeros((im.shape))
+
+        #dear future me:
+        #read as follows, 'put' the contour into a empty matrix, 
+        #the contour is the 0th index of the single element array [contour]
+        #thiccness of the contour is 1 and the color is 255,255,255
+        cv2.drawContours(black,[contour],0,(255,255,255),1)
         #get centroid
         moments = cv2.moments(im)
         x = int(moments["m10"] / moments["m00"])
         y = int(moments["m01"] / moments["m00"] )
-        #get curve from centroid
+        #get distance curve from centroid
+        #this is a curve 
+
+        #CENTROID CONTOUR DISTANCE CURVE:
+        ccdc = []
+        for point in contour:
+            ccd = distance.euclidean(point,np.array([x,y]))
+            ccdc.append(ccd)
+        #TODO: normalize the curve (whatever that means)
+        #so F-D is scale-invariant
+        #THOUGHT:
+        #use softmax function
+        #=> maps any vector € R  -> v € R^n sum(v)= 1
+        #while keeping relative proportions
+
         #do fft on said curve
+        n = len(ccdc)
+        Y = np.fft.fft(y)/n
+        
         #return the first ~16 coefficients (change if too vague)
         
 	#normal image moments since they are scale translation and rotaion invariant
