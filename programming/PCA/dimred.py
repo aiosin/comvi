@@ -198,8 +198,12 @@ def shape_features(im,fourier=False):
         #do fft on said curve
         n = len(ccdc)
         Y = np.fft.fft(y)/n
-        
+        Y = np.abs(Y)
+        #fill array if fft does not return 16 values in this case
+        #we fill the empty gaps with zeros
+        Y = Y+(np.arange(16))
         #return the first ~16 coefficients (change if too vague)
+        return Y[:16]
         
 	#normal image moments since they are scale translation and rotaion invariant
     return cv2.HuMoments(im)
@@ -217,4 +221,4 @@ def main():
     plt.show()
 
 if __name__ == '__main__':
-    main()
+    #main()
