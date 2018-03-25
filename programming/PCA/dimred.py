@@ -32,6 +32,7 @@ def readimages(path=None):
     i=0
     if(path is None):
         #REMINDER change to relative rather than absolute path
+        #IDEA: 
        	files = os.listdir("/home/zython/comvi/programming/SSIM/jpg")
        	files = list(filter(lambda x: x.endswith(_fformats),files))
         for file in files:
@@ -80,9 +81,12 @@ def readimages(path=None):
             r_haralick = textural_features(r_im)
             g_haralick = textural_features(g_im)
             b_haralick = textural_features(b_im)
+
+            #THOUGHT: there *has* to be a better way of doing this.
             fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
                                 g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
-                                b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent)).ravel()
+                                b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
+                                r_haralick,g_haralick,b_haralick,)).ravel()
             fvec = np.reshape(fvec,-1)
             fvec = np.hstack(fvec)
             imdata.append(fvec)
@@ -201,7 +205,12 @@ def shape_features(im,fourier=False):
         Y = np.abs(Y)
         #fill array if fft does not return 16 values in this case
         #we fill the empty gaps with zeros
+
         Y = Y+(np.arange(16))
+
+        #normalization (scale invariant)
+        if(Y.max != 0 ):
+            Y = Y / Y.max
         #return the first ~16 coefficients (change if too vague)
         return Y[:16]
         
