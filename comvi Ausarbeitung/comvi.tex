@@ -29,17 +29,17 @@
 
 % options for TODO: either use red bold font for litle annotations (which do not work very well)
 
-%\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
 
 % following commands are 'non standard' and not bundled with template, delete it problems occur
 \usepackage{xargs}                      % Use more than one optional parameter in a new commands
 \usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
-\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
-\newcommand{\unsure}[1]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,inline]{#1}}
-\newcommand{\change}[1]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,inline]{#1}}
-\newcommand{\info}[1]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,inline]{#1}}
-\newcommand{\improvement}[1]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,inline]{#1}}
-\newcommand{\thiswillnotshow}[1]{\todo[disable,inline]{#1}}
+%\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+%\newcommand{\unsure}[1]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,inline]{#1}}
+%\newcommand{\change}[1]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,inline]{#1}}
+%\newcommand{\info}[1]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,inline]{#1}}
+%\newcommand{\improvement}[1]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,inline]{#1}}
+%\newcommand{\thiswillnotshow}[1]{\todo[disable,inline]{#1}}
 
 
 
@@ -107,17 +107,13 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 \maketitle
 %
 \firstsection{Introduction} %for journal use above \firstsection{..} instead
-TODO's Beispiel Bitte entsprechend benutzen:
-\unsure{unsure}
-\change{change}
-\info{info}
-\improvement{improvement}
-\thiswillnotshow{thiswillnotshow}
 Over the span of 6 months the authors have
 Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse
 
 %-------------------------------------------------------------------------
 \section{Related Work}\label{sec:relatedWork}
+
+\todo{cite kolesar for clustering}
 
 \begin{figure}
   \begin{center}
@@ -128,21 +124,26 @@ Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lo
 
 Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse~\cite{Kindlmann1999}.
 
+\subsection{Initial Challenges and encountered problems}
+
+It is clear that the task required from us that we learn how to compare the images, measure the distances between the images, and cluster these images.
+The given task required 
+
 \subsection{Approaches to the Clustering-Problem}
 
 Right of the start we had several ideas of how we could approach this problem. 
 With the recent trend in machine learning we had a couple of ideas of how we could determine a similarity metric between two images or classify an image into a more usable vector of data.
 
-We ended up using .... to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to .
+We ended up using a higher dimensional feature vector ... to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to .
 
-But our initial results with a pretrained Imagenet \info{cite imagenet} \info{cite darknet publication} model let us to believe that it shoud be definetly possible for this specified task to find a machine learning solution. 
+But our initial results with a pretrained Imagenet \todo{cite imagenet} \todo{cite darknet publication} model let us to believe that it shoud be definetly possible for this specified task to find a machine learning solution. 
 
 \subsection{Approaches to the Visualization-Task}
 
-Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the POWERWALL, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the POWERWALL can be found \info{cite powerwall publicatoin here if available}.
+Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the POWERWALL, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the POWERWALL can be found \todo{cite powerwall publicatoin here if available}.
 
 
-\subsubsection{Ipsum}
+\subsubsection{Approaches to the Interaction with the Powerwall \todo{cite correct pub and use correct name}}
 
 \subsubsection{Dolor}
 
@@ -163,7 +164,7 @@ bolts & 23,312,134.3 & 22.1 \\
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
-We would like to thank our supervisors M. Krone and F. Fries(?) as well as our project examiner Prof. ... . We are grateful for the experience and knowledge that working on this project has given us.
+We would like to thank our supervisors Michael Krone and Florian Fries as well as our project examiner Prof. Ertl . We are grateful for the experience and knowledge that working on this project has given us.
 This work was partially funded by cake and cookies.
 }
 
