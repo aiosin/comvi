@@ -25,7 +25,7 @@ _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
 #idea: make separate function 'feature_extraction' and
 #another function 'read_image'
 #
-def readimages(path=None):
+def im2vec(path=None):
 	#cannot create empty array with numpy
 	#workaround 
 	imdata = []
@@ -36,62 +36,67 @@ def readimages(path=None):
 		files = os.listdir("/home/zython/comvi/programming/SSIM/jpg")
 		files = list(filter(lambda x: x.endswith(_fformats),files))
 		print(files[:10])
-		for file in files:
-			#calculating features to create feature vector
-			try:
-				image = imread(file)
-			except FileNotFoundError as e:
-				continue
-			i+=1
-			#IMPORTANT:
-			image = resize(image,(128,128))
-			image_flat = imread(file,flatten=True)
-			#
-			image_flat = resize(image_flat,(128,128))
+	else:
+		#REDMINER: cwd is relative to the FOLDER that the python script is launched from
+		# this should go without saying but, if you cannot read any images 
+		#you need to check if the script is running in the right directory
+		path = os.getcwd()
+	for file in files:
+		#calculating features to create feature vector
+		try:
+			image = imread(file)
+		except FileNotFoundError as e:
+			continue
+		i+=1
+		#IMPORTANT:
+		image = resize(image,(128,128))
+		image_flat = imread(file,flatten=True)
+		#
+		image_flat = resize(image_flat,(128,128))
 
-			#separating channels using
-			r_im = image[:,:,0]
-			g_im = image[:,:,1]
-			b_im = image[:,:,2]
+		#separating channels using
+		r_im = image[:,:,0]
+		g_im = image[:,:,1]
+		b_im = image[:,:,2]
 
-			#moments
-			#moments = cv2.HuMoments(image_flat)
-			r_mo = skimage.measure.moments(r_im).flatten()
-			g_mo = skimage.measure.moments(g_im).flatten()
-			b_mo = skimage.measure.moments(b_im).flatten()
+		#moments
+		#moments = cv2.HuMoments(image_flat)
+		r_mo = skimage.measure.moments(r_im).flatten()
+		g_mo = skimage.measure.moments(g_im).flatten()
+		b_mo = skimage.measure.moments(b_im).flatten()
 
-			#color histogram features
-			r_hist = np.histogram(r_im,bins=16)[0]
-			g_hist = np.histogram(g_im,bins=16)[0]
-			b_hist = np.histogram(b_im,bins=16)[0]
-			r_mean = np.average(r_hist)
-			g_mean = np.average(g_hist)
-			b_mean = np.average(b_hist)
-			r_vx = np.var(r_hist)
-			g_vx = np.var(g_hist)
-			b_vx = np.var(b_hist)
-			r_skw = skew(r_hist)
-			g_skw = skew(g_hist)
-			b_skw = skew(b_hist)
-			r_kurt = kurtosis(r_hist)
-			g_kurt = kurtosis(g_hist)
-			b_kurt = kurtosis(b_hist)
-			r_ent = entropy(r_hist)
-			g_ent = entropy(g_hist)
-			b_ent = entropy(b_hist)
-			r_haralick = textural_features(r_im)
-			g_haralick = textural_features(g_im)
-			b_haralick = textural_features(b_im)
+		#color histogram features
+		r_hist = np.histogram(r_im,bins=16)[0]
+		g_hist = np.histogram(g_im,bins=16)[0]
+		b_hist = np.histogram(b_im,bins=16)[0]
+		r_mean = np.average(r_hist)
+		g_mean = np.average(g_hist)
+		b_mean = np.average(b_hist)
+		r_vx = np.var(r_hist)
+		g_vx = np.var(g_hist)
+		b_vx = np.var(b_hist)
+		r_skw = skew(r_hist)
+		g_skw = skew(g_hist)
+		b_skw = skew(b_hist)
+		r_kurt = kurtosis(r_hist)
+		g_kurt = kurtosis(g_hist)
+		b_kurt = kurtosis(b_hist)
+		r_ent = entropy(r_hist)
+		g_ent = entropy(g_hist)
+		b_ent = entropy(b_hist)
+		r_haralick = textural_features(r_im)
+		g_haralick = textural_features(g_im)
+		b_haralick = textural_features(b_im)
 
-			#THOUGHT: there *has* to be a better way of doing this.
-			fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
-								g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
-								b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
-								r_haralick,g_haralick,b_haralick,)).ravel()
-			fvec = np.reshape(fvec,-1)
-			fvec = np.hstack(fvec)
-			imdata.append(fvec)
-			print(i)
+		#THOUGHT: there *has* to be a better way of doing this.
+		fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
+							g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
+							b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
+							r_haralick,g_haralick,b_haralick,)).ravel()
+		fvec = np.reshape(fvec,-1)
+		fvec = np.hstack(fvec)
+		imdata.append(fvec)
+		print(i)
 	return imdata
 
 #little lambda for 'tuplifying' of numpy arrays if needed
@@ -220,7 +225,7 @@ def shape_features(im,fourier=False):
 
 
 def main():
-	feature_array = readimages()
+	feature_array = im2vec()
 	coords =doPCA(feature_array)
 	X = [i[0] for i in coords]
 	Y = [i[1] for i in coords]

@@ -24,7 +24,8 @@ def main():
 	files = list(filter(lambda x: x.endswith(fformats),files))
 	#files = np.array(files).reshape(-1,1)
 	print(np.shape(files))
-	dist_matrix  = pairwise_distances(np.arange(len(files)).reshape(-1, 1), metric=partial(ddistance, files),n_jobs=-1)
+	dist_matrix  = pairwise_distances(np.arange(len(files)).reshape(-1, 1),
+									 metric=partial(ddistance, files),n_jobs=-1)
 	print(dist_matrix)
 	with open('dist_matr.bin',mode='wb') as f:
 		pickle.dump(dist_matrix,f)
