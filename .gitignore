@@ -381,3 +381,7 @@ imagenet/*
 ########Project specific#####
 programming/SSIM/jpg/**
 programming/SSIM/test-dataset/**
+
+programming/datasets/*
+!programming/datasets/Makefile
+
