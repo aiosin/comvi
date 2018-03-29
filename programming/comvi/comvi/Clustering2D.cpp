@@ -14,6 +14,9 @@
 #include <ctime>
 #include <limits>
 
+#include <thread>
+#include <future>
+
 // debug
 #include <windows.h>
 
@@ -27,9 +30,9 @@ Takes path to an image file, calculates centralized image moments and returns a
 in the image.
 
 @param filepath Path to an image file
-@return Vector representation of the image
+@return Vector representation of the image (a tuple (proteinID, vector with image moments)
 */
-std::vector<double> imageMoments(std::string filepath)
+std::pair<std::string, std::vector<double> > imageMoments(std::string filepath)
 {
 
     // Image moments needed for centroid calculation
@@ -37,6 +40,9 @@ std::vector<double> imageMoments(std::string filepath)
 
     // Reading pixel intensities and filling image moments needed for centroid calculation
     int width, height, nrChannels;
+    // debug - delete resouces
+    std::string proteinID = filepath.substr(10, 20);
+    std::cout << filepath.substr(10, 20) << std::endl;
     unsigned char *img = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 1);
     for (int y = 0; y < height; ++y)
     {
@@ -73,7 +79,8 @@ std::vector<double> imageMoments(std::string filepath)
         }
     }
 
-    std::vector<double> vec_representation = { mu00, 0, 0, mu11, mu02, mu20, mu12, mu21, mu03, mu30 };
+    std::vector<double> imVector = { mu00, 0, 0, mu11, mu02, mu20, mu12, mu21, mu03, mu30 };
+    std::pair<std::string, std::vector<double> > vec_representation = std::make_pair(proteinID, imVector);
 
     // Deallocating resources
     stbi_image_free(img);
@@ -85,7 +92,7 @@ std::vector<double> imageMoments(std::string filepath)
 }
 
 /**
-A simple implementation of k-means clustering
+An implementation of k-means clustering
 */
 class KMeans
 {
@@ -94,9 +101,12 @@ private:
     // Number of clusters
     int m_K = 2;
 
+    using Cluster_t = std::vector< std::pair<std::string, std::vector<double> > >;
+
     std::vector< std::vector<double> > m_centroids;
-    std::vector< std::vector<double> > m_data;
-    std::vector< std::vector< std::vector<double> > > m_clusters;
+    std::vector< std::pair<std::string, std::vector<double> > > m_data;
+    // too long types, make typedef - debug
+    std::vector<Cluster_t> m_clusters;
     std::vector<int> m_current_clusters;
 
 public:
@@ -107,7 +117,7 @@ public:
     @param vec_representations: data to cluster
     @param K: number of clusters
     */
-    KMeans(std::vector< std::vector<double> > data, int K = 2)
+    KMeans(std::vector< std::pair<std::string, std::vector<double> > > data, int K = 2)
         : m_K{ K }, m_data{ data }, m_centroids{ K }
     {
         /*for (int i = 0; i < data.size(); ++i)
@@ -123,11 +133,11 @@ public:
 
         for (int i = 0; i < K; ++i)
         {
-            std::vector< std::vector<double> > new_cluster;
+            Cluster_t new_cluster;
             m_clusters.push_back(new_cluster);
             // debug
             // int rand_idx = static_cast<double>( ( (rand() + 1) / static_cast<double>((32 * 1024) ) ) + 0.5 ) * (data.size() - 1);
-            std::vector<double> rand_vector = data.at(data.size() - 1);
+            std::vector<double> rand_vector = data.at(data.size() - 1).second;
             // Delete it, so that we don't get identical centroids
             data.erase(data.begin() + (data.size() - 1));
             m_centroids[i] = rand_vector;
@@ -159,9 +169,9 @@ public:
                 // To compare distances we don't need to take a sqrt
                 double vec_to_centr = 0;
                 // std::cout << m_data[i].size() << std::endl; // debug
-                for (int j = 0; j < m_data[i].size(); ++j)
+                for (int j = 0; j < m_data[i].second.size(); ++j)
                 {
-                    vec_to_centr += abs(m_data[i][j] - m_centroids[clusterID][j]);
+                    vec_to_centr += abs(m_data[i].second[j] - m_centroids[clusterID][j]);
                 }
 
                 if (vec_to_centr < nearest_centroid.second)
@@ -170,13 +180,15 @@ public:
                 }
             }
 
-            m_clusters[nearest_centroid.first].push_back(m_data[i]);
             if (nearest_centroid.first != m_current_clusters[i])
             {
                 // std::cout << "i: " << i << m_current_clusters.size() << std::endl;
                 num_of_reassigned += 1;
                 m_clusters[nearest_centroid.first].push_back(m_data[i]);
                 m_current_clusters[i] = nearest_centroid.first;
+            }
+            else {
+                m_clusters[nearest_centroid.first].push_back(m_data[i]);
             }
         }
 
@@ -197,7 +209,7 @@ public:
                 vec_sums[dim] = 0;
                 for (auto vec : m_clusters[clusterID])
                 {
-                    vec_sums[dim] += vec[dim];
+                    vec_sums[dim] += vec.second[dim];
                 }
                 vec_sums[dim] = vec_sums[dim] / m_clusters[clusterID].size();
             }
@@ -207,7 +219,7 @@ public:
     }
 
     /**
-    Starts the clustering
+    Starts the clustering   
     */
     void run()
     {
@@ -217,18 +229,22 @@ public:
         {
             recomputation();
             count += 1;
-            // debug
+            // debug - we sometimes get duplicates
             std::cout << "Iteration: " << count << " Number of reassignments: " << num_of_reassigned << std::endl;
             for (int i = 0; i < m_clusters.size(); ++i)
             {
-                std::cout << "\tCluster " << i << " size:" << m_clusters[i].size() << std::endl;
+                std::cout << "\tCluster " << i + 1 << " size:" << m_clusters[i].size() << std::endl;
+                for (int j = 0; j < m_clusters[i].size(); ++j)
+                {
+                    std::cout << "\t\t" << m_clusters[i][j].first << std::endl;
+                }
             }
             num_of_reassigned = reassignment();
         }
     }
 };
 
-int nmain()
+int main()
 {
     // Testing whether it is grayscale
 
@@ -281,20 +297,41 @@ int nmain()
     // Seed for pseudo random number generator
     srand(static_cast<unsigned int>(time(0)));
 
-    std::vector< std::vector<double> > vec_representations;
+    std::vector< std::pair<std::string, std::vector<double> > > vec_representations;
 
     // Reading images and storing their vector representations in std::vector
     std::string path = "resources/";
+    // debug - reading files without imageMoments - just to check how long it takes
     for (auto &file : std::experimental::filesystem::directory_iterator(path))
     {
         if (file.path().extension() == ".png")
         {
             // debug
-            std::cout << "Reading file: " << file.path().filename().string() << std::endl;
-            vec_representations.push_back(imageMoments(file.path().string()));
+            std::cout << "Reading file without IM: " << file.path().filename().string() << std::endl;
         }
     }
-    KMeans classifier(vec_representations, 4);
+
+    std::vector< std::future<std::pair<std::string, std::vector<double> > > > returnedValues;
+    int cnt = 0;
+    for (auto &file : std::experimental::filesystem::directory_iterator(path))
+    {
+        if (file.path().extension() == ".png")
+        {
+            // debug
+            std::cout << "Started Reading file: " << file.path().filename().string() << std::endl;
+            // debug - has to be without .filename() - probably some problem with spaces when I make multiple copies of files
+                // or maybe not... (also when there are no copies the problem still appears...)
+            returnedValues.push_back(std::async(imageMoments, file.path().string()));
+            ++cnt;
+            
+        }
+    }
+    for (int i = 0; i < returnedValues.size(); ++i)
+    {
+        vec_representations.push_back(returnedValues[i].get());
+    }
+    std::cout << "Finished" << std::endl;
+    KMeans classifier(vec_representations, 5);
     classifier.run();
 
 
