@@ -8,7 +8,7 @@ import os
 #the idea is to reduce the image to a few related regions, 
 #such that we can extract better features for these image,
 #such as those litle red/yellow/green/blue specs of color
-#
+#and sheap features through fourier descriptors
 def reduce_image(file):
     img = cv2.imread(file)
     Z = img.reshape((-1,3))

@@ -2,6 +2,7 @@
 #filesystem related
 import os
 import sys
+import xml
 
 #pdb fetching/decoding of json-serialized data
 import requests as re
@@ -94,6 +95,9 @@ def fetchpdb(pdblist):
 				except Exception as e:
 					failed.append(item)
 				
+#TODO: implement stub
+def generate_mmprj():
+	pass 
 
 
 #TODO: if clean code becomes a priority at some point one should clean this up				
