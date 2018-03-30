@@ -2,7 +2,8 @@ import numpy as np
 import cv2
 import os
 
-#original source: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_ml/py_kmeans/py_kmeans_opencv/py_kmeans_opencv.html
+#original source:
+#http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_ml/py_kmeans/py_kmeans_opencv/py_kmeans_opencv.html
 
 
 #the idea is to reduce the image to a few related regions, 

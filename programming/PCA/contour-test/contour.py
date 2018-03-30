@@ -1,3 +1,7 @@
+#contour.py
+#find biggest contour
+#this file serves for testing purposes only
+
 import numpy as np
 import cv2
 from skimage.transform import resize
