@@ -384,4 +384,5 @@ programming/SSIM/test-dataset/**
 
 programming/datasets/*
 !programming/datasets/Makefile
+!programming/datasets/pdb
 
