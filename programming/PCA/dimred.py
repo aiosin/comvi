@@ -29,11 +29,14 @@ def im2vec(path=None):
 	#cannot create empty array with numpy
 	#workaround 
 	imdata = []
+	files = []
 	i=0
 	if(path is None):
 		#REMINDER change to relative rather than absolute path
 		#IDEA:
-		files = os.listdir("/home/zython/comvi/programming/SSIM/jpg")
+		#files = os.listdir("/home/zython/comvi/programming/datasets/bmw_subset")
+		files = os.getcwd()
+		files = os.listdir(files)
 		files = list(filter(lambda x: x.endswith(_fformats),files))
 		print(files[:10])
 	else:
@@ -54,7 +57,7 @@ def im2vec(path=None):
 		#
 		image_flat = resize(image_flat,(128,128))
 
-		#separating channels using
+		#separating channels using slice
 		r_im = image[:,:,0]
 		g_im = image[:,:,1]
 		b_im = image[:,:,2]
@@ -97,6 +100,7 @@ def im2vec(path=None):
 		fvec = np.hstack(fvec)
 		imdata.append(fvec)
 		print(i)
+	print(i)
 	return imdata
 
 #little lambda for 'tuplifying' of numpy arrays if needed
