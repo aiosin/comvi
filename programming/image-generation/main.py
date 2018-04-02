@@ -2,15 +2,15 @@
 #filesystem related
 import os
 import sys
-import xml
 
 #pdb fetching/decoding of json-serialized data
 import requests as re
 import shutil as sh
 import json
 
-#needed for launcing megamol
+#needed for launching megamol
 import subprocess
+import xml.etree.ElementTree as ET #call home
 
 #if parallel execution will be a priority at some point
 #(multiple instances of megamol)
@@ -94,11 +94,32 @@ def fetchpdb(pdblist):
 				#keep track of the failures 
 				except Exception as e:
 					failed.append(item)
+					print('couldnt download item:'+str(item))
 				
-#TODO: implement stub
-def generate_mmprj():
-	pass 
-
+#generate_project: generates  a image-generation
+#project in the given path  with the given pdb
+#the pdb will be downloaded into the current directory,
+#given of coursethat we have permissions
+#consider this the step prior to launching the megamol to generate the image
+def generate_project(pdb,outputpath):
+	if outputpath is None:
+		outputpath = os.path.join(os.getcwd(),'Images')
+	if pdb is None:
+		raise ValueError('arg pdb should be nonzero')
+	with open('baseproject.mmprj','r') as f:
+		tree = ET.parse(f)
+		root = tree.getroot()
+		root[0][2][0].set('value',pdb+'.pdb')
+		root[0][3][4].set('value',outputpath)
+		tree.write(pdb+'.mmprj')
+	with open(str(pdb)+'.pdb','w' ) as f:
+		baseurl = 'https://files.rcsb.org/download/'
+		try:
+			resp = re.get(baseurl+str(pdb)+'.pdb')
+			f.write(resp.content)
+		except Exception as e:
+			print('failed download:'+str(pdb))
+	
 
 #TODO: if clean code becomes a priority at some point one should clean this up				
 def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
