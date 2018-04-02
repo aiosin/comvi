@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MegaMol type="project" version="1.0">
+	<view name="view1" viewmod="View3D1">
+		<module class="View3D" name="View3D1" confpos="{X=20,Y=283}">
+			<param name="showBBox" value="False" />
+			<param name="viewcube::show" value="False" />
+		</module>
+		<module class="MSMSMeshLoader" name="MSMSMeshLoader1" confpos="{X=442,Y=0}">
+			<param name="color::coloringMode0" value="-2" />
+			<param name="color::colorWeighting" value="1" />
+		</module>
+		<module class="PDBLoader" name="PDBLoader1" confpos="{X=898,Y=314}">
+			<param name="pdbFilename" value="" />
+		</module>
+		<module class="MapGenerator" name="MapGenerator1" confpos="{X=275,Y=296}">
+			<param name="bindingSite::enable" value="True" />
+			<param name="bindingSite::radius" value="2" />
+			<param name="display mode" value="8" />
+			<param name="grid::toggle lat/lon lines" value="False" />
+			<param name="screenshot::Filename for map(PNG)" value="" />
+		</module>
+		<call class="MolecularDataCall" from="MSMSMeshLoader1::moldata" to="PDBLoader1::dataout" />
+		<call class="CallTriMeshData" from="MapGenerator1::meshData" to="MSMSMeshLoader1::getdata" />
+		<call class="CallRender3D" from="View3D1::rendering" to="MapGenerator1::rendering" />
+		<call class="MolecularDataCall" from="MapGenerator1::proteinData" to="PDBLoader1::dataout" />
+	</view>
+</MegaMol>
