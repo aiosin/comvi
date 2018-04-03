@@ -53,6 +53,7 @@ def extractpdb(path=None):
 	else:
 		print("no file detected")
 		return None
+	return pdb
 
 #stub for all pdb's available 
 #in the database
@@ -177,11 +178,20 @@ def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
 
 
 def main():
-	#idea of execution for now:
-		# First prep the pdb's to fetch
-		# second get the pdb's
-		# third generate the maps
-	pass 
+	#idea of execution for now
+	pdblist = extractpdb('path to json pdb list')
+	# First prep the pdb's to fetch
+	# second get the pdb's
+	fetchpdb(pdblist)
+
+	pdb_files = os.listdir(os.getcwd())
+
+	# third generate the maps
+	for item in pdb_files:
+		generate_project(item, os.getcwd())
+
+	for item in filter(lambda x: x.endswith('.mmprj'),os.listdir(os.getcwd)):
+		subprocess.call('PATH TO MEGAMOL PASSED AS ARG', '-p', item, 'view1 inst')
 
 if __name__ == '__main__':
 	main()
