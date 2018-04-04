@@ -179,11 +179,19 @@ def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
 
 def main():
 	#idea of execution for now
-	pdblist = extractpdb('path to json pdb list')
-	# First prep the pdb's to fetch
-	# second get the pdb's
+	#returns the absolute path of this very python script
+	#
+	curr_path = os.path.realpath(__file__)
+	# go two up 
+	dataset_root = os.path.join(curr_path,'..','datasets','pdb')
+	pdblist = filter(lambda x: x.endswith(('.csv','.json'),os.listdir(dataset_root))
+	
+	pdbset = pdblist[0]
+	
+	pdblist = extractpdb(pdbset)
 	fetchpdb(pdblist)
 
+	#TODO: fix this
 	pdb_files = os.listdir(os.getcwd())
 
 	# third generate the maps

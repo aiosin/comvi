@@ -1,4 +1,8 @@
 import argparse
+import os 
+import sys
+print(os.path.realpath(__file__))
+print(sys.path[0])
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('integers', metavar='N', type=int, nargs='+',
