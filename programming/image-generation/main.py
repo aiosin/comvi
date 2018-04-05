@@ -49,14 +49,38 @@ def fetchall():
 #use https://www.rcsb.org/pages/download/http
 #to download pdb's to prepare the "pipeline"
 #for the next step
-def fetchpdb(pdblist,path):
+def fandwrite(pdb,path):
+	baseurl = 'https://files.rcsb.org/download/'
+	with open(os.path.join(path,str(pdb)+'.pdb'), mode='wb') as f:
+		try:
+			print('fetching with url:' + str(baseurl+str(pdb)+'.pdb' ))
+			resp = re.get(baseurl+str(pdb)+'.pdb')
+			f.write(resp.content)
+		except Exception as e:
+			return tuple(0)
+
+#TODO:change to parallel if done testing
+def fetchpdb(pdblist,path,parallel=False):
+	i = 0
 	failed = []
 	baseurl = 'https://files.rcsb.org/download/'
 	#url for testing purposes in-browser:
 	#https://files.rcsb.org/download/4hhb.pdb
 	#just makin sure we get a list
 	if type(pdblist) == type([]):
+		if(parallel):
+			#to quote greina: this is the apex of suck and must die:
+			#executor cant accept noniterable arguments
+			patharr = [path]*len(pdblist)
+			with ThreadPoolExecutor(max_workers=10) as executor:
+				for result in executor.map(fandwrite,pdblist,patharr):
+					if result[0] != True:
+						print('couldnt download item:')
+						print(result)
 		for item in pdblist:
+			#for testing
+			if (i > 10):
+				return
 			print('fetching pdb:'+str(item))
 			with open(os.path.join(path,str(item)+'.pdb'), mode='wb') as f:
 				#try except needed at this point to avoid 404's,
@@ -66,7 +90,8 @@ def fetchpdb(pdblist,path):
 					resp = re.get(baseurl+str(item)+'.pdb')
 					#writing bytestream exactly how we got it
 					#no idea if pdb's are ascii or not
-					f.write(resp.content)   
+					f.write(resp.content)
+					i+=1  
 				#if exceptions occur we do nothing and quietly continue
 				#with the next pdb file, for debugging purposes we
 				#keep track of the failures 
@@ -90,14 +115,18 @@ def generate_project(pdb,outputpath,projectoutput,currpath):
 	if currpath is None:
 		raise ValueError('projectoutput mustntn\'ve´\'ed be zero')
 		
-	with open('baseproject.mmprj','r',encoding='utf8') as f:
+	with open(os.path.join(currpath,'baseproject.mmprj'),'r',encoding='utf8') as f:
 		tree = ET.parse(f)
 		root = tree.getroot()
 		#pdb location
+		#root[0][2][0].set('value',os.path.join(currpath,'pdb-dataset',pdb))
 		root[0][2][0].set('value',pdb)
-		#output/image location
-		root[0][3][4].set('value',outputpath)
-		tree.write(os.path.join(projectoutput,pdb+'.mmprj'))
+		#output/image location important to include pathset or else the image will look like this:
+		#Images5uii.png instead of being in the directory Images\5uii
+		root[0][3][4].set('value',outputpath+'\\')
+		#explanation for following line: we write the file under the project
+		# output folder using only the pdb identifier 
+		tree.write(os.path.join(projectoutput,os.path.split(pdb)[1][:-4]+'.mmprj'))
 	# with open(os.path.join(outputpath,str(pdb)+'.pdb'),'w') as f:
 	# 	baseurl = 'https://files.rcsb.org/download/'
 	# 	try:
@@ -195,25 +224,38 @@ def main():
 
 	#maybe download failed for a couple of pdb's
 	#also getting the full path here for ease of use with the project files
-	available_pdbs = [os.path.join(curr_path,item) for item in  os.listdir(pdb_dir)]
+	available_pdbs = [os.path.join(curr_path,'pdb-dataset',item) for item in  os.listdir(pdb_dir)]
 	print(available_pdbs[:10])
 	#generating images directory and keeping in absolute
 	os.mkdir(os.path.join(curr_path, 'Images'))
 	imageoutput  = os.path.join(curr_path,'Images')
 	print(imageoutput)
 
-	projectoutput = os.mkdir(os.path.join(curr_path,'Projects'))
+	projectoutput = os.path.join(curr_path,'Projects')
+	os.mkdir(projectoutput)
 	print(projectoutput)
 	# third generate the maps
 	for item in available_pdbs:
 		generate_project(item,imageoutput,projectoutput,curr_path)
 
 	print(os.path.abspath(projectoutput))
-	print(list(filter(lambda x: x.endswith('.mmprj'),os.path.abspath(projectoutput))[:10]))
 	#in case someone or something puts something inappropriate in project folder
-	for item in list(filter(lambda x: x.endswith('.mmprj'),os.path.abspath(projectoutput))):
+	print(list(filter(lambda x: x.endswith('.mmprj'),os.path.abspath(projectoutput))))
+
+	#megamol needs msms to be in the same path as the binary, it WILL be confused
+	#if msms is not there and make some noise
+	oldwd = os.getcwd()
+	mmdir = os.path.abspath(os.path.join(curr_path,"Maps","bin","x64","Release"))
+	os.chdir(os.path.abspath(os.path.join(curr_path,"Maps","bin","x64","Release")))
+	#in case someone or something puts something inappropriate in project folder
+	for item in list(filter(lambda x: x.endswith('.mmprj'),os.listdir(os.path.abspath(projectoutput)))):
 		#yikes
-		subprocess.call(os.path.abspath(os.path.join(curr_path,"Maps","bin","x64","Release","Megamol" )), '-p', item, 'view1 inst')
+		#this one works
+		item = projectoutput+"\\"+item
+		# subprocess.call(".\\MegaMolCon.exe " + '-p ' + "C:\\tmp\\comvi\\programming\\image-generation\\Projects\\5uii.mmprj" + ' -i' + ' view1 inst',shell=True)
+		subprocess.call(".\\MegaMolCon.exe " + '-p ' + item+ ' -i' + ' view1 inst',stdout=open(os.devnull, 'wb'),shell=True)
+	#change dir back as if nothing happened 
+	os.chdir(oldwd)
 
 if __name__ == '__main__':
 	main()
