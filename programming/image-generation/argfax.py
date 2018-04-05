@@ -3,6 +3,7 @@ import os
 import sys
 print(os.path.realpath(__file__))
 print(sys.path[0])
+print(os.path.abspath(os.path.join(os.path.realpath(__file__),'..')))
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('integers', metavar='N', type=int, nargs='+',

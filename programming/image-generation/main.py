@@ -1,4 +1,3 @@
-
 #filesystem related
 import os
 import sys
@@ -7,6 +6,11 @@ import sys
 import requests as re
 import shutil as sh
 import json
+from concurrent.futures	import ThreadPoolExecutor
+
+#Life lesson for today: never import requests as re again while simultaniously importing 're'
+#import re 
+#didnt need regex's anyway
 
 #needed for launching megamol
 import subprocess
@@ -17,39 +21,15 @@ import xml.etree.ElementTree as ET #call home
 import threading
 import multiprocessing
 
-def extractpdb(path=None):
-	#current test dataset will have ~1500 imags
-	#to reduce computation 
-	fileendings = ('.json')
-	file = None
-	#return value that 
+def extractpdb(file):
 	pdb = []
-	#if path not specified take the one from the git repo which unless
-	#it has been deleted (by accident I hope) will be there
-	if path is None:
-		gitroot = os.chdir("../..")
-		files = os.listdir(gitroot)
-		files = filter(lambda x: x.endswith(fileendings),files)
-		files = sorted(files)
-		#get the pdbearch file
-		files = filter(lambda x: x.contains('pdbsearch'))
-		#stub for case that we have multiple files
-		if(len(files)> 1):
-			file = files[0]
-		else:
-			file = files[0]
-	 else:
-		#we have taken the absolute path way, implementation will follow shortly
-		#this subroutine should set the file variable to the path
-		pass
 	if file is not None:
-		with open(file,mode='r') as f:
-			raw = f.read()
-			#file is relatively big, this could be optimized
-			json_parsed = json.loads(raw)
-			pdb = [key['groupValue'] for key in json_parsed]
-	#else branch for debugging purposes
-	#with explicit None return
+		if("pdbesearch" in str(file)):
+			with open(file,mode='r',encoding='utf8') as f:
+				raw = f.read()
+				#file is relatively big, this could be optimized
+				json_parsed = json.loads(raw)
+				pdb = [key['groupValue'] for key in json_parsed['grouped']['pdb_id']['groups']]
 	else:
 		print("no file detected")
 		return None
@@ -69,23 +49,20 @@ def fetchall():
 #use https://www.rcsb.org/pages/download/http
 #to download pdb's to prepare the "pipeline"
 #for the next step
-def fetchpdb(pdblist):
+def fetchpdb(pdblist,path):
 	failed = []
 	baseurl = 'https://files.rcsb.org/download/'
 	#url for testing purposes in-browser:
 	#https://files.rcsb.org/download/4hhb.pdb
-	try:
-		sh.rmtree('pdb_dataset')
-	except FileNotFoundError as e:
-		os.mkdir('pdb_dataset')
-	os.getcwd()
 	#just makin sure we get a list
 	if type(pdblist) == type([]):
 		for item in pdblist:
-			with open(str(item)+'.pdb', mode='wb') as f:
+			print('fetching pdb:'+str(item))
+			with open(os.path.join(path,str(item)+'.pdb'), mode='wb') as f:
 				#try except needed at this point to avoid 404's,
 				#and various filesytem related issues
 				try:
+					print('fetching with url:' + str(baseurl+str(item)+'.pdb' ))
 					resp = re.get(baseurl+str(item)+'.pdb')
 					#writing bytestream exactly how we got it
 					#no idea if pdb's are ascii or not
@@ -95,6 +72,7 @@ def fetchpdb(pdblist):
 				#keep track of the failures 
 				except Exception as e:
 					failed.append(item)
+					print(e)
 					print('couldnt download item:'+str(item))
 				
 #generate_project: generates  a image-generation
@@ -102,27 +80,35 @@ def fetchpdb(pdblist):
 #the pdb will be downloaded into the current directory,
 #given of coursethat we have permissions
 #consider this the step prior to launching the megamol to generate the image
-def generate_project(pdb,outputpath):
-	if outputpath is None:
-		outputpath = os.path.join(os.getcwd(),'Images')
+def generate_project(pdb,outputpath,projectoutput,currpath):
 	if pdb is None:
 		raise ValueError('arg pdb should be nonzero')
-	with open('baseproject.mmprj','r') as f:
+	if outputpath is None:
+		raise ValueError('outputpath should be nonzero')
+	if projectoutput is None:
+		raise ValueError('projectoutput mustntn\'ve´\'ed be zero')
+	if currpath is None:
+		raise ValueError('projectoutput mustntn\'ve´\'ed be zero')
+		
+	with open('baseproject.mmprj','r',encoding='utf8') as f:
 		tree = ET.parse(f)
 		root = tree.getroot()
-		root[0][2][0].set('value',pdb+'.pdb')
+		#pdb location
+		root[0][2][0].set('value',pdb)
+		#output/image location
 		root[0][3][4].set('value',outputpath)
-		tree.write(pdb+'.mmprj')
-	with open(str(pdb)+'.pdb','w' ) as f:
-		baseurl = 'https://files.rcsb.org/download/'
-		try:
-			resp = re.get(baseurl+str(pdb)+'.pdb')
-			f.write(resp.content)
-		except Exception as e:
-			print('failed download:'+str(pdb))
+		tree.write(os.path.join(projectoutput,pdb+'.mmprj'))
+	# with open(os.path.join(outputpath,str(pdb)+'.pdb'),'w') as f:
+	# 	baseurl = 'https://files.rcsb.org/download/'
+	# 	try:
+	# 		resp = re.get(baseurl+str(pdb)+'.pdb')
+	# 		f.write(resp.content)
+	# 	except Exception as e:
+	# 		print('failed download:'+str(pdb))
 	
 
-#TODO: if clean code becomes a priority at some point one should clean this up				
+#to future self, this function will probably be no longer needed
+#since generate_project does everything you need
 def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
 	mm_temp = 'tmp.pdb'
 	pdb_root = os.getcwd()
@@ -133,7 +119,7 @@ def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
 	for file in files:
 		if not file.endswith('.pdb'):
 			print(file)
-	files = filter(lambda x: x.endswith('.pdb'), files)
+	files = list(filter(lambda x: x.endswith('.pdb'), files))
 	#we have now our pdb's in one place
 	#that we know the location of
 	#time to generate maps
@@ -160,7 +146,8 @@ def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
 			# TODO: implement exit(0) in image save-subroutine
 			if subprocess.Popen(mm_exec).wait() !=0:
 				#process did not terminate peacefully
-				#bring out the big guns
+				#bring out the big guns (sometime in the future)
+				pass
 
 			#3. copy image back with the correct
 			filename = file+'.png'
@@ -177,29 +164,56 @@ def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
 			continue
 
 
+#let the printing commence
 def main():
-	#idea of execution for now
-	#returns the absolute path of this very python script
-	#
-	curr_path = os.path.realpath(__file__)
-	# go two up 
-	dataset_root = os.path.join(curr_path,'..','datasets','pdb')
-	pdblist = filter(lambda x: x.endswith(('.csv','.json'),os.listdir(dataset_root))
 	
+	#use this currpath if sys path odesnt work 
+	#curr_path = os.path.abspath(os.path.realpath(__file__))
+	curr_path = sys.path[0]
+	
+	print(curr_path)
+	# get the pdb dataset folder (in case we want to compare multiple sets)
+	# eg. one for testing etc.
+	#os.pardir is the identifier to go one directory UP
+	dataset_root = os.path.abspath(os.path.join(curr_path,os.pardir,'datasets','pdb'))
+	print(dataset_root)
+	#getting all the filetypes which could qualify for being a pdb dataset
+	#maybe create a tuple somewhere
+	pdblist = list(filter(lambda x: x.endswith(('.csv','.json')),os.listdir(dataset_root)))
+	print(pdblist[:10])
+	
+	#currently we grab the first one, because there only is one
 	pdbset = pdblist[0]
-	
-	pdblist = extractpdb(pdbset)
-	fetchpdb(pdblist)
+	print(pdbset)
+	os.mkdir(os.path.join(curr_path, 'pdb-dataset'))
+	pdb_dir = os.path.join(curr_path,'pdb-dataset')
+	print(pdb_dir)
 
-	#TODO: fix this
-	pdb_files = os.listdir(os.getcwd())
+	pdb_names = extractpdb(os.path.join(dataset_root,pdbset))
+	print(pdb_names[:10])
+	fetchpdb(pdb_names,pdb_dir)
 
+	#maybe download failed for a couple of pdb's
+	#also getting the full path here for ease of use with the project files
+	available_pdbs = [os.path.join(curr_path,item) for item in  os.listdir(pdb_dir)]
+	print(available_pdbs[:10])
+	#generating images directory and keeping in absolute
+	os.mkdir(os.path.join(curr_path, 'Images'))
+	imageoutput  = os.path.join(curr_path,'Images')
+	print(imageoutput)
+
+	projectoutput = os.mkdir(os.path.join(curr_path,'Projects'))
+	print(projectoutput)
 	# third generate the maps
-	for item in pdb_files:
-		generate_project(item, os.getcwd())
+	for item in available_pdbs:
+		generate_project(item,imageoutput,projectoutput,curr_path)
 
-	for item in filter(lambda x: x.endswith('.mmprj'),os.listdir(os.getcwd)):
-		subprocess.call('PATH TO MEGAMOL PASSED AS ARG', '-p', item, 'view1 inst')
+	print(os.path.abspath(projectoutput))
+	print(list(filter(lambda x: x.endswith('.mmprj'),os.path.abspath(projectoutput))[:10]))
+	#in case someone or something puts something inappropriate in project folder
+	for item in list(filter(lambda x: x.endswith('.mmprj'),os.path.abspath(projectoutput))):
+		#yikes
+		subprocess.call(os.path.abspath(os.path.join(curr_path,"Maps","bin","x64","Release","Megamol" )), '-p', item, 'view1 inst')
 
 if __name__ == '__main__':
 	main()
