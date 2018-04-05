@@ -1,17 +1,68 @@
-import numpy
-import matplotlib.pyplot
-import tensorflow
-import scipy.stats 
-import sklearn
-import skimage.measure
-import mahotas
-import cv2
+i = 0
+try:
+	import numpy
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
 
-import pprint 
-import requests
+try:
+	import matplotlib.pyplot
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import tensorflow
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import scipy.stats 
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import sklearn
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import skimage.measure
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import mahotas
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import cv2
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import pprint 
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
+try:
+	import requests
+except ModuleNotFoundError as e:
+	print(e)
+	i += 1
+
 
 def main():
-	print('all dependencies met')
+	if(i == 0):
+		print('all dependencies met')
 
 if __name__ == '__main__':
 	main()
