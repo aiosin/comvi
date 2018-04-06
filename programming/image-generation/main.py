@@ -56,11 +56,12 @@ def fandwrite(pdb,path):
 			print('fetching with url:' + str(baseurl+str(pdb)+'.pdb' ))
 			resp = re.get(baseurl+str(pdb)+'.pdb')
 			f.write(resp.content)
+			print('sucessfully downloaded pdb:'+str(pdb))
 		except Exception as e:
-			return tuple(0)
+			print('error downloading pdb: '+str(pdb))
 
 #TODO:change to parallel if done testing
-def fetchpdb(pdblist,path,parallel=False):
+def fetchpdb(pdblist,path,parallel=True):
 	i = 0
 	failed = []
 	baseurl = 'https://files.rcsb.org/download/'
@@ -73,10 +74,8 @@ def fetchpdb(pdblist,path,parallel=False):
 			#executor cant accept noniterable arguments
 			patharr = [path]*len(pdblist)
 			with ThreadPoolExecutor(max_workers=10) as executor:
-				for result in executor.map(fandwrite,pdblist,patharr):
-					if result[0] != True:
-						print('couldnt download item:')
-						print(result)
+				executor.map(fandwrite,pdblist,patharr)
+			return
 		for item in pdblist:
 			#for testing
 			if (i > 10):
@@ -200,47 +199,64 @@ def main():
 	#curr_path = os.path.abspath(os.path.realpath(__file__))
 	curr_path = sys.path[0]
 	
-	print(curr_path)
 	# get the pdb dataset folder (in case we want to compare multiple sets)
 	# eg. one for testing etc.
 	#os.pardir is the identifier to go one directory UP
 	dataset_root = os.path.abspath(os.path.join(curr_path,os.pardir,'datasets','pdb'))
-	print(dataset_root)
 	#getting all the filetypes which could qualify for being a pdb dataset
 	#maybe create a tuple somewhere
 	pdblist = list(filter(lambda x: x.endswith(('.csv','.json')),os.listdir(dataset_root)))
-	print(pdblist[:10])
 	
 	#currently we grab the first one, because there only is one
 	pdbset = pdblist[0]
-	print(pdbset)
-	os.mkdir(os.path.join(curr_path, 'pdb-dataset'))
+	dataset_folder_exists = False
+	try:
+		os.mkdir(os.path.join(curr_path, 'pdb-dataset'))
+	except OSError as e:
+		dataset_folder_exists = True
+		print("dataset folder already exists")
+
 	pdb_dir = os.path.join(curr_path,'pdb-dataset')
 	print(pdb_dir)
-
-	pdb_names = extractpdb(os.path.join(dataset_root,pdbset))
-	print(pdb_names[:10])
-	fetchpdb(pdb_names,pdb_dir)
+	pdb_names = None
+	if(dataset_folder_exists != True):
+		pdb_names = extractpdb(os.path.join(dataset_root,pdbset))
+		print(pdb_names[:10])
+		fetchpdb(pdb_names,pdb_dir)
 
 	#maybe download failed for a couple of pdb's
 	#also getting the full path here for ease of use with the project files
 	available_pdbs = [os.path.join(curr_path,'pdb-dataset',item) for item in  os.listdir(pdb_dir)]
+	
+	#subtract already existing images from the available pdbs
+	if(os.path.exists(os.path.join(curr_path,'Images'))):
+		#grab all the images which have already been generated
+		images = os.listdir(os.path.join(curr_path,'Images'))
+		#remove png file ending
+		images = [item[:-4] for item in images]
+		available_pdbs= [ x for x in available_pdbs if x not in [os.path.join(curr_path,'pdb-dataset',item) for item in images]]
+
+
 	print(available_pdbs[:10])
 	#generating images directory and keeping in absolute
-	os.mkdir(os.path.join(curr_path, 'Images'))
+	try:
+		os.mkdir(os.path.join(curr_path, 'Images'))
+	except OSError as e:
+		print('images folder already exists')
 	imageoutput  = os.path.join(curr_path,'Images')
-	print(imageoutput)
 
 	projectoutput = os.path.join(curr_path,'Projects')
-	os.mkdir(projectoutput)
-	print(projectoutput)
-	# third generate the maps
-	for item in available_pdbs:
-		generate_project(item,imageoutput,projectoutput,curr_path)
-
-	print(os.path.abspath(projectoutput))
-	#in case someone or something puts something inappropriate in project folder
-	print(list(filter(lambda x: x.endswith('.mmprj'),os.path.abspath(projectoutput))))
+	project_dir_existed = False
+	try:
+		os.mkdir(projectoutput)
+	except OSError as e:
+		project_dir_existed = True
+		print('project folder already exists')
+	
+	if(project_dir_existed==False):
+		# third generate the maps
+		for item in available_pdbs:
+			generate_project(item,imageoutput,projectoutput,curr_path)
 
 	#megamol needs msms to be in the same path as the binary, it WILL be confused
 	#if msms is not there and make some noise
@@ -253,7 +269,13 @@ def main():
 		#this one works
 		item = projectoutput+"\\"+item
 		# subprocess.call(".\\MegaMolCon.exe " + '-p ' + "C:\\tmp\\comvi\\programming\\image-generation\\Projects\\5uii.mmprj" + ' -i' + ' view1 inst',shell=True)
-		subprocess.call(".\\MegaMolCon.exe " + '-p ' + item+ ' -i' + ' view1 inst',stdout=open(os.devnull, 'wb'),shell=True)
+		pro = subprocess.Popen(".\\MegaMolCon.exe " + '-p ' + item+ ' -i' + ' view1 inst',stdout=open(os.devnull, 'wb'),shell=False)
+		try:
+			pro.communicate(timeout=30)
+		except subprocess.TimeoutExpired as e:
+			pro.kill()
+			print(str(item))
+			print(e)
 	#change dir back as if nothing happened 
 	os.chdir(oldwd)
 
