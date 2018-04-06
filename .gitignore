@@ -388,3 +388,7 @@ programming/datasets/*
 !programming/datasets/protein
 
 programming/image-generation/Maps
+#temporary ignoring images
+programming/image-generation/Images
+programming/image-generation/pdb-dataset
+programming/image-generation/Projects
