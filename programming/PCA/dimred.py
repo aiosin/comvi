@@ -50,6 +50,8 @@ def im2vec(path=None):
 			image = imread(file)
 		except FileNotFoundError as e:
 			continue
+		except Exception as e:
+			continue
 		i+=1
 		#IMPORTANT:
 		image = resize(image,(128,128))
