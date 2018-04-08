@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET #call home
 import threading
 import multiprocessing
 
-def extractpdb(file):
+def extractpdb(file,count=2000):
 	pdb = []
 	if file is not None:
 		if("pdbesearch" in str(file)):
@@ -30,9 +30,11 @@ def extractpdb(file):
 				#file is relatively big, this could be optimized
 				json_parsed = json.loads(raw)
 				pdb = [key['groupValue'] for key in json_parsed['grouped']['pdb_id']['groups']]
+	#execution path if no file is given
 	else:
-		print("no file detected")
-		return None
+		pdb = fetchall()
+		#full dataset is ~140k items big
+		pdb = pdb[:count]
 	return pdb
 
 #stub for all pdb's available 
@@ -49,6 +51,7 @@ def fetchall():
 #use https://www.rcsb.org/pages/download/http
 #to download pdb's to prepare the "pipeline"
 #for the next step
+#used for async task execution
 def fandwrite(pdb,path):
 	baseurl = 'https://files.rcsb.org/download/'
 	with open(os.path.join(path,str(pdb)+'.pdb'), mode='wb') as f:
@@ -73,6 +76,8 @@ def fetchpdb(pdblist,path,parallel=True):
 			#to quote greina: this is the apex of suck and must die:
 			#executor cant accept noniterable arguments
 			patharr = [path]*len(pdblist)
+			#if gigabit available, set max_workers accordingly
+			#else you'd just starve out the downloads
 			with ThreadPoolExecutor(max_workers=10) as executor:
 				executor.map(fandwrite,pdblist,patharr)
 			return
@@ -135,61 +140,6 @@ def generate_project(pdb,outputpath,projectoutput,currpath):
 	# 		print('failed download:'+str(pdb))
 	
 
-#to future self, this function will probably be no longer needed
-#since generate_project does everything you need
-def generate_maps(pdb_path,mm_exec,mm_inputpath ,mm_outputdir, comvi_outputdir):
-	mm_temp = 'tmp.pdb'
-	pdb_root = os.getcwd()
-	#'preprocessing'
-	#path variable should be the FULL ABSOLUTE PATH to the 
-	#for every pdb that we have successfully downloaded
-	files = os.listdir(pdb_path)
-	for file in files:
-		if not file.endswith('.pdb'):
-			print(file)
-	files = list(filter(lambda x: x.endswith('.pdb'), files))
-	#we have now our pdb's in one place
-	#that we know the location of
-	#time to generate maps
-	
-
-	#current idea is to have a megamol configuration/statefile
-	#that takes a dummy file 
-	#we need to know:
-	#	1. the location of the ouput directory 
-	#      (methinks megamol does not allow explicit directories)
-	#	2. the location of the script/executable that invokes
-	#	3. where said executable takes the pdb to generate images from
-
-	for file in file:
-		try:
-			#1. rename image and move image to the desired location
-			os.rename(file,mm_temp)
-			filepath = os.path.join(pdb_root,file)
-			dest_path  = os.path.join(mm_inputpath,mm_temp)
-			sh.move(filepath,dest_path)
-			#2. invoke the megamol (which will generate the map correpsonding to the image)
-			#	2.1 'correctly' wait for megamol to do its thing
-			# assuming megamol will output '0' on exit
-			# TODO: implement exit(0) in image save-subroutine
-			if subprocess.Popen(mm_exec).wait() !=0:
-				#process did not terminate peacefully
-				#bring out the big guns (sometime in the future)
-				pass
-
-			#3. copy image back with the correct
-			filename = file+'.png'
-			image_output = os.path.join(comvi_outputdir, filename)
-			#FIXME: here be dragons: misleading variable name
-			#dest is our src here,
-			sh.move(dest_path,image_output)
-			
-		#4. sometimes megamol cannot handle the image and 'crashes'
-		#in this case we need to identify the problem (p.wait will never finish)
-		#
-		except Exception as e:
-			print(e)
-			continue
 
 
 #let the printing commence
