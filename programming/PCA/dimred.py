@@ -19,13 +19,15 @@ from scipy.stats import skew, kurtosis, entropy, energy_distance
 from scipy.spatial import distance
 from pprint import pprint
 
+import timeit
+
 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
 #TODO: separate feature extraction and 'data aggretation'
 #idea: make separate function 'feature_extraction' and
 #another function 'read_image'
 #
-def im2vec(path=None):
+def arr2vec(path=None):
 	#cannot create empty array with numpy
 	#workaround 
 	imdata = []
@@ -107,6 +109,68 @@ def im2vec(path=None):
 
 #little lambda for 'tuplifying' of numpy arrays if needed
 tuplify_array = lambda x: tuple(map(tuple,x))
+
+#routing for one image
+#for hopefully parallelising the image vector routine
+def im2vec(file):
+	imdata = []
+	#calculating features to create feature vector
+	try:
+		image = imread(file)
+	except FileNotFoundError as e:
+		continue
+	except Exception as e:
+		continue
+	#IMPORTANT: 
+	image = resize(image,(128,128))
+	#TODO: find out why those two lines exist
+	image_flat = imread(file ,flatten=True)
+	image_flat = resize(image_flat,(128,128))
+
+	#separating channels using slice
+	r_im = image[:,:,0]
+	g_im = image[:,:,1]
+	b_im = image[:,:,2]
+
+	#moments
+	#moments = cv2.HuMoments(image_flat)
+	r_mo = skimage.measure.moments(r_im).flatten()
+	g_mo = skimage.measure.moments(g_im).flatten()
+	b_mo = skimage.measure.moments(b_im).flatten()
+
+	#color histogram features
+	r_hist = np.histogram(r_im,bins=16)[0]
+	g_hist = np.histogram(g_im,bins=16)[0]
+	b_hist = np.histogram(b_im,bins=16)[0]
+	r_mean = np.average(r_hist)
+	g_mean = np.average(g_hist)
+	b_mean = np.average(b_hist)
+	r_vx = np.var(r_hist)
+	g_vx = np.var(g_hist)
+	b_vx = np.var(b_hist)
+	r_skw = skew(r_hist)
+	g_skw = skew(g_hist)
+	b_skw = skew(b_hist)
+	r_kurt = kurtosis(r_hist)
+	g_kurt = kurtosis(g_hist)
+	b_kurt = kurtosis(b_hist)
+	r_ent = entropy(r_hist)
+	g_ent = entropy(g_hist)
+	b_ent = entropy(b_hist)
+	r_haralick = textural_features(r_im)
+	g_haralick = textural_features(g_im)
+	b_haralick = textural_features(b_im)
+
+	#THOUGHT: there *has* to be a better way of doing this.
+	fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
+						g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
+						b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
+						r_haralick,g_haralick,b_haralick,)).ravel()
+	fvec = np.reshape(fvec,-1)
+	fvec = np.hstack(fvec)
+	imdata.append(fvec)
+	#return a tuple of the file and the image vector
+	return (imdata,file)
 
 '''
 method doPCA: returns 2d coordinates of dimensionality reduction on given data
@@ -231,7 +295,13 @@ def shape_features(im,fourier=False):
 
 
 def main():
-	feature_array = im2vec()
+
+	start = timeit.default_timer()
+	feature_array = arr2vec()
+	step = timeit.default_timer()
+	feature_array = [im2vec(item) for item in os.listdir(os.getcwd()) ]
+	stop  = timeit.default_timer()
+
 	coords =doPCA(feature_array)
 	X = [i[0] for i in coords]
 	Y = [i[1] for i in coords]
