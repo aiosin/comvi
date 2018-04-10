@@ -19,14 +19,16 @@ from scipy.stats import skew, kurtosis, entropy, energy_distance
 from scipy.spatial import distance
 from pprint import pprint
 
+
 import timeit
+import concurrent.futures
 
 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
 #TODO: separate feature extraction and 'data aggretation'
 #idea: make separate function 'feature_extraction' and
 #another function 'read_image'
-#
+#TODO: put vector calculation in its own function
 def arr2vec(path=None):
 	#cannot create empty array with numpy
 	#workaround 
@@ -55,7 +57,7 @@ def arr2vec(path=None):
 		except Exception as e:
 			continue
 		i+=1
-		#IMPORTANT:
+		#IMPORTANT: 
 		image = resize(image,(128,128))
 		image_flat = imread(file,flatten=True)
 		#
@@ -114,13 +116,14 @@ tuplify_array = lambda x: tuple(map(tuple,x))
 #for hopefully parallelising the image vector routine
 def im2vec(file):
 	imdata = []
+	print(str(file))
 	#calculating features to create feature vector
 	try:
 		image = imread(file)
 	except FileNotFoundError as e:
-		continue
+		return
 	except Exception as e:
-		continue
+		return
 	#IMPORTANT: 
 	image = resize(image,(128,128))
 	#TODO: find out why those two lines exist
@@ -169,7 +172,7 @@ def im2vec(file):
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
 	imdata.append(fvec)
-	#return a tuple of the file and the image vector
+	#return a tuple of the file and the image vector so we can reconstruct file vector relationship in the result array
 	return (imdata,file)
 
 '''
@@ -296,12 +299,27 @@ def shape_features(im,fourier=False):
 
 def main():
 
-	start = timeit.default_timer()
-	feature_array = arr2vec()
-	step = timeit.default_timer()
-	feature_array = [im2vec(item) for item in os.listdir(os.getcwd()) ]
+	# start = timeit.default_timer()
+	# feature_array = arr2vec()
+	# step = timeit.default_timer()
+	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
+	feature_array= []
+	#set max_workers accordingly
+	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
+		#yikes, horrible oneliner incomming
+		# futures = [executor.submit(im2vec,item) for item in list(filter(lamdba x : x.endswith('.png'), os.listdir(os.getcwd())))]
+		files = list(filter(lambda x: x.endswith('.png'), os.listdir(os.getcwd())))
+		futures = [executor.submit(im2vec,file) for file in files]
+		for future in concurrent.futures.as_completed(futures):
+			try:
+				feature_array.append(future.result())
+			except Exception as e:
+				print(e)
+	print(feature_array)
+	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal
+	feature_array = sorted(feature_array, key= lambda x: x[1])
 	stop  = timeit.default_timer()
-
+	feature_array = [item[0] for item in feature_array]
 	coords =doPCA(feature_array)
 	X = [i[0] for i in coords]
 	Y = [i[1] for i in coords]
