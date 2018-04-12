@@ -115,15 +115,14 @@ tuplify_array = lambda x: tuple(map(tuple,x))
 #routing for one image
 #for hopefully parallelising the image vector routine
 def im2vec(file):
-	imdata = []
 	print(str(file))
 	#calculating features to create feature vector
 	try:
 		image = imread(file)
 	except FileNotFoundError as e:
 		return
-	except Exception as e:
-		return
+	#except Exception as e:
+	#	return
 	#IMPORTANT: 
 	image = resize(image,(128,128))
 	#TODO: find out why those two lines exist
@@ -171,9 +170,9 @@ def im2vec(file):
 						r_haralick,g_haralick,b_haralick,)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
-	imdata.append(fvec)
 	#return a tuple of the file and the image vector so we can reconstruct file vector relationship in the result array
-	return (imdata,file)
+	#TODO:TEST WITH fev
+	return (fvec,file)
 
 '''
 method doPCA: returns 2d coordinates of dimensionality reduction on given data
@@ -312,14 +311,16 @@ def main():
 		futures = [executor.submit(im2vec,file) for file in files]
 		for future in concurrent.futures.as_completed(futures):
 			try:
-				feature_array.append(future.result())
+				print(future.result())
+				feature_array.append(future.result()) 
 			except Exception as e:
 				print(e)
-	print(feature_array)
+	#print(feature_array)
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal
 	feature_array = sorted(feature_array, key= lambda x: x[1])
+	print(feature_array)
 	stop  = timeit.default_timer()
-	feature_array = [item[0] for item in feature_array]
+	feature_array = [item[0] for item in feature_array if item[0] is not None ]
 	coords =doPCA(feature_array)
 	X = [i[0] for i in coords]
 	Y = [i[1] for i in coords]
