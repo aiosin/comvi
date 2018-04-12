@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET #call home
 import threading
 import multiprocessing
 
-def extractpdb(file,count=2000):
+def extractpdb(file,start=3000,count=10000):
 	pdb = []
 	if file is not None:
 		if("pdbesearch" in str(file)):
@@ -34,7 +34,7 @@ def extractpdb(file,count=2000):
 	else:
 		pdb = fetchall()
 		#full dataset is ~140k items big
-		pdb = pdb[:count]
+		pdb = pdb[start:start+count]
 	return pdb
 
 #stub for all pdb's available 
@@ -78,7 +78,7 @@ def fetchpdb(pdblist,path,parallel=True):
 			patharr = [path]*len(pdblist)
 			#if gigabit available, set max_workers accordingly
 			#else you'd just starve out the downloads
-			with ThreadPoolExecutor(max_workers=10) as executor:
+			with ThreadPoolExecutor(max_workers=50) as executor:
 				executor.map(fandwrite,pdblist,patharr)
 			return
 		for item in pdblist:
@@ -170,7 +170,8 @@ def main():
 	print(pdb_dir)
 	pdb_names = None
 	if(dataset_folder_exists != True):
-		pdb_names = extractpdb(os.path.join(dataset_root,pdbset))
+		# pdb_names = extractpdb(os.path.join(dataset_root,pdbset))
+		pdb_names = extractpdb(None)
 		print(pdb_names[:10])
 		fetchpdb(pdb_names,pdb_dir)
 
