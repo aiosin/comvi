@@ -12,8 +12,12 @@ from skimage.exposure import histogram
 from skimage.transform import resize
 
 
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, KernelPCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import MeanShift
+from sklearn.mixture import GaussianMixture
+from sklearn.mixture import VBGMM
+from sklearn.mixture import BayesianGaussianMixture
 
 from scipy.stats import skew, kurtosis, entropy, energy_distance
 from scipy.spatial import distance
@@ -75,18 +79,18 @@ def arr2vec(path=None):
 		b_mo = skimage.measure.moments(b_im).flatten()
 
 		#color histogram features
-		r_hist = np.histogram(r_im,bins=16)[0]
-		g_hist = np.histogram(g_im,bins=16)[0]
-		b_hist = np.histogram(b_im,bins=16)[0]
+		r_hist = np.histogram(r_im,bins=8)[0]
+		g_hist = np.histogram(g_im,bins=8)[0]
+		b_hist = np.histogram(b_im,bins=8)[0]
 		r_mean = np.average(r_hist)
 		g_mean = np.average(g_hist)
 		b_mean = np.average(b_hist)
 		r_vx = np.var(r_hist)
 		g_vx = np.var(g_hist)
 		b_vx = np.var(b_hist)
-		r_skw = skew(r_hist)
-		g_skw = skew(g_hist)
-		b_skw = skew(b_hist)
+		# r_skw = skew(r_hist)
+		# g_skw = skew(g_hist)
+		# b_skw = skew(b_hist)
 		r_kurt = kurtosis(r_hist)
 		g_kurt = kurtosis(g_hist)
 		b_kurt = kurtosis(b_hist)
@@ -99,14 +103,13 @@ def arr2vec(path=None):
 
 		#THOUGHT: there *has* to be a better way of doing this.
 		fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
-							g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
-							b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
+							g_mean, b_mean,r_vx,g_vx,b_vx,
+							#r_skw,g_skw,b_skw,
+							r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
 							r_haralick,g_haralick,b_haralick,)).ravel()
 		fvec = np.reshape(fvec,-1)
 		fvec = np.hstack(fvec)
 		imdata.append(fvec)
-		print(i)
-	print(i)
 	return imdata
 
 #little lambda for 'tuplifying' of numpy arrays if needed
@@ -164,10 +167,15 @@ def im2vec(file):
 	b_haralick = textural_features(b_im)
 
 	#THOUGHT: there *has* to be a better way of doing this.
-	fvec =np.array((r_mo,g_mo,b_mo,r_hist,g_hist,b_hist,r_mean,
-						g_mean, b_mean,r_vx,g_vx,b_vx,r_skw,g_skw,
-						b_skw,r_kurt, g_kurt,b_kurt,r_ent,g_ent,b_ent,
-						r_haralick,g_haralick,b_haralick,)).ravel()
+	fvec =np.array((r_mo,g_mo,b_mo,
+						 r_haralick,g_haralick,b_haralick,
+						 r_hist,g_hist,b_hist,
+						 r_mean, g_mean, b_mean,
+						 r_vx,g_vx,b_vx,
+						 r_skw,g_skw, b_skw,
+						 r_kurt, g_kurt,b_kurt,
+						 r_ent,g_ent,b_ent,
+						)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
 	#return a tuple of the file and the image vector so we can reconstruct file vector relationship in the result array
@@ -184,8 +192,20 @@ def doPCA(arr):
 	pca =PCA(n_components=2)
 	X = pca.fit_transform(arr)
 	return X
+
+def dokPCA(arr):
+	scaler =  StandardScaler()
+	scaler.fit(arr)
+	arr =scaler.transform(arr)
+	pca =KernelPCA(n_components=2,kernel='rbf')
+	X = pca.fit_transform(arr)
+	return X
 	
-	
+#TODO: implement
+def doG():
+	pass
+
+
 #return textural features for a given image
 #called haralick features
 #these are the following 13 or 14 features calculated per directions (?):
@@ -235,7 +255,7 @@ def biggest_regions(im, n = 8):
 
 
 #compute shape feature array 
-#input is binary (greyscale) image matrix (V x € im : x = 0 ^ x = 1)
+#input is binary (greyscale) image matrix (V x € im : x = 0 v x = 1)
 def shape_features(im,fourier=False):
 	features = []
 	#make fourier descriptors for shape
@@ -311,22 +331,27 @@ def main():
 		futures = [executor.submit(im2vec,file) for file in files]
 		for future in concurrent.futures.as_completed(futures):
 			try:
-				print(future.result())
 				feature_array.append(future.result()) 
 			except Exception as e:
 				print(e)
-	#print(feature_array)
-	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal
+
+	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
 	feature_array = sorted(feature_array, key= lambda x: x[1])
-	print(feature_array)
 	stop  = timeit.default_timer()
 	feature_array = [item[0] for item in feature_array if item[0] is not None ]
+
 	coords =doPCA(feature_array)
 	X = [i[0] for i in coords]
 	Y = [i[1] for i in coords]
-	print(coords)
-	print(X,Y)
+	k_coords = dokPCA(feature_array)
+	kX = [i[0] for i in k_coords]
+	kY = [i[1] for i in k_coords]
+
+	plt.title('normal PCA')
 	plt.scatter(X,Y)
+	plt.figure()
+	plt.scatter(kX,kY)
+	plt.title('kernel PCA')
 	plt.show()
 
 if __name__ == '__main__':
