@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+from mpl_toolkits.mplot3d import Axes3D
+
 import skimage.measure
 import mahotas as mh
 
@@ -18,6 +20,9 @@ from sklearn.cluster import MeanShift
 from sklearn.mixture import GaussianMixture
 from sklearn.mixture import VBGMM
 from sklearn.mixture import BayesianGaussianMixture
+from sklearn.manifold import TSNE
+from sklearn.manifold import Isomap
+
 
 from scipy.stats import skew, kurtosis, entropy, energy_distance
 from scipy.spatial import distance
@@ -26,6 +31,7 @@ from pprint import pprint
 
 import timeit
 import concurrent.futures
+
 
 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
@@ -182,6 +188,28 @@ def im2vec(file):
 	#TODO:TEST WITH fev
 	return (fvec,file)
 
+
+def simpleim2vec(file):
+	try:
+		image = imread(file,flatten=True)
+	except Exception as e:
+		return
+	image = resize(image,(128,128))
+	#TODO: find out why those two lines exist
+	image_flat = imread(file ,flatten=True)
+	image_flat = resize(image_flat,(128,128))
+	r_im = image[:,:,0]
+	g_im = image[:,:,1]
+	b_im = image[:,:,2]
+	r_mo = skimage.measure.moments(r_im).flatten()
+	g_mo = skimage.measure.moments(g_im).flatten()
+	b_mo = skimage.measure.moments(b_im).flatten()
+	fvec = np.array((r_mo,g_mo,b_mo	)).ravel()
+	fvec = np.reshape(fvec,-1)
+	fvec = np.hstack(fvec)
+	#see im2vec for documentation
+	return (fvec,file)
+	
 '''
 method doPCA: returns 2d coordinates of dimensionality reduction on given data
 '''
@@ -202,10 +230,41 @@ def dokPCA(arr):
 	return X
 	
 #TODO: implement
-def doG():
-	pass
+def doG(arr):
+	scaler =  StandardScaler()
+	scaler.fit(arr)
+	arr =scaler.transform(arr)
+	mix = BayesianGaussianMixture(n_components=2)
+	x = mix.fit(arr)
+	y = mix.sample()
+	return x
 
+def nldimred(arr):
+	pass 
 
+def do_tsne(arr):
+	scaler =  StandardScaler()
+	scaler.fit(arr)
+	arr =scaler.transform(arr)
+	snek = TSNE(n_components=2)
+	X = snek.fit_transform(arr)
+	return X
+	
+def do_3_tsne(arr):
+	scaler =  StandardScaler()
+	scaler.fit(arr)
+	arr =scaler.transform(arr)
+	snek = TSNE(n_components=3)
+	X = snek.fit_transform(arr)
+	return X
+
+def do_isomap(arr):
+	scaler =  StandardScaler()
+	scaler.fit(arr)
+	arr =scaler.transform(arr)
+	iso = Isomap(n_components=2)
+	x = iso.fit_transform(arr)
+	return x
 #return textural features for a given image
 #called haralick features
 #these are the following 13 or 14 features calculated per directions (?):
@@ -347,11 +406,49 @@ def main():
 	kX = [i[0] for i in k_coords]
 	kY = [i[1] for i in k_coords]
 
+	#m_coords = doG(feature_array)
+	#mX = [i[0] for i in m_coords]
+	#mY = [i[1] for i in m_coords]
+
+	t_coords = do_tsne(feature_array)
+	tX = [i[0] for i in t_coords]
+	tY = [i[1] for i in t_coords]
+
+	t3_coords = do_3_tsne(feature_array)
+	t3X = [i[0] for i in t3_coords]
+	t3Y = [i[1] for i in t3_coords]
+	t3Z = [i[2] for i in t3_coords]
+	scaler =  StandardScaler()
+	scaler.fit(feature_array)
+	scaled_feature_array =scaler.transform(feature_array)
+
+	shift = MeanShift()
+	shift.fit(scaled_feature_array)
+	print(shift.labels_)
+
+	i_coords = do_isomap(feature_array)
+	iX = [i[0] for i in i_coords]
+	iY = [i[1] for i in i_coords]
+
+	plt.scatter(iX,iY)
+	plt.title('isomap')
+	plt.figure()
+
+
 	plt.title('normal PCA')
 	plt.scatter(X,Y)
 	plt.figure()
 	plt.scatter(kX,kY)
 	plt.title('kernel PCA')
+	plt.figure()
+	plt.scatter(tX,tY)
+	plt.title('tsne')
+
+	fig = plt.figure()
+	ax = Axes3D(fig)
+	plt.title('tsne')
+
+	ax.scatter(t3X,t3Y,t3Z)
 	plt.show()
 
 if __name__ == '__main__':
