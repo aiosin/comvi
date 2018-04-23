@@ -156,81 +156,24 @@ def simpleim2vec(file):
 	return (fvec,file)
 
 #TODO:implement
-def do_dimred(arr,mode=None):
+def do_dimred(arr,mode=None,components=2):
 	scaler = StandardScaler()
 	scaler.fit(arr)
 	reducer = None
-	
-	pass
-	
-'''
-method doPCA: returns 2d coordinates of dimensionality reduction on given data
-'''
-def doPCA(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	pca =PCA(n_components=2)
-	X = pca.fit_transform(arr)
-	return X
-
-def doLLE(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	lle = LocallyLinearEmbedding(n_components=2)
-	x =lle.fit_transform(arr)
-	return x
-
-def dokPCA(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	pca =KernelPCA(n_components=2,kernel='rbf')
-	X = pca.fit_transform(arr)
-	return X
-	
-def doG(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	mix = BayesianGaussianMixture(n_components=2)
-	x = mix.fit(arr)
-	y = mix.sample()
-	return x
-
-
-def do_tsne(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	snek = TSNE(n_components=2)
-	X = snek.fit_transform(arr)
-	return X
-	
-def do_3_tsne(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	snek = TSNE(n_components=3)
-	X = snek.fit_transform(arr)
-	return X
-
-def do_mds(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	mds = MDS(n_components=2)
-	x = mds.fit_transform(arr)
-	return x
-
-def do_isomap(arr):
-	scaler =  StandardScaler()
-	scaler.fit(arr)
-	arr =scaler.transform(arr)
-	iso = Isomap(n_components=2)
-	x = iso.fit_transform(arr)
-	return x
+	assert mode not None
+	#beautiful switch case courtesy of cpython
+	dimpurple = {
+		'PCA' : PCA,
+		'kPCA' : KernelPCA,
+		'LLE' : LocallyLinearEmbedding,
+		'gauss_mix': BayesianGaussianMixture,
+		'tsne': TSNE,
+		'isomap': Isomap,
+		'mds':MDS,
+	}
+	reducer = dimpurple[mode](n_components=components)
+	X = reducer.fit_transform(arr)
+	return tuple([item[i] for item in X]for i in range(0,components))
 
 """
 return textural features for a given image
@@ -249,6 +192,7 @@ def textural_features(im):
 	return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
 	
 #TODO: implement n parameter
+#n equals number of regions extracted
 def biggest_region(im,n=0):
 	assert im.dtype.name.contains('int')
 	assert len(im.unique) == 2
@@ -366,58 +310,6 @@ def main():
 	bmw_feat = [item[0] for item in bmw_feat if item[0] is not None ]
 	flower_feat = [item[0] for item in flower_feat if item[0] is not None ]
 
-	coords =doPCA(feature_array)
-	X = [i[0] for i in coords]
-	Y = [i[1] for i in coords]
-
-	bmwcoords =doPCA(bmw_feat)
-	bmwX = [i[0] for i in bmwcoords]
-	bmwY = [i[1] for i in bmwcoords]
-
-	flowercoords =doPCA(flower_feat)
-	flowerX = [i[0] for i in flowercoords]
-	flowerY = [i[1] for i in flowercoords]
-
-	k_coords = dokPCA(feature_array)
-	kX = [i[0] for i in k_coords]
-	kY = [i[1] for i in k_coords]
-
-	flowerk_coords = dokPCA(flower_feat)
-	flowerkX = [i[0] for i in flowerk_coords]
-	flowerkY = [i[1] for i in flowerk_coords]
-	
-	bmwk_coords = dokPCA(bmw_feat)
-	bmwkX = [i[0] for i in bmwk_coords]
-	bmwkY = [i[1] for i in bmwk_coords]
-
-	t_coords = do_tsne(feature_array)
-	tX = [i[0] for i in t_coords]
-	tY = [i[1] for i in t_coords]
-
-	bmwt_coords = do_tsne(bmw_feat)
-	bmwtX = [i[0] for i in bmwt_coords]
-	bmwtY = [i[1] for i in bmwt_coords]
-	
-	flowert_coords = do_tsne(flower_feat)
-	flowertX = [i[0] for i in flowert_coords]
-	flowertY = [i[1] for i in flowert_coords]
-
-
-	t3_coords = do_3_tsne(feature_array)
-	t3X = [i[0] for i in t3_coords]
-	t3Y = [i[1] for i in t3_coords]
-	t3Z = [i[2] for i in t3_coords]
-
-	flowert3_coords = do_3_tsne(flower_feat)
-	flowert3X = [i[0] for i in flowert3_coords]
-	flowert3Y = [i[1] for i in flowert3_coords]
-	flowert3Z = [i[2] for i in flowert3_coords]
-	
-	bmwt3_coords = do_3_tsne(bmw_feat)
-	bmwt3X = [i[0] for i in bmwt3_coords]
-	bmwt3Y = [i[1] for i in bmwt3_coords]
-	bmwt3Z = [i[2] for i in bmwt3_coords]
-
 	scaler =  StandardScaler()
 	scaler.fit(feature_array)
 	scaled_feature_array =scaler.transform(feature_array)
@@ -425,85 +317,6 @@ def main():
 	shift = MeanShift()
 	shift.fit(scaled_feature_array)
 	print(shift.labels_)
-
-	i_coords = do_isomap(feature_array)
-	iX = [i[0] for i in i_coords]
-	iY = [i[1] for i in i_coords]
-
-	floweri_coords = do_isomap(flower_feat)
-	floweriX = [i[0] for i in floweri_coords]
-	floweriY = [i[1] for i in floweri_coords]
-
-	bmwi_coords = do_isomap(bmw_feat)
-	bmwiX = [i[0] for i in bmwi_coords]
-	bmwiY = [i[1] for i in bmwi_coords]
-
-	l_coords = doLLE(feature_array)
-	lX = [i[0] for i in l_coords]
-	lY = [i[1] for i in l_coords]
-
-	bmwl_coords = doLLE(bmw_feat)
-	bmwlX = [i[0] for i in bmwl_coords]
-	bmwlY = [i[1] for i in bmwl_coords]
-
-	flowerl_coords = doLLE(flower_feat)
-	flowerlX = [i[0] for i in flowerl_coords]
-	flowerlY = [i[1] for i in flowerl_coords]
-
-	mds_coords = do_mds(feature_array)
-	mdsX = [i[0] for i in mds_coords]
-	mdsY = [i[1] for i in mds_coords]
-
-	bmwmds_coords = do_mds(bmw_feat)
-	bmwmdsX = [i[0] for i in bmwmds_coords]
-	bmwmdsY = [i[1] for i in bmwmds_coords]
-	
-	flowermds_coords = do_mds(flower_feat)
-	flowermdsX = [i[0] for i in flowermds_coords]
-	flowermdsY = [i[1] for i in flowermds_coords]
-	plt.scatter(mdsX,mdsY)
-	plt.scatter(bmwmdsX,bmwmdsY,c="g")
-	plt.scatter(flowermdsX,flowermdsY,c="r")
-	plt.title('mds')
-	plt.figure()
-
-
-	plt.scatter(lX,lY)
-	plt.scatter(bmwlX,bmwlY,c="g")
-	plt.scatter(flowerlX,flowerlY,c="r")
-	plt.title("lle")
-	plt.figure()
-
-	plt.scatter(iX,iY)
-	plt.scatter(bmwiX,bmwiY,c="g")
-	plt.scatter(floweriX,floweriY,c="r")
-	plt.title('isomap')
-	plt.figure()
-
-
-	plt.title('normal PCA')
-	plt.scatter(X,Y)
-	plt.scatter(bmwX,bmwY,c="r")
-	plt.scatter(flowerX,flowerY,c="g")
-	plt.figure()
-	plt.scatter(kX,kY)
-	plt.scatter(flowerkX,flowerkY,c="g")
-	plt.scatter(bmwkX,bmwkY,c="r")
-	plt.title('kernel PCA')
-	plt.figure()
-	plt.scatter(tX,tY)
-	plt.scatter(bmwtX,bmwtY,c='g')
-	plt.scatter(flowertX,flowertY,c='r')
-	plt.title('tsne')
-
-	fig = plt.figure()
-	ax = Axes3D(fig)
-	plt.title('tsne')
-
-	ax.scatter(t3X,t3Y,t3Z)
-	ax.scatter(bmwt3X,bmwt3Y,bmwt3Z,c='g')
-	ax.scatter(flowert3X,flowert3Y,flowert3Z,c='r')
-	plt.show()
 
 if __name__ == '__main__':
 	main()
