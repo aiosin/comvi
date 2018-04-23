@@ -156,7 +156,11 @@ def simpleim2vec(file):
 	return (fvec,file)
 
 #TODO:implement
-def do_dimred(mode=None):
+def do_dimred(arr,mode=None):
+	scaler = StandardScaler()
+	scaler.fit(arr)
+	reducer = None
+	
 	pass
 	
 '''
@@ -265,20 +269,19 @@ def biggest_region(im,n=0):
 	#(lazy ?) return biggest region as binary matrix since true 
 	return  (labels == value).astype(int)
 
+#return the absolute paths of the files inside a directory
+def absoluteFilePaths(directory):
+	for dirpath,_,filenames in os.walk(directory):
+		for f in filenames:
+			yield os.path.abspath(os.path.join(dirpath, f))
 
 
-
-#compute shape feature array 
 #input is binary (greyscale) image matrix (V x € im : x = 0 v x = 1)
 def shape_features(im,fourier=False):
 	features = []
 	#make fourier descriptors for shape
 	if fourier:
-		#get contours
 		contours = cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
-		#TODO: make really sure image is binary 
-		#255 * 1 = 255
-		#255 * 0 = 0
 		im = im *255
 
 		#sorted order is ascending, [-1] is largest
@@ -289,14 +292,12 @@ def shape_features(im,fourier=False):
 		#dear future me:
 		#read as follows, 'put' the contour into a empty matrix, 
 		#the contour is the 0th index of the single element array [contour]
-		#thiccness of the contour is 1 and the color is 255,255,255
+		#thiccness of the contour is 1 and the color is 255,255,255 (white)
 		cv2.drawContours(black,[contour],0,(255,255,255),1)
 		#get centroid
 		moments = cv2.moments(im)
 		x = int(moments["m10"] / moments["m00"])
 		y = int(moments["m01"] / moments["m00"] )
-		#get distance curve from centroid
-		#this is a curve 
 
 		#CENTROID CONTOUR DISTANCE CURVE:
 		ccdc = []
@@ -324,16 +325,16 @@ def shape_features(im,fourier=False):
 			Y = Y / Y.max
 		#return the first ~16 coefficients (change if too vague)
 		return Y[:16]
-		
-	#normal image moments since they are scale translation and rotaion invariant
-	return cv2.HuMoments(im)
+	#else for scenario that we would have some other sort of shape features
+	else:
+		pass
 	
 
 def asyncim2vec(mode='complex',path=None):
 	feature_array= []
 	#set max_workers accordingly workers=None equals max amount of cores*2 (or 4?)
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
-		files = list(filter(lambda x: x.endswith('.png'), os.listdir(os.getcwd())))
+		files = list(filter(lambda x: x.endswith('.png'),absoluteFilePaths(path) ))
 		if mode is not None:
 			if(mode =='complex')
 				futures = [executor.submit(im2vec,file) for file in files]
@@ -353,43 +354,10 @@ def main():
 	# feature_array = arr2vec()
 	# step = timeit.default_timer()
 	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
-	feature_array= []
-	#set max_workers accordingly workers=None equals max amount of cores*2 (or 4?)
-	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
-		#yikes, horrible oneliner incomming
-		# futures = [executor.submit(im2vec,item) for item in list(filter(lamdba x : x.endswith('.png'), os.listdir(os.getcwd())))]
-		files = list(filter(lambda x: x.endswith('.png'), os.listdir(os.getcwd())))
-		futures = [executor.submit(im2vec,file) for file in files]
-		for future in concurrent.futures.as_completed(futures):
-			try:
-				feature_array.append(future.result()) 
-			except Exception as e:
-				print(e)
-	#I'll take what are for-loops for 400 ale
-	bmw_feat = []
-	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
-		#yikes, horrible oneliner incomming
-		# futures = [executor.submit(im2vec,item) for item in list(filter(lamdba x : x.endswith('.png'), os.listdir(os.getcwd())))]
-		files = list(filter(lambda x: x.endswith(('.png','.jpg')), [os.path.join('/home/zython/comvi/programming/datasets/bmw_subset/',item) for item in os.listdir('/home/zython/comvi/programming/datasets/bmw_subset')]))
-		futures = [executor.submit(im2vec,file) for file in files]
-		for future in concurrent.futures.as_completed(futures):
-			try:
-				bmw_feat.append(future.result()) 
-			except Exception as e:
-				print(e)
-	
-	flower_feat  = []
-	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
-		#yikes, horrible oneliner incomming
-		# futures = [executor.submit(im2vec,item) for item in list(filter(lamdba x : x.endswith('.png'), os.listdir(os.getcwd())))]
-		files = list(filter(lambda x: x.endswith(('.png','.jpg')), [os.path.join('/home/zython/comvi/programming/datasets/flower_subset/',item) for item in os.listdir('/home/zython/comvi/programming/datasets/flower_subset')]))
-		futures = [executor.submit(im2vec,file) for file in files]
-		for future in concurrent.futures.as_completed(futures):
-			try:
-				flower_feat.append(future.result()) 
-			except Exception as e:
-				print(e)
+	feature_array= asyncim2vec(mode='complex',os.path.abspath(os.getcwd()))
 
+	bmw_feat = asyncim2vec(mode='comple','/home/zython/comvi/programming/datasets/bmw_subset' )
+	flower_feat  = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/flower_subset/')
 
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
 	feature_array = sorted(feature_array, key= lambda x: x[1])
