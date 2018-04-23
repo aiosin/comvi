@@ -32,12 +32,11 @@ import timeit
 import concurrent.futures
 
 
-
+#gobal variable of file formats which can be accepted 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
-#TODO: separate feature extraction and 'data aggretation'
-#idea: make separate function 'feature_extraction' and
-#another function 'read_image'
-#TODO: put vector calculation in its own function
+
+
+
 def arr2vec(path=None):
 	#cannot create empty array with numpy
 	#workaround 
@@ -67,8 +66,8 @@ def arr2vec(path=None):
 #little lambda for 'tuplifying' of numpy arrays if needed
 tuplify_array = lambda x: tuple(map(tuple,x))
 
-#routing for one image
-#for hopefully parallelising the image vector routine
+#routine for one image
+#TODO: write docstring
 def im2vec(file):
 	#calculating features to create feature vector
 	try:
@@ -155,6 +154,10 @@ def simpleim2vec(file):
 	fvec = np.hstack(fvec)
 	#see im2vec for documentation
 	return (fvec,file)
+
+#TODO:implement
+def do_dimred(mode=None):
+	pass
 	
 '''
 method doPCA: returns 2d coordinates of dimensionality reduction on given data
@@ -183,7 +186,6 @@ def dokPCA(arr):
 	X = pca.fit_transform(arr)
 	return X
 	
-#TODO: implement
 def doG(arr):
 	scaler =  StandardScaler()
 	scaler.fit(arr)
@@ -225,27 +227,25 @@ def do_isomap(arr):
 	iso = Isomap(n_components=2)
 	x = iso.fit_transform(arr)
 	return x
-#return textural features for a given image
-#called haralick features
-#these are the following 13 or 14 features calculated per directions (?):
-#(directions are important for glcm - grey level correlcation matrix)
-#"Angular Second Moment","Contrast","Correlation","Sum of Squares: Variance",
-#"Inverse Difference Moment","Sum Average","Sum Variance","Sum Entropy",
-#"Entropy","Difference Variance","Difference Entropy",
-# "Information Measure of Correlation 1",
-# "Information Measure of Correlation 2",n Coefficient"
+
+"""
+return textural features for a given image
+called haralick features
+these are the following 13 or 14 features calculated per directions (?):
+(directions are important for glcm - grey level correlcation matrix)
+"Angular Second Moment","Contrast","Correlation","Sum of Squares: Variance",
+"Inverse Difference Moment","Sum Average","Sum Variance","Sum Entropy",
+"Entropy","Difference Variance","Difference Entropy",
+ "Information Measure of Correlation 1",
+ "Information Measure of Correlation 2",n Coefficient"
+"""
 def textural_features(im):
-	#TODO: horrible one liner, not readable => expand
 	#returns featurearray of size (4*14,) = (64,)
+	#TODO: find out about (im*256).astype(int), afair we dont work with binary images
 	return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
 	
-#TODO: implement
-#REMINDER: we're only interested in the biggest one based on which we will 
-#again extract shape, density, entropy, and other features
-#aswell as detecting specs of color
-def biggest_region(im):
-	#we want a binary image, so needs type int (any int)
-	#and two distinct 
+#TODO: implement n parameter
+def biggest_region(im,n=0):
 	assert im.dtype.name.contains('int')
 	assert len(im.unique) == 2
 
@@ -254,8 +254,6 @@ def biggest_region(im):
 	#"positive" values of the image
 	#further assumption is that all "negative" values are 0
 	#use: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.nonzero.html
-	#coords = zip(*np.nonzero(im))
-	#TODO: test with connectivity 1 and 2
 
 	#create label matrix (see connected regions post on SO)
 	labels = skimage.measure.label(im,connectivity=1)
@@ -267,10 +265,7 @@ def biggest_region(im):
 	#(lazy ?) return biggest region as binary matrix since true 
 	return  (labels == value).astype(int)
 
-#TODO: implement
-# computes biggest n regions
-def biggest_regions(im, n = 8):
-	pass
+
 
 
 #compute shape feature array 
@@ -290,7 +285,7 @@ def shape_features(im,fourier=False):
 		contour = sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
 
 		black = np.zeros((im.shape))
-
+		
 		#dear future me:
 		#read as follows, 'put' the contour into a empty matrix, 
 		#the contour is the 0th index of the single element array [contour]
