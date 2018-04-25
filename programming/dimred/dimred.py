@@ -1,6 +1,8 @@
 import os
 import cv2
 
+from programming import main
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -293,14 +295,12 @@ def asyncim2vec(mode='complex',path=None):
 
 
 def main():
-
-	# start = timeit.default_timer()
-	# feature_array = arr2vec()
-	# step = timeit.default_timer()
-	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
+	start = timeit.default_timer()
+	feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
+	step = timeit.default_timer()
 	feature_array= asyncim2vec(mode='complex',os.path.abspath(os.getcwd()))
-
-	bmw_feat = asyncim2vec(mode='comple','/home/zython/comvi/programming/datasets/bmw_subset' )
+	stepp = timeit.default_timer()
+	bmw_feat = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/bmw_subset' )
 	flower_feat  = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/flower_subset/')
 
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
