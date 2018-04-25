@@ -1,7 +1,6 @@
 import os
 import cv2
 
-from programming import main
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -120,14 +119,14 @@ def im2vec(file):
 	b_haralick = textural_features(b_im)
 
 	#THOUGHT: there *has* to be a better way of doing this.
-	fvec =np.array((r_mo,g_mo,b_mo,
-						 r_haralick,g_haralick,b_haralick,
-						 r_hist,g_hist,b_hist,
-						 r_mean, g_mean, b_mean,
-						 r_vx,g_vx,b_vx,
-						 r_skw,g_skw, b_skw,
-						 r_kurt, g_kurt,b_kurt,
-						 r_ent,g_ent,b_ent,
+	fvec =np.array((	r_mo,g_mo,b_mo,
+						r_haralick,g_haralick,b_haralick,
+						r_hist,g_hist,b_hist,
+						r_mean, g_mean, b_mean,
+						r_vx,g_vx,b_vx,
+						r_skw,g_skw, b_skw,
+						r_kurt, g_kurt,b_kurt,
+						r_ent,g_ent,b_ent,
 						)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
@@ -177,19 +176,19 @@ def do_dimred(arr,mode=None,components=2):
 	X = reducer.fit_transform(arr)
 	return tuple([item[i] for item in X]for i in range(0,components))
 
-"""
-return textural features for a given image
-called haralick features
-these are the following 13 or 14 features calculated per directions (?):
-(directions are important for glcm - grey level correlcation matrix)
-"Angular Second Moment","Contrast","Correlation","Sum of Squares: Variance",
-"Inverse Difference Moment","Sum Average","Sum Variance","Sum Entropy",
-"Entropy","Difference Variance","Difference Entropy",
- "Information Measure of Correlation 1",
- "Information Measure of Correlation 2",n Coefficient"
-"""
 def textural_features(im):
-	#returns featurearray of size (4*14,) = (64,)
+	"""
+	def textural_features(im)=> (64,) returns featurearray of size (4*14,)
+	return textural features for a given image
+	called haralick features
+	these are the following 13 or 14 features calculated per directions (?):
+	(directions are important for glcm - grey level correlcation matrix)
+	"Angular Second Moment","Contrast","Correlation","Sum of Squares: Variance",
+	"Inverse Difference Moment","Sum Average","Sum Variance","Sum Entropy",
+	"Entropy","Difference Variance","Difference Entropy",
+	"Information Measure of Correlation 1",
+	"Information Measure of Correlation 2",n Coefficient"
+	"""
 	#TODO: find out about (im*256).astype(int), afair we dont work with binary images
 	return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
 	
@@ -199,13 +198,8 @@ def biggest_region(im,n=0):
 	assert im.dtype.name.contains('int')
 	assert len(im.unique) == 2
 
-	#earlier approach, similar to floodfill algorithm
-	#create array of arrays which initially hold the coordinates of all
-	#"positive" values of the image
-	#further assumption is that all "negative" values are 0
-	#use: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.nonzero.html
-
 	#create label matrix (see connected regions post on SO)
+	#connectivity can be 1 or 2
 	labels = skimage.measure.label(im,connectivity=1)
 	#extract unique labels and count of those labels
 	unique, counts = numpy.unique(labels, return_counts=True)
@@ -216,6 +210,7 @@ def biggest_region(im,n=0):
 	return  (labels == value).astype(int)
 
 #return the absolute paths of the files inside a directory
+#source: https://stackoverflow.com/questions/9816816/
 def absoluteFilePaths(directory):
 	for dirpath,_,filenames in os.walk(directory):
 		for f in filenames:
@@ -233,12 +228,12 @@ def shape_features(im,fourier=False):
 		#sorted order is ascending, [-1] is largest
 		contour = sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
 
-		black = np.zeros((im.shape))
 		
 		#dear future me:
 		#read as follows, 'put' the contour into a empty matrix, 
 		#the contour is the 0th index of the single element array [contour]
 		#thiccness of the contour is 1 and the color is 255,255,255 (white)
+		black = np.zeros((im.shape))
 		cv2.drawContours(black,[contour],0,(255,255,255),1)
 		#get centroid
 		moments = cv2.moments(im)
@@ -296,13 +291,12 @@ def asyncim2vec(mode='complex',path=None):
 
 def main():
 	start = timeit.default_timer()
-	feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
-	step = timeit.default_timer()
 	feature_array= asyncim2vec(mode='complex',os.path.abspath(os.getcwd()))
-	stepp = timeit.default_timer()
+	step = timeit.default_timer()
 	bmw_feat = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/bmw_subset' )
+	stepp = timeit.default_timer()
 	flower_feat  = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/flower_subset/')
-
+	stop = timeit.default_timer()
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
 	feature_array = sorted(feature_array, key= lambda x: x[1])
 	stop  = timeit.default_timer()
