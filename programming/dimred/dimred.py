@@ -95,6 +95,12 @@ def im2vec(file):
 	g_mo = skimage.measure.moments(g_im).flatten()
 	b_mo = skimage.measure.moments(b_im).flatten()
 
+	r_avg = np.average(r_im) 
+	g_avg = np.average(g_im)
+	b_avg = np.average(b_im)
+
+
+
 	#color histogram features
 	r_hist = np.histogram(r_im,bins=16)[0]
 	g_hist = np.histogram(g_im,bins=16)[0]
@@ -119,7 +125,12 @@ def im2vec(file):
 	b_haralick = textural_features(b_im)
 
 	#THOUGHT: there *has* to be a better way of doing this.
+<<<<<<< Updated upstream
 	fvec =np.array((	r_mo,g_mo,b_mo,
+=======
+	fvec =np.array((r_mo,g_mo,b_mo,
+						r_avg,g_avg,b_avg,
+>>>>>>> Stashed changes
 						r_haralick,g_haralick,b_haralick,
 						r_hist,g_hist,b_hist,
 						r_mean, g_mean, b_mean,
@@ -161,7 +172,7 @@ def do_dimred(arr,mode=None,components=2):
 	scaler = StandardScaler()
 	scaler.fit(arr)
 	reducer = None
-	assert mode not None
+	assert mode is not None
 	#beautiful switch case courtesy of cpython
 	dimpurple = {
 		'PCA' : PCA,
@@ -277,9 +288,9 @@ def asyncim2vec(mode='complex',path=None):
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
 		files = list(filter(lambda x: x.endswith('.png'),absoluteFilePaths(path) ))
 		if mode is not None:
-			if(mode =='complex')
+			if(mode =='complex'):
 				futures = [executor.submit(im2vec,file) for file in files]
-			if(mode =='simple')
+			if(mode =='simple'):
 				futures = [executor.submit(simpleim2vec,file) for file in files]
 		for future in concurrent.futures.as_completed(futures):
 			try:
@@ -290,6 +301,7 @@ def asyncim2vec(mode='complex',path=None):
 
 
 def main():
+<<<<<<< Updated upstream
 	start = timeit.default_timer()
 	feature_array= asyncim2vec(mode='complex',os.path.abspath(os.getcwd()))
 	step = timeit.default_timer()
@@ -297,6 +309,17 @@ def main():
 	stepp = timeit.default_timer()
 	flower_feat  = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/flower_subset/')
 	stop = timeit.default_timer()
+=======
+	# start = timeit.default_timer()
+	# feature_array = arr2vec()
+	# step = timeit.default_timer()
+	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
+	feature_array= asyncim2vec(mode='complex',path=os.path.abspath(os.getcwd()))
+
+	bmw_feat = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/bmw_subset' )
+	flower_feat  = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/flower_subset/')
+
+>>>>>>> Stashed changes
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
 	feature_array = sorted(feature_array, key= lambda x: x[1])
 	stop  = timeit.default_timer()
