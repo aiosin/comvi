@@ -125,12 +125,8 @@ def im2vec(file):
 	b_haralick = textural_features(b_im)
 
 	#THOUGHT: there *has* to be a better way of doing this.
-<<<<<<< Updated upstream
-	fvec =np.array((	r_mo,g_mo,b_mo,
-=======
 	fvec =np.array((r_mo,g_mo,b_mo,
 						r_avg,g_avg,b_avg,
->>>>>>> Stashed changes
 						r_haralick,g_haralick,b_haralick,
 						r_hist,g_hist,b_hist,
 						r_mean, g_mean, b_mean,
@@ -301,15 +297,6 @@ def asyncim2vec(mode='complex',path=None):
 
 
 def main():
-<<<<<<< Updated upstream
-	start = timeit.default_timer()
-	feature_array= asyncim2vec(mode='complex',os.path.abspath(os.getcwd()))
-	step = timeit.default_timer()
-	bmw_feat = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/bmw_subset' )
-	stepp = timeit.default_timer()
-	flower_feat  = asyncim2vec(mode='complex','/home/zython/comvi/programming/datasets/flower_subset/')
-	stop = timeit.default_timer()
-=======
 	# start = timeit.default_timer()
 	# feature_array = arr2vec()
 	# step = timeit.default_timer()
@@ -319,7 +306,6 @@ def main():
 	bmw_feat = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/bmw_subset' )
 	flower_feat  = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/flower_subset/')
 
->>>>>>> Stashed changes
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
 	feature_array = sorted(feature_array, key= lambda x: x[1])
 	stop  = timeit.default_timer()
