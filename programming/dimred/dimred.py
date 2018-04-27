@@ -1,3 +1,5 @@
+import argparse
+
 import os
 import cv2
 
@@ -89,9 +91,14 @@ def im2vec(file):
 
 	#moments
 	moments = cv2.HuMoments(image_flat)
-	r_mo = skimage.measure.moments(r_im).flatten()
-	g_mo = skimage.measure.moments(g_im).flatten()
-	b_mo = skimage.measure.moments(b_im).flatten()
+	#r_mo = skimage.measure.moments(r_im).flatten()
+	#g_mo = skimage.measure.moments(g_im).flatten()
+	#b_mo = skimage.measure.moments(b_im).flatten()
+
+	
+	r_mo = skimage.measure.moments_hu(r_im).flatten()
+	g_mo = skimage.measure.moments_hu(g_im).flatten()
+	b_mo = skimage.measure.moments_hu(b_im).flatten()
 
 	r_avg = np.average(r_im) 
 	g_avg = np.average(g_im)
@@ -139,10 +146,11 @@ def im2vec(file):
 	#TODO:TEST WITH fev
 	return (fvec,file)
 
-
+#TODO: fix error with: too many indices
+#this happens either if the dimension of the array does not fit 
 def simpleim2vec(file):
 	try:
-		image = imread(file,flatten=True)
+		image = imread(file)
 		print(str(file))
 	except Exception as e:
 		return
@@ -278,9 +286,8 @@ def shape_features(im,fourier=False):
 
 def asyncim2vec(mode='complex',path=None):
 	feature_array= []
-	#set max_workers accordingly workers=None equals max amount of cores*2 (or 4?)
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
-		files = list(filter(lambda x: x.endswith('.png'),absoluteFilePaths(path) ))
+		files = list(filter(lambda x: x.endswith(_fformats),absoluteFilePaths(path) ))
 		if mode is not None:
 			if(mode =='complex'):
 				futures = [executor.submit(im2vec,file) for file in files]
@@ -295,20 +302,43 @@ def asyncim2vec(mode='complex',path=None):
 
 
 def main():
-	#start = timeit.default_timer()
-	#feature_array = arr2vec()
-	#step = timeit.default_timer()
-	#print("arr 2 vec done in: " +str(step - start))
-	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
-	feature_array= asyncim2vec(mode='complex',path=os.path.abspath(os.getcwd()))
+	#enable required flag for args once this reaches some sort of stable release
+	parser = argparse.ArgumentParser(description='dimemsionality reduction and clustering module for comvi')
+	parser.add_argument(
+			'--path', nargs=1,
+			help='absolute path to the image directory',
+			#required=True,
+			default=None
+			)
+	parser.add_argument(
+			'--output',
+			nargs=1,
+			help='absolute path to the output data structure',
+			#required=True,
+			default=None
+			)
+	args = parser.parse_args()
+	#these values are both either required or not
+	arg_path = args.path if args.path is not None else os.path.abspath(os.getcwd())
+	arg_output = args.output if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.json')
+	
+	start = timeit.default_timer()
+	feature_array= asyncim2vec(mode='simple',path=arg_path)
+	step = timeit.default_timer()
 
 	# bmw_feat = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/bmw_subset' )
 	# flower_feat  = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/flower_subset/')
 
-	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
+	# weed out the Nones (broken pngs etc., fileio errors ...)
+	#IMPORTANT: test this with a fresh mind
+	feature_array = [item for item in feature_array if item is not None ]
+
+
+	#sort the feature array based on the file, so we can reconstruct which index corresponds to which file
 	feature_array = sorted(feature_array, key= lambda x: x[1])
-	stop  = timeit.default_timer()
+
 	feature_array = [item[0] for item in feature_array if item[0] is not None ]
+	
 	#bmw_feat = [item[0] for item in bmw_feat if item[0] is not None ]
 	#flower_feat = [item[0] for item in flower_feat if item[0] is not None ]
 
