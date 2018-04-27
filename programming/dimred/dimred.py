@@ -1,5 +1,5 @@
 import os
-#import cv2
+import cv2
 
 
 import numpy as np
@@ -18,13 +18,11 @@ from skimage.transform import resize
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import MeanShift
-from sklearn.mixture import GaussianMixture
-from sklearn.mixture import VBGMM
-from sklearn.mixture import BayesianGaussianMixture
+from sklearn.mixture import GaussianMixture, VBGMM, BayesianGaussianMixture
 from sklearn.manifold import TSNE,Isomap,LocallyLinearEmbedding,SpectralEmbedding,MDS
 
 
-from scipy.stats import skew, kurtosis, entropy #energy_distance
+from scipy.stats import skew, kurtosis, entropy
 from scipy.spatial import distance
 from pprint import pprint
 
@@ -33,7 +31,7 @@ import timeit
 import concurrent.futures
 
 
-#gobal variable of file formats which can be accepted 
+#global variable of file formats which can be accepted 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
 
 
@@ -79,7 +77,7 @@ def im2vec(file):
 	#except Exception as e:
 	#	return
 	#IMPORTANT: 
-	image = resize(image,(128,128))
+	image = resize(image,(256,256))
 	#TODO: find out why those two lines exist
 	image_flat = imread(file ,flatten=True)
 	image_flat = resize(image_flat,(128,128))
@@ -90,7 +88,7 @@ def im2vec(file):
 	b_im = image[:,:,2]
 
 	#moments
-	#moments = cv2.HuMoments(image_flat)
+	moments = cv2.HuMoments(image_flat)
 	r_mo = skimage.measure.moments(r_im).flatten()
 	g_mo = skimage.measure.moments(g_im).flatten()
 	b_mo = skimage.measure.moments(b_im).flatten()
@@ -161,10 +159,9 @@ def simpleim2vec(file):
 	fvec = np.array((r_mo,g_mo,b_mo	)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
-	#see im2vec for documentation
+	#see im2vec for documentation on this return type
 	return (fvec,file)
 
-#TODO:implement
 def do_dimred(arr,mode=None,components=2):
 	scaler = StandardScaler()
 	scaler.fit(arr)
@@ -230,11 +227,11 @@ def shape_features(im,fourier=False):
 	features = []
 	#make fourier descriptors for shape
 	if fourier:
-		contours = None  # cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+		contours = cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
 		im = im *255
 
 		#sorted order is ascending, [-1] is largest
-		contour = None #sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
+		contour = sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
 
 		
 		#dear future me:
@@ -242,9 +239,9 @@ def shape_features(im,fourier=False):
 		#the contour is the 0th index of the single element array [contour]
 		#thiccness of the contour is 1 and the color is 255,255,255 (white)
 		black = np.zeros((im.shape))
-		#cv2.drawContours(black,[contour],0,(255,255,255),1)
+		cv2.drawContours(black,[contour],0,(255,255,255),1)
 		#get centroid
-		moments = None #cv2.moments(im)
+		moments = cv2.moments(im)
 		x = int(moments["m10"] / moments["m00"])
 		y = int(moments["m01"] / moments["m00"] )
 
