@@ -1,6 +1,30 @@
 #source:http://code.activestate.com/recipes/578994-discrete-fourier-transform/
 # Discrete Fourier Transform (DFT)
 # FB - 20141227
+
+
+# zython@echelon:~$ p
+# Python 3.6.4 (default, Jan  5 2018, 02:35:40) 
+# [GCC 7.2.1 20171224] on linux
+# Type "help", "copyright", "credits" or "license" for more information.
+# >>> import numpy as np
+# >>> x = np.linspace(0,np.pi*2,100,endpoint=False)
+# >>> y = np.sin(x)
+# >>> yf = np.fft.rfft(y)
+# >>> help(np.set_printoptions)
+
+# >>> np.set_printoptions(suppress=True, precision=3)
+# >>> print(yf)
+# [-0. +0.j -0.-50.j  0. -0.j -0. -0.j  0. -0.j -0. +0.j -0. -0.j  0. +0.j
+#  -0. -0.j  0. -0.j -0. -0.j  0. -0.j  0. +0.j -0. -0.j  0. -0.j -0. +0.j
+#  -0. -0.j  0. +0.j -0. -0.j  0. +0.j  0. -0.j  0. -0.j  0. +0.j -0. -0.j
+#   0. -0.j -0. +0.j -0. -0.j  0. +0.j -0. -0.j  0. +0.j -0. -0.j  0. -0.j
+#   0. +0.j -0. -0.j  0. +0.j -0. -0.j -0. -0.j  0. -0.j -0. -0.j  0. -0.j
+#   0. -0.j  0. -0.j  0. -0.j  0. +0.j  0. +0.j  0. +0.j  0. -0.j  0. +0.j
+#   0. -0.j  0. +0.j -0. +0.j]
+# >>> 
+
+
 import random
 import math
 import cmath
