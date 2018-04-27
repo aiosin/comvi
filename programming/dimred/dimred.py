@@ -312,16 +312,21 @@ def main():
 	feature_array = sorted(feature_array, key= lambda x: x[1])
 	stop  = timeit.default_timer()
 	feature_array = [item[0] for item in feature_array if item[0] is not None ]
-	bmw_feat = [item[0] for item in bmw_feat if item[0] is not None ]
-	flower_feat = [item[0] for item in flower_feat if item[0] is not None ]
+	#bmw_feat = [item[0] for item in bmw_feat if item[0] is not None ]
+	#flower_feat = [item[0] for item in flower_feat if item[0] is not None ]
 
-	scaler =  StandardScaler()
-	scaler.fit(feature_array)
-	scaled_feature_array =scaler.transform(feature_array)
+	#scaler =  StandardScaler()
+	#scaler.fit(feature_array)
+	#scaled_feature_array =scaler.transform(feature_array)
 
-	shift = MeanShift()
-	shift.fit(scaled_feature_array)
-	print(shift.labels_)
+	#shift = MeanShift()
+	#shift.fit(scaled_feature_array)
+	#print(shift.labels_)
+	X,Y = do_dimred(feature_array, mode='tsne', components=2)
+	plt.figure()
+	plt.scatter(X,Y)
+	plt.title('tsne')
+	plt.show()
 
 if __name__ == '__main__':
 	main()
