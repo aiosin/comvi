@@ -24,7 +24,7 @@ from sklearn.mixture import BayesianGaussianMixture
 from sklearn.manifold import TSNE,Isomap,LocallyLinearEmbedding,SpectralEmbedding,MDS
 
 
-from scipy.stats import skew, kurtosis, entropy, energy_distance
+from scipy.stats import skew, kurtosis, entropy #energy_distance
 from scipy.spatial import distance
 from pprint import pprint
 
@@ -278,7 +278,7 @@ def shape_features(im,fourier=False):
 		pass
 	
 
-def asyncim2vec(mode='complex',path=None):
+def asyncim2vec(mode='simple',path=None):
 	feature_array= []
 	#set max_workers accordingly workers=None equals max amount of cores*2 (or 4?)
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
@@ -297,14 +297,15 @@ def asyncim2vec(mode='complex',path=None):
 
 
 def main():
-	# start = timeit.default_timer()
-	# feature_array = arr2vec()
-	# step = timeit.default_timer()
+	start = timeit.default_timer()
+	feature_array = arr2vec()
+	step = timeit.default_timer()
+	print("arr 2 vec done in: " +str(step - start))
 	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
 	feature_array= asyncim2vec(mode='complex',path=os.path.abspath(os.getcwd()))
 
-	bmw_feat = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/bmw_subset' )
-	flower_feat  = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/flower_subset/')
+	# bmw_feat = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/bmw_subset' )
+	# flower_feat  = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/flower_subset/')
 
 	#sort the feature array based on the file, so arr2vec and im2vec in parallel should be equal 
 	feature_array = sorted(feature_array, key= lambda x: x[1])
