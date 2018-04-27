@@ -1,5 +1,5 @@
 import os
-import cv2
+#import cv2
 
 
 import numpy as np
@@ -224,16 +224,16 @@ def absoluteFilePaths(directory):
 			yield os.path.abspath(os.path.join(dirpath, f))
 
 
-#input is binary (greyscale) image matrix (V x € im : x = 0 v x = 1)
+#input is binary (greyscale) image matrix (V x E im : x = 0 v x = 1)
 def shape_features(im,fourier=False):
 	features = []
 	#make fourier descriptors for shape
 	if fourier:
-		contours = cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+		contours = None  # cv2.findContours(im,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
 		im = im *255
 
 		#sorted order is ascending, [-1] is largest
-		contour = sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
+		contour = None #sorted(contours, key=lambda x: cv2.contourArea(x))[-1]
 
 		
 		#dear future me:
@@ -241,9 +241,9 @@ def shape_features(im,fourier=False):
 		#the contour is the 0th index of the single element array [contour]
 		#thiccness of the contour is 1 and the color is 255,255,255 (white)
 		black = np.zeros((im.shape))
-		cv2.drawContours(black,[contour],0,(255,255,255),1)
+		#cv2.drawContours(black,[contour],0,(255,255,255),1)
 		#get centroid
-		moments = cv2.moments(im)
+		moments = None #cv2.moments(im)
 		x = int(moments["m10"] / moments["m00"])
 		y = int(moments["m01"] / moments["m00"] )
 
@@ -256,7 +256,7 @@ def shape_features(im,fourier=False):
 		#so F-D is scale-invariant
 		#THOUGHT:
 		#use softmax function
-		#=> maps any vector € R  -> v € R^n sum(v)= 1
+		#=> maps any vector E R  -> v E R^n sum(v)= 1
 		#while keeping relative proportions
 
 		#do fft on said curve
