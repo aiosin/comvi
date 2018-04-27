@@ -145,6 +145,7 @@ def im2vec(file):
 def simpleim2vec(file):
 	try:
 		image = imread(file,flatten=True)
+		print(str(file))
 	except Exception as e:
 		return
 	image = resize(image,(128,128))
@@ -278,7 +279,7 @@ def shape_features(im,fourier=False):
 		pass
 	
 
-def asyncim2vec(mode='simple',path=None):
+def asyncim2vec(mode='complex',path=None):
 	feature_array= []
 	#set max_workers accordingly workers=None equals max amount of cores*2 (or 4?)
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
@@ -297,10 +298,10 @@ def asyncim2vec(mode='simple',path=None):
 
 
 def main():
-	start = timeit.default_timer()
-	feature_array = arr2vec()
-	step = timeit.default_timer()
-	print("arr 2 vec done in: " +str(step - start))
+	#start = timeit.default_timer()
+	#feature_array = arr2vec()
+	#step = timeit.default_timer()
+	#print("arr 2 vec done in: " +str(step - start))
 	# feature_array = [im2vec(item) for item in sorted(os.listdir(os.getcwd())) ]
 	feature_array= asyncim2vec(mode='complex',path=os.path.abspath(os.getcwd()))
 
