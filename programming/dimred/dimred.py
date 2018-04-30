@@ -396,7 +396,7 @@ def main():
 	fig,ax = plt.subplots()
 	cid = fig.canvas.mpl_connect('button_press_event', handle_click)
 
-	ms_array = np.array(zip(X,Y))
+	ms_array = np.array(list(zip(X,Y)))
 	scaler =  StandardScaler()
 	scaler.fit(ms_array)
 	scaled_feature_array =scaler.transform(ms_array)
@@ -411,7 +411,7 @@ def main():
 	with open(arg_output, 'w') as file:
 		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
 		for item in zip(filenames,X,Y):
-			csv.writerow(item[0],item[1],item[2])
+			outwriter.writerow(item)
 
 
 
