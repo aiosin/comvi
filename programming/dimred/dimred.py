@@ -1,4 +1,5 @@
 import argparse
+import csv
 
 import os
 import cv2
@@ -107,9 +108,9 @@ def im2vec(file):
 
 
 	#color histogram features
-	r_hist = np.histogram(r_im,bins=16)[0]
-	g_hist = np.histogram(g_im,bins=16)[0]
-	b_hist = np.histogram(b_im,bins=16)[0]
+	r_hist = np.histogram(r_im,bins=np.arange(16))[0]
+	g_hist = np.histogram(g_im,bins=np.arange(16))[0]
+	b_hist = np.histogram(b_im,bins=np.arange(16))[0]
 	r_mean = np.average(r_hist)
 	g_mean = np.average(g_hist)
 	b_mean = np.average(b_hist)
@@ -128,6 +129,14 @@ def im2vec(file):
 	r_haralick = textural_features(r_im)
 	g_haralick = textural_features(g_im)
 	b_haralick = textural_features(b_im)
+	r_shape = shape_features(r_im,fourier=True)
+	g_shape = shape_features(g_im,fourier=True)
+	b_shape = shape_features(b_im,fourier=True)
+
+	r_region = region_featues(r_im)
+	g_region = region_featues(g_im)
+	b_region = region_featues(b_im)
+
 
 	#THOUGHT: there *has* to be a better way of doing this.
 	fvec =np.array((r_mo,g_mo,b_mo,
@@ -139,6 +148,8 @@ def im2vec(file):
 						r_skw,g_skw, b_skw,
 						r_kurt, g_kurt,b_kurt,
 						r_ent,g_ent,b_ent,
+						r_shape, g_shape, b_shape,
+						r_region, g_region, b_region
 						)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
@@ -189,7 +200,7 @@ def do_dimred(arr,mode=None,components=2):
 	X = reducer.fit_transform(arr)
 	return tuple([item[i] for item in X]for i in range(0,components))
 
-def textural_features(im):
+def textural_features(im,haralick=True):
 	"""
 	def textural_features(im)=> (64,) returns featurearray of size (4*14,)
 	return textural features for a given image
@@ -202,9 +213,16 @@ def textural_features(im):
 	"Information Measure of Correlation 1",
 	"Information Measure of Correlation 2",n Coefficient"
 	"""
-	#TODO: find out about (im*256).astype(int), afair we dont work with binary images
-	return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
+	if haralick:
+		#TODO: find out about (im*256).astype(int), afair we dont work with binary images
+		return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
+	else:
+		print("incorrect usage of textural features")
 	
+
+def region_featues(im):
+	return skimage.meausre.HuMoments( biggest_region(im)).flatten()
+
 #TODO: implement n parameter
 #n equals number of regions extracted
 def biggest_region(im,n=0):
@@ -322,40 +340,44 @@ def main():
 	args = parser.parse_args()
 	#these values are both either required or not
 	arg_path = args.path if args.path is not None else os.path.abspath(os.getcwd())
-	arg_output = args.output if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.json')
+	#current plan is to write to csv, because of its simplicity to parse
+	arg_output = args.output if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
 	
 	start = timeit.default_timer()
 	feature_array= asyncim2vec(mode='simple',path=arg_path)
+	
 	step = timeit.default_timer()
 
-	# bmw_feat = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/bmw_subset' )
-	# flower_feat  = asyncim2vec(mode='complex',path='/home/zython/comvi/programming/datasets/flower_subset/')
 
 	# weed out the Nones (broken pngs etc., fileio errors ...)
 	#IMPORTANT: test this with a fresh mind
 	feature_array = [item for item in feature_array if item is not None ]
 
 
-	#TODO: indexsetting doesnt work
 	def handle_click(event):
-		#print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
-		#	('double' if event.dblclick else 'single', event.button,
-		#	event.x, event.y, event.xdata, event.ydata))
+		print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+			('double' if event.dblclick else 'single', event.button,
+			event.x, event.y, event.xdata, event.ydata))
 		#get nearest neighbor:
+		#setting first entry
 		nearest_neighbor = list(zip(X,Y))[0]
-		click_loc = (event.xdata, event.ydata )
+		#setting the click location
+		click_loc = (event.xdata, event.ydata)
+		#iterating through all points
 		for item in zip(X,Y):
-			if distance.euclidean(item, click_loc) < distance.euclidean(item,nearest_neighbor):	
+			#if the distance between the item and the 
+			if distance.euclidean(item, click_loc) < distance.euclidean(nearest_neighbor,click_loc):	
 				nearest_neighbor = item
-		
+		print(nearest_neighbor)
+
 		#after this loop the neareste neighbor is set
-		#data points are not sorted, so dont neet to bother with binary search, this aint get better than this
+		#data points are not sorted, so dont neet to bother with binary search, there is  no point "optimizing" this 
 		index = 0
 		for item in zip(X,Y):
-			if(nearest_neighbor[0] == item[0]):
-				if(nearest_neighbor[1]==item[1]):
-					#nearest_neighbor found, break loop
-					break
+			if(nearest_neighbor[0] == item[0]) and (nearest_neighbor[1]==item[1]):
+				break
+			index += 1
+
 		data = imread(filenames[index])
 		plt.figure()
 		plt.imshow(data)
@@ -365,26 +387,33 @@ def main():
 
 	#sort the feature array based on the file, so we can reconstruct which index corresponds to which file
 	feature_array = sorted(feature_array, key= lambda x: x[1])
-	filenames = [item[1] for item in feature_array]
-	feature_array = [item[0] for item in feature_array if item[0] is not None ]
+	filenames = [item[1] for item in feature_array if item[0] is not None]
+	data_array = [item[0] for item in feature_array if item[0] is not None ]
+
+
 	
-	#bmw_feat = [item[0] for item in bmw_feat if item[0] is not None ]
-	#flower_feat = [item[0] for item in flower_feat if item[0] is not None ]
-
-	#scaler =  StandardScaler()
-	#scaler.fit(feature_array)
-	#scaled_feature_array =scaler.transform(feature_array)
-
-	#shift = MeanShift()
-	#shift.fit(scaled_feature_array)
-	#print(shift.labels_)
-	X,Y = do_dimred(feature_array, mode='tsne', components=2)
+	X,Y = do_dimred(data_array, mode='tsne', components=2)
 	fig,ax = plt.subplots()
 	cid = fig.canvas.mpl_connect('button_press_event', handle_click)
+
+	ms_array = np.array(zip(X,Y))
+	scaler =  StandardScaler()
+	scaler.fit(ms_array)
+	scaled_feature_array =scaler.transform(ms_array)
+
+	shift = MeanShift()
+	shift.fit(scaled_feature_array)
+	print(shift.labels_)
 
 	ax.scatter(X,Y)
 	#ax.title('tsne')
 	plt.show()
+	with open(arg_output, 'w') as file:
+		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
+		for item in zip(filenames,X,Y):
+			csv.writerow(item[0],item[1],item[2])
+
+
 
 if __name__ == '__main__':
 	main()
