@@ -302,6 +302,8 @@ def asyncim2vec(mode='complex',path=None):
 
 
 def main():
+	X = None
+	Y = None
 	#enable required flag for args once this reaches some sort of stable release
 	parser = argparse.ArgumentParser(description='dimemsionality reduction and clustering module for comvi')
 	parser.add_argument(
@@ -334,9 +336,36 @@ def main():
 	feature_array = [item for item in feature_array if item is not None ]
 
 
+	#TODO: indexsetting doesnt work
+	def handle_click(event):
+		#print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+		#	('double' if event.dblclick else 'single', event.button,
+		#	event.x, event.y, event.xdata, event.ydata))
+		#get nearest neighbor:
+		nearest_neighbor = list(zip(X,Y))[0]
+		click_loc = (event.xdata, event.ydata )
+		for item in zip(X,Y):
+			if distance.euclidean(item, click_loc) < distance.euclidean(item,nearest_neighbor):	
+				nearest_neighbor = item
+		
+		#after this loop the neareste neighbor is set
+		#data points are not sorted, so dont neet to bother with binary search, this aint get better than this
+		index = 0
+		for item in zip(X,Y):
+			if(nearest_neighbor[0] == item[0]):
+				if(nearest_neighbor[1]==item[1]):
+					#nearest_neighbor found, break loop
+					break
+		data = imread(filenames[index])
+		plt.figure()
+		plt.imshow(data)
+		plt.show()
+
+		
+
 	#sort the feature array based on the file, so we can reconstruct which index corresponds to which file
 	feature_array = sorted(feature_array, key= lambda x: x[1])
-
+	filenames = [item[1] for item in feature_array]
 	feature_array = [item[0] for item in feature_array if item[0] is not None ]
 	
 	#bmw_feat = [item[0] for item in bmw_feat if item[0] is not None ]
@@ -350,9 +379,11 @@ def main():
 	#shift.fit(scaled_feature_array)
 	#print(shift.labels_)
 	X,Y = do_dimred(feature_array, mode='tsne', components=2)
-	plt.figure()
-	plt.scatter(X,Y)
-	plt.title('tsne')
+	fig,ax = plt.subplots()
+	cid = fig.canvas.mpl_connect('button_press_event', handle_click)
+
+	ax.scatter(X,Y)
+	#ax.title('tsne')
 	plt.show()
 
 if __name__ == '__main__':
