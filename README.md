@@ -79,4 +79,6 @@ Comparative Visualization of Molecular Surfaces using Similarity-based Clusterin
 
 - dim. reduction 
 
-- 
+- image generation
+
+- image exploration in clusterview 
