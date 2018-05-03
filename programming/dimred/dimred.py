@@ -129,9 +129,9 @@ def im2vec(file):
 	r_haralick = textural_features(r_im)
 	g_haralick = textural_features(g_im)
 	b_haralick = textural_features(b_im)
-	r_shape = shape_features(r_im,fourier=True)
-	g_shape = shape_features(g_im,fourier=True)
-	b_shape = shape_features(b_im,fourier=True)
+	r_shape = shape_features(biggest_region(r_im),fourier=True)
+	g_shape = shape_features(biggest_region(g_im),fourier=True)
+	b_shape = shape_features(biggest_region(b_im),fourier=True)
 
 	r_region = region_featues(r_im)
 	g_region = region_featues(g_im)
@@ -407,7 +407,7 @@ def main():
 		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
 		for item in zip(filenames,X,Y,shift.labels_):
 			outwriter.writerow(item)
-	colors = [ tuple((item,np.random.rand(3,1))) for item in np.unique(shift.labels_)]
+	colors = [ tuple((item,np.random.rand(3,))) for item in np.unique(shift.labels_)]
 	plt.figure()
 	for item in zip(X,Y,shift.labels_):
 		color = None
