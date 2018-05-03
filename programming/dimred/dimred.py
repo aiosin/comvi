@@ -355,9 +355,6 @@ def main():
 
 
 	def handle_click(event):
-		print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
-			('double' if event.dblclick else 'single', event.button,
-			event.x, event.y, event.xdata, event.ydata))
 		#get nearest neighbor:
 		#setting first entry
 		nearest_neighbor = list(zip(X,Y))[0]
@@ -368,7 +365,6 @@ def main():
 			#if the distance between the item and the 
 			if distance.euclidean(item, click_loc) < distance.euclidean(nearest_neighbor,click_loc):	
 				nearest_neighbor = item
-		print(nearest_neighbor)
 
 		#after this loop the neareste neighbor is set
 		#data points are not sorted, so dont neet to bother with binary search, there is  no point "optimizing" this 
@@ -407,12 +403,19 @@ def main():
 
 	ax.scatter(X,Y)
 	#ax.title('tsne')
-	plt.show()
 	with open(arg_output, 'w') as file:
 		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
-		for item in zip(filenames,X,Y):
+		for item in zip(filenames,X,Y,shift.labels_):
 			outwriter.writerow(item)
-
+	colors = [ tuple((item,np.random.rand(3,1))) for item in np.unique(shift.labels_)]
+	plt.figure()
+	for item in zip(X,Y,shift.labels_):
+		color = None
+		for entry in colors:
+			if(entry[0]==item[2]):
+				color = entry[1]
+		plt.scatter(item[0],item[1],c=color)
+	plt.show()
 
 
 if __name__ == '__main__':
