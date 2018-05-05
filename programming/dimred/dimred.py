@@ -407,15 +407,50 @@ def main():
 		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
 		for item in zip(filenames,X,Y,shift.labels_):
 			outwriter.writerow(item)
-	colors = [ tuple((item,np.random.rand(3,))) for item in np.unique(shift.labels_)]
-	plt.figure()
-	for item in zip(X,Y,shift.labels_):
-		color = None
-		for entry in colors:
-			if(entry[0]==item[2]):
-				color = entry[1]
-		plt.scatter(item[0],item[1],c=color)
-	plt.show()
+
+		colors = [ tuple((item,np.random.rand(3,))) for item in np.unique(shift.labels_)]
+		plt.figure()
+		for item in zip(X,Y,shift.labels_):
+			color = None
+			for entry in colors:
+				if(entry[0]==item[2]):
+					color = entry[1]
+			plt.scatter(item[0],item[1],c=color)
+		#routine for subclustering the clusters
+		#anything below level 2 is considered irrelevant at this point
+
+		#wish I could define a custom data type for this
+		#sublevel will be a list
+		#that list holds information about the subcluster(the label) and the clustering of the
+		#in that label
+		#the data structure needs to hold all the images with that label
+		labels = np.unique(shift.labels_)
+		sublevel = {label:[] for label in labels}
+		#move the tuples to the according "bin"
+		for item in zip(filenames,X,Y,shift.labels_):
+			sublevel.get(item[3]).append(tuple((item[0],item[1],item[2])))#explicitly giving a tuple
+
+		#TODO:convert dict into tuples to iterate over
+		#cluster the data in the sublevels
+		#iteration 
+		for key,value in sublevel.items():
+			#coords
+			coords  = [item[1],item[2] for item in value]
+			scaler = StandardScaler()
+			scaler.fit(coords)
+			scaled_coords  = scaler.transform(coords)
+			shift = MeanShift()
+			shift.fit(scaled_coords)
+
+			for i in range(0,len(value)-1)
+				value[i].append(shift.labels_[i])
+		writer.writerow('BEGIN SUBCLUSTERS')
+		for key,value in sublevel.items():
+			writer.writerow(('subcluster',1))
+			for item in value:
+				writer.writerow(item)
+		writer.writerow('END SUBCLUSTERS')
+		plt.show()
 
 
 if __name__ == '__main__':
