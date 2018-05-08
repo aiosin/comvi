@@ -445,11 +445,7 @@ def main():
 			shift.fit(scaled_coords)
 
 			for i in range(0,len(value)-1):
-<<<<<<< HEAD
 				value[i] += (shift.labels_[i],)
-=======
-				value[i].append(shift.labels_[i])
->>>>>>> 9ff68990d73fee0a3e518cd5f122fb48156490cb
 		writer.writerow('BEGIN SUBCLUSTERS')
 		for key,value in sublevel.items():
 			writer.writerow(('subcluster',1))
