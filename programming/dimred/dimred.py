@@ -339,9 +339,9 @@ def main():
 			)
 	args = parser.parse_args()
 	#these values are both either required or not
-	arg_path = args.path if args.path is not None else os.path.abspath(os.getcwd())
+	arg_path = args.path[0] if args.path is not None else os.path.abspath(os.getcwd())
 	#current plan is to write to csv, because of its simplicity to parse
-	arg_output = args.output if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
+	arg_output = args.output[0] + 'output.csv' if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
 	
 	start = timeit.default_timer()
 	feature_array= asyncim2vec(mode='simple',path=arg_path)
@@ -445,7 +445,11 @@ def main():
 			shift.fit(scaled_coords)
 
 			for i in range(0,len(value)-1):
+<<<<<<< HEAD
 				value[i] += (shift.labels_[i],)
+=======
+				value[i].append(shift.labels_[i])
+>>>>>>> 9ff68990d73fee0a3e518cd5f122fb48156490cb
 		writer.writerow('BEGIN SUBCLUSTERS')
 		for key,value in sublevel.items():
 			writer.writerow(('subcluster',1))
