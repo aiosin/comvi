@@ -434,16 +434,18 @@ def main():
 		#cluster the data in the sublevels
 		#iteration 
 		for key,value in sublevel.items():
+			print(value)
+			print(type(value))
 			#coords
-			coords  = [item[1],item[2] for item in value]
+			coords  = [(item[1],item[2]) for item in value]
 			scaler = StandardScaler()
 			scaler.fit(coords)
 			scaled_coords  = scaler.transform(coords)
 			shift = MeanShift()
 			shift.fit(scaled_coords)
 
-			for i in range(0,len(value)-1)
-				value[i].append(shift.labels_[i])
+			for i in range(0,len(value)-1):
+				value[i] += (shift.labels_[i],)
 		writer.writerow('BEGIN SUBCLUSTERS')
 		for key,value in sublevel.items():
 			writer.writerow(('subcluster',1))
@@ -454,4 +456,6 @@ def main():
 
 
 if __name__ == '__main__':
+	np.random.seed(0)
+	print(np.random.randint(0,1000,100))
 	main()
