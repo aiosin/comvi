@@ -156,11 +156,30 @@ With the recent trend in machine learning we had a couple of ideas of how we cou
 
 We ended up using a higher dimensional feature vector described in \todo{give section label} to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to inexperience \todo{this can be said better}and non existance of labeled data.
 
-But our relatively spartan results with a pretrained Imagenet \todo{cite imagenet} \todo{cite darknet publication} model let us to believe that given the knowledge on the subject and humanly labeled data (based on known featuresit \todo{LEFT OFF HERE}shoud be definetly possible for this specified task to find a machine learning solution. 
+But our relatively spartan results with a pretrained Imagenet \todo{cite imagenet} \todo{cite darknet publication} model let us to believe that given the knowledge on the subject and humanly labeled data (based on known featuresit \todo{LEFT OFF HERE}shoud be definetly possible for this specified task to find a machine learning  solution using neural networks/autoencoders.
 
 \subsection{Approaches to the Visualization-Task}
 
 Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the POWERWALL, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the POWERWALL can be found \todo{cite powerwall publicatoin here if available}.
+
+If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the POWERWALL.
+
+During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
+
+While the interactions with the data in 3D would have been more fun since we had more degrees of freedom to work with.
+But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen.
+
+... So we decided to settle for a 2D visualization. Our approach is rather boring but it works. On startup we display nothing, if the user chooses his supplied image data and the algorithms used to cluster the pictures he gets the option to start the visualization.
+
+The visualizatoin consists of displaying the image of a cluster representative with a simple rectangle. 
+This way the user knows exactly what to expect to be in the cluster.
+
+If the user wishes to have a closer look at the images in the given cluster he can click onto the representative and will get a view of all the images in that cluster.
+
+We decided after testing with toy test and real datasets that one level of subclustering is enough, after 2 levels of subclustering the clusters get \todo{find better expression}  noisy and ambiguous.
+
+In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
+
 
 
 \subsubsection{Approaches to the Interaction with the Powerwall \todo{cite correct pub and use correct name}}
