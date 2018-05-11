@@ -186,7 +186,7 @@ In both the main and subcluster view the representatives are visualized with "fo
 
 \subsubsection{Approaches to the Interaction with the Powerwall \todo{cite correct pub and use correct name}}
 
-\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
+\todo{@shoma @enis @damir interaktionsmöglichkeiten schreiben}
 
 
 \subsection{Finding a feature vector to cluster the images}
@@ -216,6 +216,46 @@ The initial idea was that the color distribution gives information about the col
 
 The image moments were chosen as a goto approach to extract invariant features from the image which has been proved to yield results as described in \cite{kolesar}
 
+The exact image features that we extract from the image are the following:
+
+\subsection{Invariant Image Moments by Hu}
+
+The set of invariant Image Moments discovered by Hu et. al \todo{find out if hu moments just him or others or et al.} are rotation, translation, scale and trasformation \todo{find out if correct} invariant. This allows us to determine if an image$I_a$ is similar to another image $I_B$ if $I_B$ is equal $I_A$ and simply rotated by $30^°$ \todo{put the value in degrees there}
+
+The (continouus (spelling?)  Image ) Moments  over two dimensions at their core are defined as such:
+
+\[m_{i,j} = \int^\infty_{- \infty}\int^\infty_{- \infty} f(x,y) dy dx \]. When dealing with discrete values like we find them in an (RGB/GS) Image we use sums insteads of integral so we get this:
+\[m_{i,j} = \sum^n_{i=0}\sum^m_{j=0} f(i,y) \].\todo{get definition of moment}
+
+Hu further defines his moments as such:
+ 
+\todo{give the definition of all 7/8 moments (?) because this is going to take up a lot of space. }
+
+Kolesar ended up using these moments \todo{put in kolsar moments}, in our case the moments \todo{put the hu moments here}
+
+\subsection{Color palette/histogram }
+
+The goal when extracting color palette was to reduce the big color space that is present in any of the molecular maps and get a few distinct \todo{aussagekräfting} colors from that range.
+
+To achieve this we extract a histogram of each color channel of the RGB images. Each channel is then represented as a greyscale image. We then create for each channel a histogram of the luminance intensities with in our case 16 bins. This "reduces" the \(128*128 = 16384\) dimensions to just \(48\) dimensions for our image.
+
+Alternatively you can take another approach described here
+
+The results of both approaches will be discussed in \todo{cite}
+
+\subsection{Texture}
+\todo{better introduction}
+After looking at a toy dataset of molecular maps we noticed that many samples had a distinct roughness that looked like they could be used to classify their texture.
+
+We ended up using the haralick textural features. The haralick features work with a grey level correlation matrix (GCM). The gcm for a given greyscale image is defined as such:
+
+\[\text{put the formula here, this is spaceholder}\]
+
+Further value can be take n from this matrix which gives us more features
+
+we also computed this on every channel yielding us another \(x\) features \todo{expand texture features}
+
+\subsection{Shape}
 
 \subsection{Finding the best performing similarity measure}
 \subsection{Finding the best performing clustering algorithm}
