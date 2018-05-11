@@ -434,28 +434,35 @@ def main():
 		#cluster the data in the sublevels
 		#iteration 
 		for key,value in sublevel.items():
-			print(value)
-			print(type(value))
 			#coords
 			coords  = [(item[1],item[2]) for item in value]
+			#meanshift can only work with a minimum amount of values
+			if(len(coords) < 5):
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
 			scaler = StandardScaler()
 			scaler.fit(coords)
 			scaled_coords  = scaler.transform(coords)
 			shift = MeanShift()
 			shift.fit(scaled_coords)
-
+			
 			for i in range(0,len(value)-1):
 				value[i] += (shift.labels_[i],)
-		writer.writerow('BEGIN SUBCLUSTERS')
+		outwriter.writerow(('BEGIN SUBCLUSTERS',))
 		for key,value in sublevel.items():
-			writer.writerow(('subcluster',1))
+			outwriter.writerow(('subcluster',key))
 			for item in value:
-				writer.writerow(item)
-		writer.writerow('END SUBCLUSTERS')
+				outwriter.writerow(item)
+		outwriter.writerow(('END SUBCLUSTERS',))
 		plt.show()
 
 
 if __name__ == '__main__':
 	np.random.seed(0)
-	print(np.random.randint(0,1000,100))
 	main()
