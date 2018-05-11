@@ -11,7 +11,7 @@ import os
 #such as those litle red/yellow/green/blue specs of color
 #and sheap features through fourier descriptors
 def reduce_image(file):
-    img = cv2.imread(file)
+    img = file
     Z = img.reshape((-1,3))
     # convert to np.float32
     Z = np.float32(Z)

@@ -4,6 +4,7 @@ import csv
 import os
 import cv2
 
+from sklearn.cluster import KMeans
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,10 +30,12 @@ from scipy.stats import skew, kurtosis, entropy
 from scipy.spatial import distance
 from pprint import pprint
 
+import traceback
 
 import timeit
 import concurrent.futures
 
+from util import kmeans_im
 
 #global variable of file formats which can be accepted 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
@@ -77,21 +80,25 @@ def im2vec(file):
 		print('read: '+str(file))
 	except FileNotFoundError as e:
 		return
+	except OSError as e:
+		return 
+	except Exception as e:
+		print("Info: Potentially new exception occured. Might want to look at this to prevent in the future")
+		print(e)
+		return
 	#except Exception as e:
 	#	return
 	#IMPORTANT: 
 	image = resize(image,(256,256))
 	#TODO: find out why those two lines exist
-	image_flat = imread(file ,flatten=True)
-	image_flat = resize(image_flat,(128,128))
+	#image_flat = imread(file ,flatten=True)
+	#image_flat = resize(image_flat,(128,128))
 
 	#separating channels using slice
 	r_im = image[:,:,0]
 	g_im = image[:,:,1]
 	b_im = image[:,:,2]
 
-	#moments
-	moments = cv2.HuMoments(image_flat)
 	#r_mo = skimage.measure.moments(r_im).flatten()
 	#g_mo = skimage.measure.moments(g_im).flatten()
 	#b_mo = skimage.measure.moments(b_im).flatten()
@@ -108,31 +115,35 @@ def im2vec(file):
 
 
 	#color histogram features
-	r_hist = np.histogram(r_im,bins=np.arange(16))[0]
-	g_hist = np.histogram(g_im,bins=np.arange(16))[0]
-	b_hist = np.histogram(b_im,bins=np.arange(16))[0]
+	r_hist = np.histogram(r_im,bins=(16))[0]
+	g_hist = np.histogram(g_im,bins=(16))[0]
+	b_hist = np.histogram(b_im,bins=(16))[0]
 	r_mean = np.average(r_hist)
 	g_mean = np.average(g_hist)
 	b_mean = np.average(b_hist)
-	r_vx = np.var(r_hist)
-	g_vx = np.var(g_hist)
-	b_vx = np.var(b_hist)
+	#r_vx = np.var(r_hist)
+	#g_vx = np.var(g_hist)
+	#b_vx = np.var(b_hist)
 	r_skw = skew(r_hist)
 	g_skw = skew(g_hist)
 	b_skw = skew(b_hist)
-	r_kurt = kurtosis(r_hist)
-	g_kurt = kurtosis(g_hist)
-	b_kurt = kurtosis(b_hist)
-	r_ent = entropy(r_hist)
-	g_ent = entropy(g_hist)
-	b_ent = entropy(b_hist)
+	#r_kurt = kurtosis(r_hist)
+	#g_kurt = kurtosis(g_hist)
+	#b_kurt = kurtosis(b_hist)
+	#r_ent = entropy(r_hist)
+	#g_ent = entropy(g_hist)
+	#b_ent = entropy(b_hist)
 	r_haralick = textural_features(r_im)
 	g_haralick = textural_features(g_im)
 	b_haralick = textural_features(b_im)
-	r_shape = shape_features(biggest_region(r_im),fourier=True)
-	g_shape = shape_features(biggest_region(g_im),fourier=True)
-	b_shape = shape_features(biggest_region(b_im),fourier=True)
 
+	colors = squashColors(image).flatten()
+
+	#throws errors
+	r_shape = shape_features(biggest_region(r_reduced),fourier=True)
+	g_shape = shape_features(biggest_region(g_reduced),fourier=True)
+	b_shape = shape_features(biggest_region(b_reduced),fourier=True)
+	#also throws errors
 	r_region = region_featues(r_im)
 	g_region = region_featues(g_im)
 	b_region = region_featues(b_im)
@@ -143,18 +154,16 @@ def im2vec(file):
 						r_avg,g_avg,b_avg,
 						r_haralick,g_haralick,b_haralick,
 						r_hist,g_hist,b_hist,
-						r_mean, g_mean, b_mean,
-						r_vx,g_vx,b_vx,
+						#r_vx,g_vx,b_vx,
 						r_skw,g_skw, b_skw,
-						r_kurt, g_kurt,b_kurt,
-						r_ent,g_ent,b_ent,
+						#r_kurt, g_kurt,b_kurt,
+						#r_ent,g_ent,b_ent,
 						r_shape, g_shape, b_shape,
 						r_region, g_region, b_region
 						)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
 	#return a tuple of the file and the image vector so we can reconstruct file vector relationship in the result array
-	#TODO:TEST WITH fev
 	return (fvec,file)
 
 #TODO: fix error with: too many indices
@@ -218,17 +227,21 @@ def textural_features(im,haralick=True):
 		return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
 	else:
 		print("incorrect usage of textural features")
-	
+
+#finish extracting most common colors 
+def squashColors(image,n):
+	image = image.reshape((image.shape[0] * image.shape[1], 3))
+	clt = KMeans(n_clusters=n)
+	clt.fit(image)
 
 def region_featues(im):
-	return skimage.meausre.HuMoments( biggest_region(im)).flatten()
+	return skimage.measure.moments_hu( biggest_region(im)).flatten()
 
 #TODO: implement n parameter
 #n equals number of regions extracted
-def biggest_region(im,n=0):
-	assert im.dtype.name.contains('int')
-	assert len(im.unique) == 2
-
+def biggest_region(im,n=8):
+	image = image.reshape((image.shape[0] * image.shape[1], 3))
+	clt = KMeans(n_clusters=n)
 	#create label matrix (see connected regions post on SO)
 	#connectivity can be 1 or 2
 	labels = skimage.measure.label(im,connectivity=1)
@@ -304,6 +317,7 @@ def shape_features(im,fourier=False):
 
 def asyncim2vec(mode='complex',path=None):
 	feature_array= []
+	futures = None
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
 		files = list(filter(lambda x: x.endswith(_fformats),absoluteFilePaths(path) ))
 		if mode is not None:
@@ -312,10 +326,11 @@ def asyncim2vec(mode='complex',path=None):
 			if(mode =='simple'):
 				futures = [executor.submit(simpleim2vec,file) for file in files]
 		for future in concurrent.futures.as_completed(futures):
-			try:
-				feature_array.append(future.result()) 
-			except Exception as e:
-				print(e)
+			feature_array.append(future.result())
+			# try:
+			# 	feature_array.append(future.result()) 
+			# except Exception as e:
+			# 	traceback.print_exc()
 	return feature_array
 
 
@@ -342,12 +357,9 @@ def main():
 	arg_path = args.path[0] if args.path is not None else os.path.abspath(os.getcwd())
 	#current plan is to write to csv, because of its simplicity to parse
 	arg_output = args.output[0] + 'output.csv' if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
-	
-	start = timeit.default_timer()
-	feature_array= asyncim2vec(mode='simple',path=arg_path)
-	
-	step = timeit.default_timer()
 
+	feature_array= asyncim2vec(mode='complex',path=arg_path)
+	
 
 	# weed out the Nones (broken pngs etc., fileio errors ...)
 	#IMPORTANT: test this with a fresh mind
@@ -437,6 +449,7 @@ def main():
 			#coords
 			coords  = [(item[1],item[2]) for item in value]
 			#meanshift can only work with a minimum amount of values
+			#TODO find number of items in a cluster which will work 
 			if(len(coords) < 5):
 				coords.append(coords[0])
 				coords.append(coords[0])
