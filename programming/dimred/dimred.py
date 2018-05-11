@@ -129,9 +129,9 @@ def im2vec(file):
 	r_haralick = textural_features(r_im)
 	g_haralick = textural_features(g_im)
 	b_haralick = textural_features(b_im)
-	r_shape = shape_features(r_im,fourier=True)
-	g_shape = shape_features(g_im,fourier=True)
-	b_shape = shape_features(b_im,fourier=True)
+	r_shape = shape_features(biggest_region(r_im),fourier=True)
+	g_shape = shape_features(biggest_region(g_im),fourier=True)
+	b_shape = shape_features(biggest_region(b_im),fourier=True)
 
 	r_region = region_featues(r_im)
 	g_region = region_featues(g_im)
@@ -339,9 +339,9 @@ def main():
 			)
 	args = parser.parse_args()
 	#these values are both either required or not
-	arg_path = args.path if args.path is not None else os.path.abspath(os.getcwd())
+	arg_path = args.path[0] if args.path is not None else os.path.abspath(os.getcwd())
 	#current plan is to write to csv, because of its simplicity to parse
-	arg_output = args.output if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
+	arg_output = args.output[0] + 'output.csv' if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
 	
 	start = timeit.default_timer()
 	feature_array= asyncim2vec(mode='simple',path=arg_path)
@@ -355,9 +355,6 @@ def main():
 
 
 	def handle_click(event):
-		print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
-			('double' if event.dblclick else 'single', event.button,
-			event.x, event.y, event.xdata, event.ydata))
 		#get nearest neighbor:
 		#setting first entry
 		nearest_neighbor = list(zip(X,Y))[0]
@@ -368,7 +365,6 @@ def main():
 			#if the distance between the item and the 
 			if distance.euclidean(item, click_loc) < distance.euclidean(nearest_neighbor,click_loc):	
 				nearest_neighbor = item
-		print(nearest_neighbor)
 
 		#after this loop the neareste neighbor is set
 		#data points are not sorted, so dont neet to bother with binary search, there is  no point "optimizing" this 
@@ -407,13 +403,66 @@ def main():
 
 	ax.scatter(X,Y)
 	#ax.title('tsne')
-	plt.show()
 	with open(arg_output, 'w') as file:
 		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
-		for item in zip(filenames,X,Y):
+		for item in zip(filenames,X,Y,shift.labels_):
 			outwriter.writerow(item)
 
+		colors = [ tuple((item,np.random.rand(3,))) for item in np.unique(shift.labels_)]
+		plt.figure()
+		for item in zip(X,Y,shift.labels_):
+			color = None
+			for entry in colors:
+				if(entry[0]==item[2]):
+					color = entry[1]
+			plt.scatter(item[0],item[1],c=color)
+		#routine for subclustering the clusters
+		#anything below level 2 is considered irrelevant at this point
+
+		#wish I could define a custom data type for this
+		#sublevel will be a list
+		#that list holds information about the subcluster(the label) and the clustering of the
+		#in that label
+		#the data structure needs to hold all the images with that label
+		labels = np.unique(shift.labels_)
+		sublevel = {label:[] for label in labels}
+		#move the tuples to the according "bin"
+		for item in zip(filenames,X,Y,shift.labels_):
+			sublevel.get(item[3]).append(tuple((item[0],item[1],item[2])))#explicitly giving a tuple
+
+		#TODO:convert dict into tuples to iterate over
+		#cluster the data in the sublevels
+		#iteration 
+		for key,value in sublevel.items():
+			#coords
+			coords  = [(item[1],item[2]) for item in value]
+			#meanshift can only work with a minimum amount of values
+			if(len(coords) < 5):
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+				coords.append(coords[0])
+			scaler = StandardScaler()
+			scaler.fit(coords)
+			scaled_coords  = scaler.transform(coords)
+			shift = MeanShift()
+			shift.fit(scaled_coords)
+			
+			for i in range(0,len(value)-1):
+				value[i] += (shift.labels_[i],)
+		outwriter.writerow(('BEGIN SUBCLUSTERS',))
+		for key,value in sublevel.items():
+			outwriter.writerow(('subcluster',key))
+			for item in value:
+				outwriter.writerow(item)
+		outwriter.writerow(('END SUBCLUSTERS',))
+		plt.show()
 
 
 if __name__ == '__main__':
+	np.random.seed(0)
 	main()
