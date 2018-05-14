@@ -191,9 +191,9 @@ def simpleim2vec(file):
 	r_im = image[:,:,0]
 	g_im = image[:,:,1]
 	b_im = image[:,:,2]
-	r_hist = np.histogram(r_im,bins=(16))[0]
-	g_hist = np.histogram(g_im,bins=(16))[0]
-	b_hist = np.histogram(b_im,bins=(16))[0]
+	#r_hist = np.histogram(r_im,bins=(16))[0]
+	#g_hist = np.histogram(g_im,bins=(16))[0]
+	#b_hist = np.histogram(b_im,bins=(16))[0]
 	r_mo = skimage.measure.moments(r_im).flatten()**2
 	g_mo = skimage.measure.moments(g_im).flatten()**2
 	b_mo = skimage.measure.moments(b_im).flatten()**2
@@ -216,16 +216,16 @@ def simpleim2vec(file):
 			np.append(g_bmom, skimage.measure.moments_hu(g_im[i*8:(i*8)+8,j*8:(j*8)+8]).flatten())
 			np.append(b_bmom, skimage.measure.moments_hu(b_im[i*8:(i*8)+8,j*8:(j*8)+8]).flatten())
 
-			np.append(r_haralick,textural_features(r_im[i*8:(i*8)+8,j*8:(j*8)+8]))
-			np.append(g_haralick,textural_features(g_im[i*8:(i*8)+8,j*8:(j*8)+8]))
-			np.append(b_haralick,textural_features(b_im[i*8:(i*8)+8,j*8:(j*8)+8]))
+			#np.append(r_haralick,textural_features(r_im[i*8:(i*8)+8,j*8:(j*8)+8]))
+			#np.append(g_haralick,textural_features(g_im[i*8:(i*8)+8,j*8:(j*8)+8]))
+			#np.append(b_haralick,textural_features(b_im[i*8:(i*8)+8,j*8:(j*8)+8]))
 
 
 	fvec = np.array((
-					r_hist,g_hist,b_hist,
+					#r_hist,g_hist,b_hist,
 					r_mo,g_mo,b_mo,
 					r_bavg,g_bavg,b_bavg,
-					r_bmom, g_bmom, b_bmom,
+					#r_bmom, g_bmom, b_bmom,
 					#r_haralick,g_haralick,b_haralick
 					)).ravel()
 	fvec = np.reshape(fvec,-1)
