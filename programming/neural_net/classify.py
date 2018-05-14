@@ -84,24 +84,29 @@ def batch_compute_class_vec(images,modeldir):
 
 	with tf.Session() as sess:
 		for image in images:
-			if not tf.gfile.Exists(image):
-				tf.logging.fatal('File does not exist %s', image)
-			image_data = tf.gfile.FastGFile(image, 'rb').read()
-			# Some useful tensors:
-			# 'softmax:0': A tensor containing the normalized prediction across
-			#   1000 labels.
-			# 'pool_3:0': A tensor containing the next-to-last layer containing 2048
-			#   float description of the image.
-			# 'DecodeJpeg/contents:0': A tensor containing a string providing JPEG
-			#   encoding of the image.
-			# Runs the softmax tensor by feeding the image_data as input to the graph.
-			softmax_tensor = sess.graph.get_tensor_by_name('softmax:0')
-			predictions = sess.run(softmax_tensor,
-														{'DecodeJpeg/contents:0': image_data})
-			predictions = np.squeeze(predictions)
-			print(predictions)
-			print(predictions.shape)
-			classifications.append(predictions)
+			try:
+				if not tf.gfile.Exists(image):
+					tf.logging.fatal('File does not exist %s', image)
+				image_data = tf.gfile.FastGFile(image, 'rb').read()
+				# Some useful tensors:
+				# 'softmax:0': A tensor containing the normalized prediction across
+				#   1000 labels.
+				# 'pool_3:0': A tensor containing the next-to-last layer containing 2048
+				#   float description of the image.
+				# 'DecodeJpeg/contents:0': A tensor containing a string providing JPEG
+				#   encoding of the image.
+				# Runs the softmax tensor by feeding the image_data as input to the graph.
+				softmax_tensor = sess.graph.get_tensor_by_name('softmax:0')
+				predictions = sess.run(softmax_tensor,
+															{'DecodeJpeg/contents:0': image_data})
+				predictions = np.squeeze(predictions)
+				print(predictions)
+				classifications.append((predictions,image,))
+			except Exception as e:
+				print("OOPSIE WOOPSIE!! Uwu We made a fucky wucky!! A wittle fucko boingo!"+
+				      "The code monkeys at our headquarters are working VEWY HAWD to fix this!")
+				print(e)
+				classifications.append((None, image,))
 		return classifications
 
 def maybe_download_and_extract(modeldir):
