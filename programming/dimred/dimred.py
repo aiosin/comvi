@@ -35,7 +35,9 @@ import traceback
 import timeit
 import concurrent.futures
 
-from util import kmeans_im
+from dimred.util import kmeans_im
+
+import neural_net.classify
 
 #global variable of file formats which can be accepted 
 _fformats = tuple(['.jpg', '.png', ',jpeg', '.tga','.bmp'])
@@ -121,32 +123,39 @@ def im2vec(file):
 	r_mean = np.average(r_hist)
 	g_mean = np.average(g_hist)
 	b_mean = np.average(b_hist)
-	#r_vx = np.var(r_hist)
-	#g_vx = np.var(g_hist)
-	#b_vx = np.var(b_hist)
+	r_vx = np.var(r_hist)
+	g_vx = np.var(g_hist)
+	b_vx = np.var(b_hist)
 	r_skw = skew(r_hist)
 	g_skw = skew(g_hist)
 	b_skw = skew(b_hist)
-	#r_kurt = kurtosis(r_hist)
-	#g_kurt = kurtosis(g_hist)
-	#b_kurt = kurtosis(b_hist)
-	#r_ent = entropy(r_hist)
-	#g_ent = entropy(g_hist)
-	#b_ent = entropy(b_hist)
+	r_kurt = kurtosis(r_hist)
+	g_kurt = kurtosis(g_hist)
+	b_kurt = kurtosis(b_hist)
+	r_ent = entropy(r_hist)
+	g_ent = entropy(g_hist)
+	b_ent = entropy(b_hist)
 	r_haralick = textural_features(r_im)
 	g_haralick = textural_features(g_im)
 	b_haralick = textural_features(b_im)
 
-	colors = squashColors(image).flatten()
-
+	#colors = squashColors(image).flatten()
+	r_bavg = np.array([])
+	g_bavg = np.array([])
+	b_bavg = np.array([])
+	for i in range(0,8):
+		for j in range(0,8):
+			np.append(r_bavg, np.average(r_im[i*8:(i*8)+8,j*8:(j*8)+8]))
+			np.append(g_bavg, np.average(g_im[i*8:(i*8)+8,j*8:(j*8)+8]))
+			np.append(b_bavg, np.average(b_im[i*8:(i*8)+8,j*8:(j*8)+8]))
 	#throws errors
-	r_shape = shape_features(biggest_region(r_reduced),fourier=True)
-	g_shape = shape_features(biggest_region(g_reduced),fourier=True)
-	b_shape = shape_features(biggest_region(b_reduced),fourier=True)
+	#r_shape = shape_features(biggest_region(r_reduced),fourier=True)
+	#g_shape = shape_features(biggest_region(g_reduced),fourier=True)
+	#b_shape = shape_features(biggest_region(b_reduced),fourier=True)
 	#also throws errors
-	r_region = region_featues(r_im)
-	g_region = region_featues(g_im)
-	b_region = region_featues(b_im)
+	#r_region = region_featues(r_im)
+	#g_region = region_featues(g_im)
+	#b_region = region_featues(b_im)
 
 
 	#THOUGHT: there *has* to be a better way of doing this.
@@ -154,12 +163,13 @@ def im2vec(file):
 						r_avg,g_avg,b_avg,
 						r_haralick,g_haralick,b_haralick,
 						r_hist,g_hist,b_hist,
-						#r_vx,g_vx,b_vx,
+						r_vx,g_vx,b_vx,
 						r_skw,g_skw, b_skw,
-						#r_kurt, g_kurt,b_kurt,
-						#r_ent,g_ent,b_ent,
-						r_shape, g_shape, b_shape,
-						r_region, g_region, b_region
+						r_kurt, g_kurt,b_kurt,
+						r_ent,g_ent,b_ent,
+						r_bavg,g_bavg,b_bavg
+						#r_shape, g_shape, b_shape,
+						#r_region, g_region, b_region
 						)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
@@ -174,17 +184,42 @@ def simpleim2vec(file):
 		print(str(file))
 	except Exception as e:
 		return
-	image = resize(image,(128,128))
+	image = resize(image,(256,256))
 	#TODO: find out why those two lines exist
-	image_flat = imread(file ,flatten=True)
-	image_flat = resize(image_flat,(128,128))
+	#image_flat = imread(file ,flatten=True)
+	#image_flat = resize(image_flat,(256,256))
 	r_im = image[:,:,0]
 	g_im = image[:,:,1]
 	b_im = image[:,:,2]
-	r_mo = skimage.measure.moments(r_im).flatten()
-	g_mo = skimage.measure.moments(g_im).flatten()
-	b_mo = skimage.measure.moments(b_im).flatten()
-	fvec = np.array((r_mo,g_mo,b_mo	)).ravel()
+	r_mo = skimage.measure.moments(r_im).flatten()**2
+	g_mo = skimage.measure.moments(g_im).flatten()**2
+	b_mo = skimage.measure.moments(b_im).flatten()**2
+	r_haralick = textural_features(r_im)
+	g_haralick = textural_features(g_im)
+	b_haralick = textural_features(b_im)
+	r_bavg = np.array([])
+	g_bavg = np.array([])
+	b_bavg = np.array([])
+	#r_bmom = np.array([])
+	#g_bmom = np.array([])
+	#b_bmom = np.array([])
+	for i in range(0,32):
+		for j in range(0,32):
+			np.append(r_bavg, np.average(r_im[i*8:(i*8)+8,j*8:(j*8)+8])**2)
+			np.append(g_bavg, np.average(g_im[i*8:(i*8)+8,j*8:(j*8)+8])**2)
+			np.append(b_bavg, np.average(b_im[i*8:(i*8)+8,j*8:(j*8)+8])**2)
+
+			#np.append(r_bmom, skimage.measure.moments_hu(b_im[i*8:(i*8)+8,j*8:(j*8)+8]).flatten())
+			#np.append(g_bmom, skimage.measure.moments_hu(b_im[i*8:(i*8)+8,j*8:(j*8)+8]).flatten())
+			#np.append(b_bmom, skimage.measure.moments_hu(b_im[i*8:(i*8)+8,j*8:(j*8)+8]).flatten())
+
+
+	fvec = np.array((
+					r_mo,g_mo,b_mo,
+					r_bavg,g_bavg,b_bavg,
+					#r_bmom, g_bmom, b_bmom,
+					#r_haralick,g_haralick,b_haralick
+					)).ravel()
 	fvec = np.reshape(fvec,-1)
 	fvec = np.hstack(fvec)
 	#see im2vec for documentation on this return type
@@ -193,6 +228,7 @@ def simpleim2vec(file):
 def do_dimred(arr,mode=None,components=2):
 	scaler = StandardScaler()
 	scaler.fit(arr)
+	arr = scaler.transform(arr)
 	reducer = None
 	assert mode is not None
 	#beautiful switch case courtesy of cpython
@@ -229,6 +265,7 @@ def textural_features(im,haralick=True):
 		print("incorrect usage of textural features")
 
 #finish extracting most common colors 
+#
 def squashColors(image,n):
 	image = image.reshape((image.shape[0] * image.shape[1], 3))
 	clt = KMeans(n_clusters=n)
@@ -237,11 +274,10 @@ def squashColors(image,n):
 def region_featues(im):
 	return skimage.measure.moments_hu( biggest_region(im)).flatten()
 
-#TODO: implement n parameter
 #n equals number of regions extracted
-def biggest_region(im,n=8):
-	image = image.reshape((image.shape[0] * image.shape[1], 3))
-	clt = KMeans(n_clusters=n)
+#takes k means clusered image as an input
+def biggest_region(im,):
+
 	#create label matrix (see connected regions post on SO)
 	#connectivity can be 1 or 2
 	labels = skimage.measure.label(im,connectivity=1)
@@ -318,13 +354,17 @@ def shape_features(im,fourier=False):
 def asyncim2vec(mode='complex',path=None):
 	feature_array= []
 	futures = None
+	files = list(filter(lambda x: x.endswith(_fformats),absoluteFilePaths(path) ))
+	if mode is not None:
+		if(mode == 'nn'):
+			return  neural_net.classify.batch_compute_class_vec(files,path)
 	with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
-		files = list(filter(lambda x: x.endswith(_fformats),absoluteFilePaths(path) ))
 		if mode is not None:
 			if(mode =='complex'):
 				futures = [executor.submit(im2vec,file) for file in files]
 			if(mode =='simple'):
 				futures = [executor.submit(simpleim2vec,file) for file in files]
+
 		for future in concurrent.futures.as_completed(futures):
 			feature_array.append(future.result())
 			# try:
@@ -358,7 +398,7 @@ def main():
 	#current plan is to write to csv, because of its simplicity to parse
 	arg_output = args.output[0] + 'output.csv' if args.output is not None else os.path.join(os.path.abspath(os.getcwd()),'output.csv')
 
-	feature_array= asyncim2vec(mode='complex',path=arg_path)
+	feature_array= asyncim2vec(mode='simple',path=arg_path)
 	
 
 	# weed out the Nones (broken pngs etc., fileio errors ...)
@@ -407,10 +447,10 @@ def main():
 	ms_array = np.array(list(zip(X,Y)))
 	scaler =  StandardScaler()
 	scaler.fit(ms_array)
-	scaled_feature_array =scaler.transform(ms_array)
+	ms_array =scaler.transform(ms_array)
 
 	shift = MeanShift()
-	shift.fit(scaled_feature_array)
+	shift.fit(ms_array)
 	print(shift.labels_)
 
 	ax.scatter(X,Y)
@@ -477,5 +517,5 @@ def main():
 
 
 if __name__ == '__main__':
-	np.random.seed(0)
+	np.random.seed(1)
 	main()
