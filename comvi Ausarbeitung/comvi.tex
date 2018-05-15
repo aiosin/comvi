@@ -24,6 +24,7 @@
 \usepackage{color}
 \usepackage{bm}
 \usepackage{amsmath}
+\usepackage{amssymb} % use this for \mathbb 
 \usepackage{microtype}
 \usepackage[normalem]{ulem}
 
@@ -251,29 +252,94 @@ We ended up using the haralick textural features. The haralick features work wit
 
 \[\text{put the formula here, this is spaceholder}\]
 
-Further value can be take n from this matrix which gives us more features
+Also we can take more features from that gcm than just the \todo{what exactly} can be taken from this matrix which gives us more features to work with.
 
-we also computed this on every channel yielding us another \(x\) features \todo{expand texture features}
+we also computed this on every channel yielding us another \(x\) features \todo{expand texture features}.
+
+Alternatively one can also use the tamura texture features. the tamura features are different to the haralick featues because they \todo{what exactly}.
+They were primarily researched/developed/created to \todo{what exactly}. 	
 
 \subsection{Shape}
+We did not end up using the shape features described here but, since we spent quite some time getting them to work \todo{rephrase} I think it is important show how and why they were created.
+
+The shape features we used are fourier descriptors. In short, we get the centroid-distance curve of a distinct shape and take the fast (discrete) fourier transform of that curve. The technique has been proven to work for shape recognition  in earlier work \todo{get that bibtex to that presentation on that leaf recognition script}.
+
+Our approach was the following.  Since our molecular maps are extremely complex (image-wise) we first need to divide the image into discrete image region.  We preferably want to segment our image into $n$ colors. To recap: our everyday monitor does support \(24\) bit colors, \(8 \) 8 bit per channel. that yields us \(2^{24}=16777216 \) colors.
+We'd be lucky to find a countour in this color mess.
+So our approach is to squash the color space down to a couple of colors.
+This proces is called color segmenatation. We use the k means algorithm to put every 
+
+Alternatively the mean-shift algorithm can be used. The algorithm is a kernel based clustering algorithm which operates sort of like the gradient descent algorithm.
+Each point has a weight and initally all the points are laid out on a grid (or your dimensions next best spatial representation) each value attracts with a constant force all other neighboring values so they all suck each other in discrete clusters depending on the parameters (bandwith size and kernel weight) A comparison of color segmentation of mean shift and  k menas can be seen here. \todo{give image for comparison}
+
+But our problem of color segmenatation was stil not solved. Especially in the k means algorithm we encountered a lot of smaller ``irrelevant'' shapes that we didnt want.
+So one way of getting them out of the way was to squash the color space further down to two or three distint colors in the image.
+
+Else we'd have to dynamically dilate and erode \todo{give link to dilation and erosion} the image until we can detect with a matrix labeling algorithm /  floodfill algorithm that we really have only a handful of shapes in the image.
+
+For the shapes we then extract the contours and compute the centroid of that shape.
+The centroid is the geometric center of mass of the shape or in other areas of science known as ..... the first moment 
+
+Now we have the centroid and the countour of the shape that we want to classify we need to form the contour centroid distance curve.
+The contour centroid distance curve is simply a disrete list of values of the contour \todo{clafiry} or the list of the euclidian (in two or three dimensions, why this doesnt work in higher dimensions look up \todo{curse of dimensionality}) distances.
+
+We then normalize the values by diving all the values by the biggest value in the array, resulting in a array that is in range(0,1]
+
+Without loss of generality depending on whhich curve we chose we take the fast discrete fourier transform of that signal, which gives us for each sine/cosine coefficient a weight how that component contributes/weighs in the signal.
+
+Without any proof that would go beyond the scope of this paper we can say that the gained features are rotation scale and translation invariant. Its rotation invariant because ... its scale invariant because we normalize it, its translation invariant because the distance curve is translation invariant (wihtout proof).
+
+Another shape feature can be won, if the shape object is given as a greyscale binary matrix. From this matrix one can extract Image Moment features like the one by Hu as described in \todo{give section to hu moments}
+
+We did not end up using the shape features, because we could notice any improvement over the other features that we used, but it is important to note that they exist and what their capabilites are incase someone will continue our work on this topic. \todo{rephrase}.
+
+
 
 \subsection{Finding the best performing similarity measure}
+
+After our feature processing on an image we end up with an feature matrix where the rows are samples  and the columns are the features. aaaaa \[A \in \mathbb{R}\]
+
+
+\subsection{Findin the best performign dimensionality reduction method}
+For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on datasets of various sizes and content.
+
+We tested our results on the Oxford flower dataset and bmw dataset and our large (3000 images) molecular maps dataset and a medium version of that dataset (300 images) and a small dataset for fast testing purposes.
+
+As you will find in our comvi repository \todo{give link} the dimensionality reduction routine consists of passing it a features array with \todo{beautify shape samples*features}
+In the routine we additionally scale the data because \todo{why exactly ?!!??}.
+We then return the reduced feature array back to the callee. The callee can then apply further some functions on this....
+
+After inital testing with linear dimensionality reductions we notice that our results just wouldnt \todo{phrasing: converge }, so we again tried any non linear dimensionality reduction technique we could find.
+
+We tested our data with LLE, MDS, kernel PCA, ISOMAP and t-SNE.
+After testing with a small user group that would judge how good the clustering was done by the technique we concluded that t-SNE performed the best.
+
+Further testing leads us to believe that t-SNE is the best dimensionality reduction procedure for this problem.
+
+t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by ... . But because the process requires random variables we decided to set the random seed of our program sowe can get deterministically the same results across different machines.
+
+
 \subsection{Finding the best performing clustering algorithm}
 \subsection{Testing the feature vector with other datasets}
+\subsection{title}
 \begin{figure}
   \begin{center}
   \includegraphics[width=.6\linewidth]{Figure1.png}
   \end{center}
   \caption{\label{fig:lorem} Early test with the Oxford flower dataset \todo{cite oxford flower dataset}}
 \end{figure} ~ \\
-\begin{figure}
+\begin{figure} 
   \begin{center}
   \includegraphics[width=.6\linewidth]{Figure2.png}
   \end{center}
   \caption{\label{fig:bmw} Early test with the bmw car dataset \todo{cite stanford car dataset}\cite{stanfordcar}}
 \end{figure}
 \subsection{Finding the }
+
+\subsection{comparing our findings with other protein similarity practices} 
+Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} blah protein database simlilarity measure.
 \subsection{Discussion of results}
+As we saw on the last few pages, we have written a plugin for MegaMol that takes pdb datafile or already generated molecular maps as an input and clusters  the corresponding individual protein maps by similarity.
 \subsubsection{Dolor}
 
 \begin{table}
@@ -300,5 +366,5 @@ This work was partially funded by cake and cookies.
 \bibliographystyle{abbrv}
 %%use following if all content of bibtex file should be shown
 %\nocite{*}
-\bibliography{template}
+\bibliography{comvi}
 \end{document} 
