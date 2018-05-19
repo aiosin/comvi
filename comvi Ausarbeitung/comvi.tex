@@ -185,9 +185,25 @@ In both the main and subcluster view the representatives are visualized with "fo
 
 
 
-\subsubsection{Approaches to the Interaction with the Powerwall \todo{cite correct pub and use correct name}}
+\subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
 
 \todo{@shoma @enis @damir interaktionsmöglichkeiten schreiben}
+\todo{rephrase}
+The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
+Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
+
+The tracking stick also has two buttons that can be interacted with yielding a total of 4 buttons states (off off, off on, on off, on on ) that can be used.
+
+Our design process of the interactions was first  laying out all of the possible actions that we wanted to cover and then experimentally incorporating them in to the implementation.
+
+We wanted to be able to 
+\begin{enumerate}
+  \item have a cursor 
+  \item zoom into the picture and  explore the different clusters
+  \item navigate into a cluster
+  \item display a cluster as a gridview if a) the cluster size allowed this and b)there was enough screen real estate available for this.
+  
+\end{enumerate}
 
 
 \subsection{Finding a feature vector to cluster the images}
@@ -318,21 +334,68 @@ Further testing leads us to believe that t-SNE is the best dimensionality reduct
 
 t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by ... . But because the process requires random variables we decided to set the random seed of our program sowe can get deterministically the same results across different machines.
 
+\subsection{Clustering - Algorithms and strategies }
+\todo{this will be the main section for the clustering topic }
+Clustering of data is defined as the process of labeling n distinct values into a set of subsets with the numbers of labels being less than 
+
+There are several distinct clustering algorithm types. Hierarchical clustering, densitty based ..\todo{finish}
+
 
 \subsection{Finding the best performing clustering algorithm}
+Our approach to finding a clustering algorihtm was the same as the one that we used \todo{sentence and grammer  !!! } to find the best performing dimensionality reduction algorithm.
+
+Except with a little modification. Kolesar et al. \cite{kolesar} used the k nearest neighbors algorithm over their 10-dimensional feature vector to cluster their data, as they discuss their results. We decided to further use this approach to cluster our molecular maps instead of the molecular protein tunnels which Kolesar et al. analyzed. \todo{phrasin}.
+
+
+In the early stages of the projcet we intended to use the DBSCAN clustering algoirtm. 
+The key feature to this algorithm is that it automatically determines the optimal number of clusters that it detects in the given data. 
+
+The algorithm is a density based spatial clustering algirhtm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
+
+
+You could use the euclidian distance between two feature vectors or the cosine distance or feed the two images to a siamese neural network/autoencoder \todo{give information about siamese neural networks and autoencoders} which will have learned the similarity metric between the images.
+
+You could also usethe householder/hausdorff distancebetween two higher dimensional vectors.
+
+We opted against DBSCAN for our primary clustering algorithm because in the early stages of the project the computation of the \(nxn\) similarity matrix was very computationally expensive and took quite a bit more time than the approaches that we demonstrate in the next paragraphs
+
+There are similar approaches \todo{finish sentence}
+
+For our testing we used k nearest neighbors with the elbow method and a cutoff at  ~85 \% \todo{what exactly}
+
+spectral clustering, chinese whispers  ... 
+
+We ended up with the mean shift algorithm. It also is a density based algorithm and much like the DBSCAN algorithm is also determines the optimal number of clusters for the given parameters but it operates with a kernel sampled on each point in the plot and calculates the center of mass so to speak of the points clouds, for a animated demonstration lookt at \todo{give link to mean shift visualization}. For a demonstration of the mean shift algorithm look at Figure \ref{fig:tsne}. 
+
+
+
+
 \subsection{Testing the feature vector with other datasets}
 \subsection{title}
-\begin{figure}
+\begin{figure}[tb]
   \begin{center}
-  \includegraphics[width=.6\linewidth]{Figure1.png}
+  \includegraphics[width=.75\linewidth]{Figure1.png}
   \end{center}
-  \caption{\label{fig:lorem} Early test with the Oxford flower dataset \todo{cite oxford flower dataset}}
-\end{figure} ~ \\
-\begin{figure} 
+  \caption{\label{fig:lorem} Early test wihh the Oxford flower dataset \todo{cite oxford flower dataset}}
+\end{figure} 
+\begin{figure}[tb]
   \begin{center}
-  \includegraphics[width=.6\linewidth]{Figure2.png}
+  \includegraphics[width=.75\linewidth]{Figure2.png}
   \end{center}
   \caption{\label{fig:bmw} Early test with the bmw car dataset \todo{cite stanford car dataset}\cite{stanfordcar}}
+\end{figure}
+\begin{figure}[tb]
+  \begin{center}
+  \includegraphics[width=.75\linewidth]{MS-tsne.png}
+  \end{center}
+  \caption{\label{fig:tsne} final test with the tsne dimensionality reduciton and the mean shift clustering algorithm }
+\end{figure}
+
+\begin{figure}[tb]
+  \begin{center}
+  \includegraphics[width=.75\linewidth]{tsneFull.png}
+  \end{center}
+  \caption{\label{fig:tsnef} final test with the tsne dimensionality reduciton and the mean shift clustering algorithm }
 \end{figure}
 \subsection{Finding the }
 
@@ -340,26 +403,30 @@ t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by 
 Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} blah protein database simlilarity measure.
 \subsection{Discussion of results}
 As we saw on the last few pages, we have written a plugin for MegaMol that takes pdb datafile or already generated molecular maps as an input and clusters  the corresponding individual protein maps by similarity.
-\subsubsection{Dolor}
 
 \begin{table}
-\caption{
-\label{tab:perf} lorem ipsum tabulated}
-\centering
-\vspace{0.3em}
-\begin{tabular}{lrr}
-dataset & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
-balls & 1,243 & 0.1 \\
-buckets & 23 & 23 \\
-bolts & 23,312,134.3 & 22.1 \\
-\end{tabular}
-\end{table}
+  \caption{
+  \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
+  \centering
+  \vspace{0.3em}
+  \begin{tabular}{lrr}
+  dataset & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
+  big (3k images) & 1,243 & 0.1 \\
+  medium (300 image ) & 23 & 23 \\
+  small (~12 images) & 23,312,134.3 & 22.1 \\
+  \end{tabular}
+  \end{table}
+
+
+\subsubsection{Dolor}
+
+
 
 
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
-We would like to thank our supervisors Michael Krone and Florian Fries as well as our project examiner Prof. Ertl, for giving us this opportunity to work on this project. We are grateful that we were able to improve and learn. We are also grateful for the feedback we recieved on our work. \\
+We would like to thank our supervisors Michael Krone and Florian Fries as well as our project examiner Prof. Ertl, for giving us this opportunity to work on this project. We are grateful that we were able to improve our knowledge and learn new things. We are also grateful for the feedback we recieved on our work. \\
 This work was partially funded by cake and cookies.
 }
 
