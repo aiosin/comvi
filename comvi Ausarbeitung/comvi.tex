@@ -27,6 +27,8 @@
 \usepackage{amssymb} % use this for \mathbb 
 \usepackage{microtype}
 \usepackage[normalem]{ulem}
+\usepackage{hyperref}
+\usepackage{footnote}
 
 % options for TODO: either use red bold font for litle annotations (which do not work very well)
 
@@ -114,18 +116,18 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 \firstsection{Introduction} 
 \todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
 Over the span of 6 months we, the authors of this paper,  have researched and implemented a comparative clustering of molecular maps.
-The task consisted of several parts: This work was based on the MegaMol project. MegaMol is a simulation tool developed by the Universität Stuttgart and the TU Dresden(?) \todo{cite megamol}\cite{MegaMol}. It can be used to visualize particle data, simulations on atomic scale and other molecular processes. 
+The task consisted of several parts: This work was based on the MegaMol project. MegaMol is a simulation tool developed by the Universität Stuttgart and the TU Dresden(?) \todo{check this fact}\cite{MegaMol}. It can be used to visualize particle data, simulations on atomic scale and other molecular processes. 
 Due to its modular nature, it can be extended with modules to interact with other modules.
 In this paper we guide you through the \todo{verbose} \verb|MSMCLUSTER| plugin, its capabilities and inner workings.
 
-The next task was to retrieve molecular image data through existing MegaMol plugins \todo{cite moleculr maps}\cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project \todo{make github link tocomvi public }.
+The next task was to retrieve molecular image data through existing MegaMol plugins \todo{cite moleculr maps}\cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project \todo{make github link tocomvi public }\footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
 The next task was to extract a expressive feature vector from those images and to find a metric to cluster them by similarity.
 
 The last task which was also developed in a plugin in MagaMol was the visualization on the VISUS POWERWALL. The POWERWALL is a very high definition display that can be used to visualize large data(sets). Due to its size its possible to display much more information than on a regular screen. 
 
-The POWERWALL also supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more freedom to work with than with traditional human interaction devices  \todo{HID abbreviation correct (?)}, for this last step we also researched the possible interactions with the tracking devices on the POWERWALL.
+The POWERWALL also supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more freedom to work with than with traditional human interface  devices  (HIDs), for this last step we also researched the possible interactions with the unique tracking devices with \todo{phrasing} the POWERWALL.
 
-Over the cours of the next few pages you will learn how we approached these challenges and how we (attempted) solved them, what worked and what didn't.
+Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't.
 
 %-------------------------------------------------------------------------
 \section{Related Work}\label{sec:relatedWork}
@@ -278,7 +280,7 @@ They were primarily researched/developed/created to \todo{what exactly}.
 \subsection{Shape}
 We did not end up using the shape features described here but, since we spent quite some time getting them to work \todo{rephrase} I think it is important show how and why they were created.
 
-The shape features we used are fourier descriptors. In short, we get the centroid-distance curve of a distinct shape and take the fast (discrete) fourier transform of that curve. The technique has been proven to work for shape recognition  in earlier work \todo{get that bibtex to that presentation on that leaf recognition script}.
+The shape features we hoped to use were  fourier descriptors\footnote{\url{http://fourier.eng.hmc.edu/e161/lectures/fd/node1.html} } \footnote{\url{http://demonstrations.wolfram.com/FourierDescriptors/}}. In short, we get the centroid-distance curve of a distinct shape and take the fast (discrete) fourier transform of that curve. The technique has been proven to work for shape recognition  in earlier works \cite{fourierd}.
 
 Our approach was the following.  Since our molecular maps are extremely complex (image-wise) we first need to divide the image into discrete image region.  We preferably want to segment our image into $n$ colors. To recap: our everyday monitor does support \(24\) bit colors, \(8 \) 8 bit per channel. that yields us \(2^{24}=16777216 \) colors.
 We'd be lucky to find a countour in this color mess.
