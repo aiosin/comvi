@@ -36,7 +36,8 @@ from pprint import pprint
 import traceback
 import concurrent.futures
 
-from dimred.util import kmeans_im
+#TODO: this import no workerino
+#from dimred.util import kmeans_im
 
 import neural_net.classify
 
