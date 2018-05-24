@@ -4,30 +4,29 @@ import csv
 import os
 import cv2
 
-from sklearn.cluster import KMeans
 
 import numpy as np
 import matplotlib.pyplot as plt
-
 from mpl_toolkits.mplot3d import Axes3D
 
-import skimage.measure
 import mahotas as mh
 
 from skimage.io import imread
 from skimage.exposure import histogram
 from skimage.transform import resize
+import skimage.measure
 
 
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import MeanShift
+from sklearn.cluster import MeanShift, KMeans, estimate_bandwidth
 from sklearn.mixture import GaussianMixture, VBGMM, BayesianGaussianMixture
 from sklearn.manifold import TSNE,Isomap,LocallyLinearEmbedding,SpectralEmbedding,MDS
 
 
 from scipy.stats import skew, kurtosis, entropy
 from scipy.spatial import distance
+
 from pprint import pprint
 
 #not python 3 "compliant"
@@ -35,8 +34,6 @@ from pprint import pprint
 #from medpy.features.texture import * 
 
 import traceback
-
-import timeit
 import concurrent.futures
 
 from dimred.util import kmeans_im
@@ -462,7 +459,10 @@ def main():
 	scaler.fit(ms_array)
 	ms_array =scaler.transform(ms_array)
 
-	shift = MeanShift()
+	#making the bandwith smaller to get a bettter granularity
+	est_band = estimate_bandwidth(ms_array) / 2
+
+	shift = MeanShift(bandwidth=est_band)
 	shift.fit(ms_array)
 	print(shift.labels_)
 
