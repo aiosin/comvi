@@ -299,7 +299,23 @@ t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by 
 
 \subsection{Clustering - Algorithms and strategies }
 \todo{this will be the main section for the clustering topic }
-Clustering of data is defined as the process of labeling n distinct values into a set of subsets with the numbers of labels being less than 
+Because the given data was not labeled, only unsupervised machine learning techniques, like clustering, could be applied on it. 
+Clustering of data is defined as the process of grouping n distinct values into m different classes. Clustering algorithm are algorithms that perform clustering. They can be subdivided in two different ways.
+Depending on the number of classes to which one data element can belong we differ between hard and soft clustering. In hard clustering one element can belong to only one class, whereas in soft clustering it can belong to many different classes. 
+On the other hand, depending on the way in which the data is clustered we differ between flat and hierarchical clustering. In flat clustering particular clusters have not relation to each other, whereas in hierarchical clustering considers the distance between clusters as well.
+
+We applied the following clustering algorithms to image descriptors that were extracted from the protein images.
+
+\begin{description}
+\item [k-Means] K-Means takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters k-Means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
+To cluster the data k-Means uses the concept of centroids. Centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
+At first k-Means initializes the same number of centroids the same to the number of clusters. This can be done by choosing randomly that many points in the vector space. It then repeats reassignment and recomputation steps that behave as follows.
+The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic.
+MSMCluster plugin contains two implementations of k-Means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
+\item [Hierarchical agglomerative clustering]
+\item [Mean-shift]
+\end{description}
+
 
 There are several distinct clustering algorithm types. Hierarchical clustering, densitty based ..\todo{finish}
 
