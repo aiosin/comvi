@@ -4,38 +4,40 @@ import csv
 import os
 import cv2
 
-from sklearn.cluster import KMeans
 
 import numpy as np
 import matplotlib.pyplot as plt
-
 from mpl_toolkits.mplot3d import Axes3D
 
-import skimage.measure
 import mahotas as mh
 
 from skimage.io import imread
 from skimage.exposure import histogram
 from skimage.transform import resize
+import skimage.measure
 
 
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import MeanShift
+from sklearn.cluster import MeanShift, KMeans, estimate_bandwidth
 from sklearn.mixture import GaussianMixture, VBGMM, BayesianGaussianMixture
 from sklearn.manifold import TSNE,Isomap,LocallyLinearEmbedding,SpectralEmbedding,MDS
 
 
 from scipy.stats import skew, kurtosis, entropy
 from scipy.spatial import distance
+
 from pprint import pprint
 
-import traceback
+#not python 3 "compliant"
+#TODO: extract functions and port to python3
+#from medpy.features.texture import * 
 
-import timeit
+import traceback
 import concurrent.futures
 
-from dimred.util import kmeans_im
+#TODO: this import no workerino
+#from dimred.util import kmeans_im
 
 import neural_net.classify
 
@@ -270,7 +272,8 @@ def textural_features(im,haralick=True):
 		#TODO: find out about (im*256).astype(int), afair we dont work with binary images
 		return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
 	else:
-		print("incorrect usage of textural features")
+		#TODO : put tamuras texture features in here
+		return None
 
 #finish extracting most common colors 
 #
@@ -457,7 +460,10 @@ def main():
 	scaler.fit(ms_array)
 	ms_array =scaler.transform(ms_array)
 
-	shift = MeanShift()
+	#making the bandwith smaller to get a bettter granularity
+	est_band = estimate_bandwidth(ms_array) / 2
+
+	shift = MeanShift(bandwidth=est_band)
 	shift.fit(ms_array)
 	print(shift.labels_)
 
