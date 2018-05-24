@@ -30,6 +30,10 @@ from scipy.stats import skew, kurtosis, entropy
 from scipy.spatial import distance
 from pprint import pprint
 
+#not python 3 "compliant"
+#TODO: extract functions and port to python3
+#from medpy.features.texture import * 
+
 import traceback
 
 import timeit
@@ -270,7 +274,8 @@ def textural_features(im,haralick=True):
 		#TODO: find out about (im*256).astype(int), afair we dont work with binary images
 		return  mh.features.haralick( (im*256).astype(int),compute_14th_feature=True).flatten()
 	else:
-		print("incorrect usage of textural features")
+		#TODO : put tamuras texture features in here
+		return None
 
 #finish extracting most common colors 
 #
