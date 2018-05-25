@@ -55,12 +55,12 @@
 
 \title{Comvi - Comparative Visualization of Molecular Surfaces using Similarity-based Clustering}
 
-\author{Wilhelm Buchm\"uller, Shoma Kaiser, Damir Ravilija, Enis Spahiu}
+\author{Wilhelm Buchm\"uller, Shoma Kaiser, Damir Ravlija, Enis Spahiu}
 \authorfooter{
 \begin{tabular}{cc}
  Wilhelm Buchmüller  & Shoma Kaiser \\
  \href{mailto:buch.willi@googlemail.com}{buch.willi@googlemail.com}     & \href{mailto:shoma.kaiser@googlemail.com}{shoma.kaiser@googlemail.com} \\
- Enis Spahiu & Damir Rwilja   \\
+ Enis Spahiu & Damir Ravlija  \\
  \href{mailto:enis.spahiu@hotmail.de}{enis.spahiu@hotmail.de} & \href{mailto:st144286@stud.uni-stuttgart.de}{st144286@stud.uni-stuttgart.de}
 
 \end{tabular}
@@ -299,9 +299,42 @@ t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by 
 
 \subsection{Clustering - Algorithms and strategies }
 \todo{this will be the main section for the clustering topic }
-Clustering of data is defined as the process of labeling n distinct values into a set of subsets with the numbers of labels being less than 
+Because the given data was not labeled, only unsupervised machine learning techniques, like clustering, could be applied on it. 
+Clustering of data is defined as the process of grouping n distinct values into m different classes. Clustering algorithm are algorithms that perform clustering. They can be subdivided in two different ways \cite{iir}.
 
-There are several distinct clustering algorithm types. Hierarchical clustering, densitty based ..\todo{finish}
+Depending on the number of classes to which one data element can belong we differ between hard and soft clustering. In hard clustering one element can belong to only one class, whereas in soft clustering it can belong to many different classes. 
+On the other hand, depending on the way in which the data is clustered we differ between flat and hierarchical clustering. In flat clustering particular clusters have not relation to each other, whereas in hierarchical clustering considers the distance between clusters as well.
+
+We applied the following clustering algorithms to image descriptors that were extracted from the protein images.
+
+\begin{description}
+\item [k-Means] takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters k-Means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
+
+To cluster the data k-Means uses the concept of centroids. Centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
+At first k-Means initializes the same number of centroids the same to the number of clusters. This can be done by choosing randomly that many points in the vector space. Since k-Means is an iterative algorithm it  it then repeats reassignment and recomputation steps until it minimizes the distance between the centroid and all of the elements of the corresponding cluster as follows. 
+
+Let $D = \{x_i'\}_{i=1}^n$ be a set of n vectors $x_i$ that represents some data. This data should be clustered into $k$ clusters whose centroids are  $\mu_{c(i)}$. Now let $c: i \mapsto k$ be the assignment of the element i to the cluster $k$. 
+K-Means minimizes the following loss function $L$:
+\begin{equation}
+L = \min_{c, \mu} \sum_{i=1}^{n}(x_i - \mu_{c(i)})^2
+\end{equation} 
+This minimization is done by repeating the (4) reassignment and (5) recomputation step.
+\begin{equation}
+\forall i: c(i) := \operatorname*{arg\,min}_k (x_i - \mu_k)^2
+\end{equation}
+\begin{equation}
+\forall k: \mu_k := \frac{1}{|c^{-1}(k)|} \sum_{i \in c^{-1}(k)} x_i
+\end{equation}
+
+
+The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Its main advantage on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations.
+
+MSMCluster plugin contains two implementations of k-Means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
+\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that runs bottom up. 
+\item [Mean-shift]
+\end{description}
+
+
 
 
 \subsection{Finding the best performing clustering algorithm}
@@ -404,7 +437,7 @@ In both the main and subcluster view the representatives are visualized with "fo
 
 \subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
 
-\todo{@shoma @enis @damir interaktionsmöglichkeiten schreiben}
+\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
 \todo{rephrase}
 The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
 Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
@@ -445,7 +478,7 @@ In both the main and subcluster view the representatives are visualized with "fo
 
 \subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
 
-\todo{@shoma @enis @damir interaktionsmöglichkeiten schreiben}
+\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
 \todo{rephrase}
 The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
 Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
@@ -477,7 +510,7 @@ Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} 
   \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
   \centering
   \vspace{0.3em}
-  \begin{tabular}{lrr}
+  \begin{tabular}{lrr}{*{3}{p{3cm}}}
   dataset & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
   big (3k images) & 1,243 & 0.1 \\
   medium (300 image ) & 23 & 23 \\
