@@ -157,19 +157,19 @@ For further information and more complex approaches to this problem one should c
 
 
 \section{Clustering}
-\todo{write some intrduction to clustering, aufteilen in subsections}
+This section describes our whole process to clustering the image data.
 \subsection{Approaches to the Clustering-Problem}
 
 Right of the start we had several ideas of how we could approach this problem. 
 With the recent trend in machine learning we had a couple of ideas of how we could determine a similarity metric between two images or classify an image into a more usable vector of data.
 
-We ended up using a higher dimensional feature vector described in \todo{give section label} to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to inexperience \todo{this can be said better}and non existance of labeled data.
+We ended up using a higher dimensional feature vector described in \ref{sec:findvec} to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to inexperience \todo{this can be said better}and non existance of labeled data.
 
 But our relatively spartan results with a pretrained Imagenet \todo{cite imagenet} \cite{imagenet} \todo{cite darknet publication}  model let us to believe that given the knowledge on the subject and humanly labeled data (based on known featuresit \todo{LEFT OFF HERE}shoud be definetly possible for this specified task to find a machine learning  solution using neural networks/autoencoders.
 
 
 
-\subsection{Finding a feature vector to cluster the images}
+\subsection{Finding a feature vector to cluster the images}\label{sec:findvec}
 
 The challenge of finding a good feature vector was/is to find good features which are \todo{aussagekräfting} about the image.
 
