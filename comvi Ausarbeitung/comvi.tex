@@ -410,11 +410,23 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 \end{figure}
 
 \section{Visualization and Interaction}
-\todo{write some introduction about powerwall, trackingsystem, visus etc.}
+
 To show up our algorithm results, we needed a suitable representation and a intuitive interaction for our generated clusters. In favor we used a configuration bar where you can set relevant parameters like the clustering algorithm or the images to cluster. \todo{megamol graphic} The represented clusters are shown in a square area. This application is finally shown on the POWERWALL in Visus. With a tracking stick it was possible to interact with the clusters on the POWERWALL.
 
 \subsection{Background MegaMol and Powerwall}
 
+
+The visualtion of MegaMol is displayed on the Powerwall.
+The  Powerwall is a merged Large High-Resolution Display made of five portraitoriented
+strips . The setup has  a resolution of 10,800 x 4,096 pixels
+for each eye, and is projected onto a physical screen size of about 6 x 2.2 metres. 
+Two 4K LCoS projectors are projecting
+the images for each strip.
+A pixel is about 0.56 mm  in size, which corresponds to about 50 ppi .
+The users interacted with the system using a 6DOF mid-air
+pointing Stick with two buttons (1 on each side), which was tracked by 14 camers
+using an optical tracking system from NaturalPoint. 
+All the transformations were synchronised over all views, while the interaction is runnig.
 
 
 
@@ -422,46 +434,22 @@ To show up our algorithm results, we needed a suitable representation and a intu
 \subsection{Goal of Visualization and Interaction}
 The main goal was to visualize the clusters as clear and seperated blocks in square area. In context to a good clairity it was suitable if we cluster the images into about three to ten clusters. For our subjective feeling it is clear to generate the count of the clusters in this area. Therefore the size of the clusters were adjusted to the square area. For the parameter assignment the configuration bar on the left can be changed by the user. Therein should be found all relevant parameters to manipulate the clustering and the visualization.
 
-To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements from our everyday life. If the Application 
+To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements for the interactions from our everyday life. If the Application is used on PC, the MegaMol Project is mainly interacting with the mouse. If we run Application at the Powerwall it is interacting with the tracking stick.
+
+With the four button states of the tracking sticks we focused on the most important interactions like ``selection'' or ``drag and drop'' To localize the aimung of the user  we should calculate a intersection coordinates of the tracking stick in direction to the Powerwall. While moving the tracking stick for interactions, these coordinates should be scaled for a user- friendly interactions.
+
+\subsection{Realization}
+
+To realize the ideas and goals we first discussed about the dimension of the cluster visualization. But a couple of reasons spoke up against a 3D visualization so we decided to do transform the 3D molecule into a 2D image. We would have more degrees of freedom to work with 3D molecules on the Powerwall. But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen. Furthermore the clustering and the interaction would be demanding. So we decided to settle for a 2D visualization. 
+The visualizatoin consists of displaying the image of a cluster representative with a simple rectangle. With clicking into a rectangle the user is able to get a view of all clustered images in that cluster. Even subclustering can be executed by splitting one cluster into two more. After testing we decided that one level of subclustering is enough. After 2 levels of subclustering the clusters get too  \todo{begriff}
+With the configuration bar the user is able to change several variants of clustering and execute some interactions too. 
+
+But mainly the interactions are executed by mouse or by the tracking stick. The tracking stick got As already mentioned four states. In the first state, if no button is pressed, should be no interaction. In the second state, if the first button is pressed, should be a 'drag and drop'-interaction as we know it from the Computer. With pressing the other button, the third state, the user can select an object like we know it from the Computer 'leftclick'. If both buttons are pressed, the user is able to zoom. \todo{wenn es klappt} For the zooming we used the third dimension of the tracking area in front of the Powerwall. With walking towards the Powerwall in the fourth state the user zooms in. Equally with walking away from the Powerwall the user zooms out. 
+All movements of the tracking stick in the tracking area have to be scaled for a user-friendly usage. To calculate them we tested the interactions exprimentally by changing the scalings. We adjust these parameters so that the user can operate with the whole interface without walking around in the tracking area.
+As a conclusion of this part we focused on user-friendly and intuitive interactions like we know it from our everyday life.
 
 
-
-
-\subsection{Approaches to the Visualization-Task}
-
-Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the Powerwall, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the Powerwall can be found \todo{cite Powerwall publicatoin here if available}. \cite{Powerwall}
-
-If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the Powerwall.
-
-During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
-
-While the interactions with the data in 3D would have been more fun since we had more degrees of freedom to work with.
-But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen.
-
-... So we decided to settle for a 2D visualization. Our approach is rather boring but it works. On startup we display nothing, if the user chooses his supplied image data and the algorithms used to cluster the pictures he gets the option to start the visualization.
-
-The visualizatoin consists of displaying the image of a cluster representative with a simple rectangle. 
-This way the user knows exactly what to expect to be in the cluster.
-
-If the user wishes to have a closer look at the images in the given cluster he can click onto the representative and will get a view of all the images in that cluster.
-
-We decided after testing with toy test and real datasets that one level of subclustering is enough, after 2 levels of subclustering the clusters get \todo{find better expression}  noisy and ambiguous.
-
-In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
-
-
-
-\subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
-
-\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
-\todo{rephrase}
-The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
-Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
-
-The tracking stick also has two buttons that can be interacted with yielding a total of 4 buttons states (off off, off on, on off, on on ) that can be used.
-
-Our design process of the interactions was first  laying out all of the possible actions that we wanted to cover and then experimentally incorporating them in to the implementation.
-
+\todo{where to put this ?}
 We wanted to be able to 
 \begin{enumerate}
   \item have a cursor 
@@ -470,48 +458,6 @@ We wanted to be able to
   \item display a cluster as a gridview if a) the cluster size allowed this and b)there was enough screen real estate available for this.
   
 \end{enumerate}
-\subsection{Approaches to the Visualization-Task}
-
-Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the Powerwall, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the Powerwall can be found \todo{cite Powerwall publicatoin here if available}. \cite{Powerwall}
-
-If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the Powerwall.
-
-During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
-
-While the interactions with the data in 3D would have been more fun since we had more degrees of freedom to work with.
-But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen.
-
-... So we decided to settle for a 2D visualization. Our approach is rather boring but it works. On startup we display nothing, if the user chooses his supplied image data and the algorithms used to cluster the pictures he gets the option to start the visualization.
-
-The visualizatoin consists of displaying the image of a cluster +representative with a simple rectangle. 
-This way the user knows exactly what to expect to be in the cluster.
-
-If the user wishes to have a closer look at the images in the given cluster he can click onto the representative and will get a view of all the images in that cluster.
-
-We decided after testing with toy test and real datasets that one level of subclustering is enough, after 2 levels of subclustering the clusters get \todo{find better expression}  noisy and ambiguous.
-
-In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
-
-\subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
-
-\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
-\todo{rephrase}
-The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
-Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
-
-The tracking stick also has two buttons that can be interacted with yielding a total of 4 buttons states (off off, off on, on off, on on ) that can be used.
-
-Our design process of the interactions was first  laying out all of the possible actions that we wanted to cover and then experimentally incorporating them in to the implementation.
-
-We wanted to be able to 
-\begin{enumerate}
-  \item have a cursor 
-  \item zoom into the picture and  explore the different clusters
-  \item navigate into a cluster
-  \item display a cluster as a gridview if a) the cluster size allowed this and b)there was enough screen real estate available for this.
-  
-\end{enumerate}
-
 
 
 \section{Discussion of results}
@@ -555,7 +501,7 @@ As we saw on the last few pages, we have written a plugin for MegaMol that takes
 
 
 \section{Conclusion}
-
+\todo{expand}
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
