@@ -343,7 +343,7 @@ Our approach to finding a clustering algorihtm was the same as the one that we u
 Except with a little modification. Kolesar et al. \cite{kolesar} used the k nearest neighbors algorithm over their 10-dimensional feature vector to cluster their data, as they discuss their results. We decided to further use this approach to cluster our molecular maps instead of the molecular protein tunnels which Kolesar et al. analyzed. \todo{phrasin}.
 
 
-In the early stages of the projcet we intended to use the DBSCAN clustering algoirtm. 
+In the early stages of the 0projcet we intended to use the DBSCAN clustering algoirtm. 
 The key feature to this algorithm is that it automatically determines the optimal number of clusters that it detects in the given data. 
 
 The algorithm is a density based spatial clustering algirhtm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
@@ -484,6 +484,7 @@ We wanted to be able to
 
 
 \section{Discussion of results}
+Because there were no labeled data sets we could not use external criteria like purity or rand index to evaluate the results of our clustering. Instead we applied internal criterion of residual sum of squares and also looked at the results and gave our own evaluation of them.
 As we saw on the last few pages, we have written a plugin for MegaMol that takes pdb datafile or already generated molecular maps as an input and clusters  the corresponding individual protein maps by similarity.
 
 \subsection{comparing our findings with other protein similarity practices}\label{subsec:comparison}
