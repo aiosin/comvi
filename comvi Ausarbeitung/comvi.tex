@@ -61,7 +61,7 @@
  Wilhelm Buchmüller  & Shoma Kaiser \\
  \href{mailto:buch.willi@googlemail.com}{buch.willi@googlemail.com}     & \href{mailto:shoma.kaiser@googlemail.com}{shoma.kaiser@googlemail.com} \\
  Enis Spahiu & Damir Ravlija  \\
- \href{mailto:enis.spahiu@hotmail.de}{enis.spahiu@hotmail.de} & \href{mailto:st144286@stud.uni-stuttgart.de}{st144286@stud.uni-stuttgart.de}
+ \href{mailto:enis.spahiu@hotmail.de}{enis.spahiu@hotmail.de} & \href{mailto:st144286@stud.uni-stuttgart.de}{st144386@stud.uni-stuttgart.de}
 
 \end{tabular}
 }
@@ -330,7 +330,7 @@ This minimization is done by repeating the (4) reassignment and (5) recomputatio
 The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Its main advantage on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations.
 
 MSMCluster plugin contains two implementations of k-Means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
-\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that runs bottom up. 
+\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. It then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However, in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it build cluster hierarchy that can be visualized with dendrograms. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level.
 \item [Mean-shift]
 \end{description}
 
