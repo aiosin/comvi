@@ -1,9 +1,9 @@
 from dimred import dimred
 import pip
 
-_dependencies = ['numpy','matplotlib','tensorflow','scipy','sklearn','skimage','mahotas','cv2','requests']
 
 def main():
+    _dependencies = ['numpy','matplotlib','tensorflow','scipy','sklearn','skimage','mahotas','cv2','requests']
     try:
         from pip import main as pipmain
     except:

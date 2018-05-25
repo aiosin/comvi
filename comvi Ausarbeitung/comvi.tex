@@ -55,13 +55,13 @@
 
 \title{Comvi - Comparative Visualization of Molecular Surfaces using Similarity-based Clustering}
 
-\author{Wilhelm Buchm\"uller, Shoma Kaiser, Damir Ravilija, Enis Spahiu}
+\author{Wilhelm Buchm\"uller, Shoma Kaiser, Damir Ravlija, Enis Spahiu}
 \authorfooter{
 \begin{tabular}{cc}
  Wilhelm Buchmüller  & Shoma Kaiser \\
- buch.willi@googlemail.com     & shoma.kaiser@googlemail.com \\
- Enis Spahiu & Damir Rwilja   \\
- enis.spahiu@hotmail.de & st144286@stud.uni-stuttgart.de
+ \href{mailto:buch.willi@googlemail.com}{buch.willi@googlemail.com}     & \href{mailto:shoma.kaiser@googlemail.com}{shoma.kaiser@googlemail.com} \\
+ Enis Spahiu & Damir Ravlija  \\
+ \href{mailto:enis.spahiu@hotmail.de}{enis.spahiu@hotmail.de} & \href{mailto:st144286@stud.uni-stuttgart.de}{st144286@stud.uni-stuttgart.de}
 
 \end{tabular}
 }
@@ -73,7 +73,9 @@
 
 
 \abstract{
-The goal of this paper is to show the reader the abstract methods and concrete applications that were used to extract and compare features  and rank the similarity of the molecular protein maps. Further we present a new method of how the won data can be visualized on high resolution and large displays with dynamic interactions. The paper describes the process and the approaches that were taken to solve this task. 
+The goal of this paper is to show the reader the abstract methods and concrete applications that were used to cluster similar looking molecular maps of proteins. The maps that were provided by Krone et al. \cite{molecularmaps} represent the topology of an protein surface with 
+
+extract and compare features  and rank the similarity of the molecular protein maps. Further we present a new method of how the won data can be visualized on high resolution and large displays with dynamic interactions. The paper describes the process and the approaches that were taken to solve this task. 
 } 
 
 
@@ -95,7 +97,7 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 \teaser{
 \centering
 \includegraphics[width=12cm]{MegaMolExample.png}
-\caption{Screenshot of a running comvi instance 
+\caption{Screenshot of a running MegaMol/MSMCLUSTER/comvi instance 
 }\label{fig:teaser}
 }
 
@@ -115,39 +117,43 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 %
 \firstsection{Introduction} 
 \todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
-Over the span of 6 months we, the authors of this paper,  have researched and implemented a comparative clustering of molecular maps.
-The task consisted of several parts: This work was based on the MegaMol project. MegaMol is a simulation tool developed by the Universität Stuttgart and the TU Dresden(?) \todo{check this fact}\cite{MegaMol}. It can be used to visualize particle data, simulations on atomic scale and other molecular processes. 
-Due to its modular nature, it can be extended with modules to interact with other modules.
-In this paper we guide you through the \todo{verbose} \verb|MSMCLUSTER| plugin, its capabilities and inner workings.
+Over the span of 6 months we, the authors of this paper,  have researched and implemented a comparative clustering  process for images of molecular maps.
+The task consisted of several parts: To generate images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol} to build up a dataset, to extract a strong feature vector from the image, to find a way to cluster similar feature vectors and to visualize the clustering on the Powerwall with a tracking device.
 
-The next task was to retrieve molecular image data through existing MegaMol plugins \todo{cite moleculr maps}\cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project \todo{make github link tocomvi public }\footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
+This work was based on the MegaMol\cite{MegaMol} project. MegaMol is a simulation tool developed by the Universit\"at Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that were presenting with our work. 
+Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other.
+In this paper we guide you through the \verb|MSMCLUSTER| plugin, its capabilities and inner workings.
+
+One tasks was to retrieve molecular image data through existing MegaMol plugins \cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project that will be publicly available starting \today \footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
 The next task was to extract a expressive feature vector from those images and to find a metric to cluster them by similarity.
 
-The last task which was also developed in a plugin in MagaMol was the visualization on the VISUS POWERWALL. The POWERWALL is a very high definition display that can be used to visualize large data(sets). Due to its size its possible to display much more information than on a regular screen. 
+The last task which was also developed in a plugin in MagaMol was the visualization on the VISUS Powerwall. The Powerwall is a very high definition display \footnote{\url{https://www.visus.uni-stuttgart.de/institut/visualisierungslabor/technischer-aufbau.html} \\ Last retrieved: \today } that can be used to visualize large data(sets). Due to its size and resolution its possible to display much more information than on a regular consumer grade screen. 
 
-The POWERWALL also supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more freedom to work with than with traditional human interface  devices  (HIDs), for this last step we also researched the possible interactions with the unique tracking devices with \todo{phrasing} the POWERWALL.
-
-Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't.
-
-\todo{Part initial challenges and encountered problems einpflegen}
+The Powerwall also supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more possibilities than with  traditional human interface  devices  (HIDs), if you would exclude devices like smartphones. For this last step we also researched the possible interactions with the unique tracking device  which can be used  with the  Powerwall.
 
 It is clear that the task required from us that we learn how to compare the images, measure the distances between the images, and cluster these images.
 The given task required that we use a similarity based clustering algorithm.
 
-Initially we were given the choice we could either chose to find similarities and cluster the proteins in the \verb|.pdb| format or given as bitmap image generated by the \verb|MolecularMaps| plugin in MegaMol \todo{cite megamol protein image}\cite{molecularmaps}.
+Initially we were given the choice we could either chose to find similarities and cluster the proteins in the \verb|.pdb| format or given as bitmap image generated by the \verb|MolecularMaps| plugin in MegaMol \cite{molecularmaps}.
 
-Since handling image files which give information about the protein in two dimensions was easier than dealing with the pdb file format which results in three dimensional visualizations we decided to start with a two dimensional approach.
+Since handling image files which give information about the protein in two dimensions was easier than dealing with the pdb file format which results in three dimensional visualizations we decided to start and carry out the task with the two dimensional approach.
 
+To prevent confusion further down the paper  the reader should be familiar with the following two terms: comvi - internal name of the clustering engine that can be used by the MegaMol Plugin \\
+MSMCluster - name of the Megamol plugin that was developed as the main part of the project 
+
+Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't.
 
 %-------------------------------------------------------------------------
 \section{Related Work}\label{sec:relatedWork}
 
-\todo{cite kolesar for clustering}
 Clustering proteins by similarity or at least comparing individual proteins has been subject of existing work.
 
-The paper \cite{kolesar} already had similar approaches to our results. Kolesar et al. used a 10 dimensional feature vector based on invariant image moments defined by hu \todo{cite hu image moments} \cite{humoments}
+The paper \cite{kolesar} already had similar approaches to our results. Kolesar et al. used a 10 dimensional feature vector based on invariant image moments defined by Hu \cite{humoments}. Hu-Moments are set of invariant moments defined over a two dimensional signal, that give unique features about the the object in the image. More about image moments and the Hu Moments in section \ref{subsec:humom}.
 
-Another approach for 3D protein data were 3D zernicke moments explored by \todo{3d surfer } \cite{3dsurfer}. The approach is basically the same as in Kolesar et al. but the TODO used Zernicke moments instead of traditional image moments and extended them to three dimensions.
+
+Another approach for 3D protein data were 3D zernicke moments explored by La et al. in \cite{3dsurfer}. The approach is basically the same as in Kolesar et al. but La et al.  in \cite{3dsurfer} used Zernicke moments instead of traditional image moments and extended them to three dimensions. More about the comparison of the different methos in \ref{subsec:comparison}
+
+For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \url{https://www.ebi.ac.uk/Tools/sss/}}
 
 
 \section{Clustering}
@@ -160,6 +166,8 @@ With the recent trend in machine learning we had a couple of ideas of how we cou
 We ended up using a higher dimensional feature vector described in \todo{give section label} to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to inexperience \todo{this can be said better}and non existance of labeled data.
 
 But our relatively spartan results with a pretrained Imagenet \todo{cite imagenet} \cite{imagenet} \todo{cite darknet publication}  model let us to believe that given the knowledge on the subject and humanly labeled data (based on known featuresit \todo{LEFT OFF HERE}shoud be definetly possible for this specified task to find a machine learning  solution using neural networks/autoencoders.
+
+
 
 \subsection{Finding a feature vector to cluster the images}
 
@@ -189,8 +197,8 @@ The initial idea was that the color distribution gives information about the col
 The image moments were chosen as a goto approach to extract invariant features from the image which has been proved to yield results as described in \cite{kolesar}
 
 The exact image features that we extract from the image are the following:
-
-\subsection{Invariant Image Moments by Hu}
+\subsection{Image Features/Descriptors}
+\subsection{Invariant Image Moments by Hu}\label{subsec:humom}
 
 The set of invariant Image Moments discovered by Hu et. al \todo{find out if hu moments just him or others or et al.} are rotation, translation, scale and trasformation \todo{find out if correct} invariant. This allows us to determine if an image$I_a$ is similar to another image $I_B$ if $I_B$ is equal $I_A$ and simply rotated by $30^°$ \todo{put the value in degrees there}
 
@@ -291,9 +299,42 @@ t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by 
 
 \subsection{Clustering - Algorithms and strategies }
 \todo{this will be the main section for the clustering topic }
-Clustering of data is defined as the process of labeling n distinct values into a set of subsets with the numbers of labels being less than 
+Because the given data was not labeled, only unsupervised machine learning techniques, like clustering, could be applied on it. 
+Clustering of data is defined as the process of grouping n distinct values into m different classes. Clustering algorithm are algorithms that perform clustering. They can be subdivided in two different ways \cite{iir}.
 
-There are several distinct clustering algorithm types. Hierarchical clustering, densitty based ..\todo{finish}
+Depending on the number of classes to which one data element can belong we differ between hard and soft clustering. In hard clustering one element can belong to only one class, whereas in soft clustering it can belong to many different classes. 
+On the other hand, depending on the way in which the data is clustered we differ between flat and hierarchical clustering. In flat clustering particular clusters have not relation to each other, whereas in hierarchical clustering considers the distance between clusters as well.
+
+We applied the following clustering algorithms to image descriptors that were extracted from the protein images.
+
+\begin{description}
+\item [k-Means] takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters k-Means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
+
+To cluster the data k-Means uses the concept of centroids. Centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
+At first k-Means initializes the same number of centroids the same to the number of clusters. This can be done by choosing randomly that many points in the vector space. Since k-Means is an iterative algorithm it  it then repeats reassignment and recomputation steps until it minimizes the distance between the centroid and all of the elements of the corresponding cluster as follows. 
+
+Let $D = \{x_i'\}_{i=1}^n$ be a set of n vectors $x_i$ that represents some data. This data should be clustered into $k$ clusters whose centroids are  $\mu_{c(i)}$. Now let $c: i \mapsto k$ be the assignment of the element i to the cluster $k$. 
+K-Means minimizes the following loss function $L$:
+\begin{equation}
+L = \min_{c, \mu} \sum_{i=1}^{n}(x_i - \mu_{c(i)})^2
+\end{equation} 
+This minimization is done by repeating the (4) reassignment and (5) recomputation step.
+\begin{equation}
+\forall i: c(i) := \operatorname*{arg\,min}_k (x_i - \mu_k)^2
+\end{equation}
+\begin{equation}
+\forall k: \mu_k := \frac{1}{|c^{-1}(k)|} \sum_{i \in c^{-1}(k)} x_i
+\end{equation}
+
+
+The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Its main advantage on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations.
+
+MSMCluster plugin contains two implementations of k-Means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
+\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that runs bottom up. 
+\item [Mean-shift]
+\end{description}
+
+
 
 
 \subsection{Finding the best performing clustering algorithm}
@@ -354,11 +395,27 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 
 \section{Visualization and Interaction}
 \todo{write some introduction about powerwall, trackingsystem, visus etc.}
+To show up our algorithm results, we needed a suitable representation and a intuitive interaction for our generated clusters. In favor we used a configuration bar where you can set relevant parameters like the clustering algorithm or the images to cluster. \todo{megamol graphic} The represented clusters are shown in a square area. This application is finally shown on the POWERWALL in Visus. With a tracking stick it was possible to interact with the clusters on the POWERWALL.
+
+\subsection{Background MegaMol and Powerwall}
+
+
+
+
+
+\subsection{Goal of Visualization and Interaction}
+The main goal was to visualize the clusters as clear and seperated blocks in square area. In context to a good clairity it was suitable if we cluster the images into about three to ten clusters. For our subjective feeling it is clear to generate the count of the clusters in this area. Therefore the size of the clusters were adjusted to the square area. For the parameter assignment the configuration bar on the left can be changed by the user. Therein should be found all relevant parameters to manipulate the clustering and the visualization.
+
+To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements from our everyday life. If the Application 
+
+
+
+
 \subsection{Approaches to the Visualization-Task}
 
-Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the POWERWALL, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the POWERWALL can be found \todo{cite powerwall publicatoin here if available}. \cite{powerwall}
+Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the Powerwall, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the Powerwall can be found \todo{cite Powerwall publicatoin here if available}. \cite{Powerwall}
 
-If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the POWERWALL.
+If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the Powerwall.
 
 During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
 
@@ -376,9 +433,52 @@ We decided after testing with toy test and real datasets that one level of subcl
 
 In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
 
+
+
 \subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
 
-\todo{@shoma @enis @damir interaktionsmöglichkeiten schreiben}
+\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
+\todo{rephrase}
+The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
+Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
+
+The tracking stick also has two buttons that can be interacted with yielding a total of 4 buttons states (off off, off on, on off, on on ) that can be used.
+
+Our design process of the interactions was first  laying out all of the possible actions that we wanted to cover and then experimentally incorporating them in to the implementation.
+
+We wanted to be able to 
+\begin{enumerate}
+  \item have a cursor 
+  \item zoom into the picture and  explore the different clusters
+  \item navigate into a cluster
+  \item display a cluster as a gridview if a) the cluster size allowed this and b)there was enough screen real estate available for this.
+  
+\end{enumerate}
+\subsection{Approaches to the Visualization-Task}
+
+Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the Powerwall, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the Powerwall can be found \todo{cite Powerwall publicatoin here if available}. \cite{Powerwall}
+
+If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the Powerwall.
+
+During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
+
+While the interactions with the data in 3D would have been more fun since we had more degrees of freedom to work with.
+But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen.
+
+... So we decided to settle for a 2D visualization. Our approach is rather boring but it works. On startup we display nothing, if the user chooses his supplied image data and the algorithms used to cluster the pictures he gets the option to start the visualization.
+
+The visualizatoin consists of displaying the image of a cluster +representative with a simple rectangle. 
+This way the user knows exactly what to expect to be in the cluster.
+
+If the user wishes to have a closer look at the images in the given cluster he can click onto the representative and will get a view of all the images in that cluster.
+
+We decided after testing with toy test and real datasets that one level of subclustering is enough, after 2 levels of subclustering the clusters get \todo{find better expression}  noisy and ambiguous.
+
+In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
+
+\subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
+
+\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
 \todo{rephrase}
 The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
 Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
@@ -401,7 +501,7 @@ We wanted to be able to
 \section{Discussion of results}
 As we saw on the last few pages, we have written a plugin for MegaMol that takes pdb datafile or already generated molecular maps as an input and clusters  the corresponding individual protein maps by similarity.
 
-\subsection{comparing our findings with other protein similarity practices} 
+\subsection{comparing our findings with other protein similarity practices}\label{subsec:comparison}
 Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} blah protein database simlilarity measure.
 
 
@@ -410,7 +510,7 @@ Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} 
   \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
   \centering
   \vspace{0.3em}
-  \begin{tabular}{lrr}
+  \begin{tabular}{lrr}{*{3}{p{3cm}}}
   dataset & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
   big (3k images) & 1,243 & 0.1 \\
   medium (300 image ) & 23 & 23 \\
@@ -418,6 +518,24 @@ Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} 
   \end{tabular}
   \end{table}
 
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=.75\linewidth]{k-Means-mediumDataSet.png}
+	\end{center}
+	\caption{\label{fig:kmeans} Our implementation of k-means applied on the medium-sized data set.}
+\end{figure} 
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=.75\linewidth]{k-Means-dlib-mediumDataSet.png}
+	\end{center}
+	\caption{\label{fig:kmeans-dlib} Dlib k-means applied on the medium-sized data set.}
+\end{figure}
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=.75\linewidth]{bottomUpAgglomerative-mediumDataSet.png}
+	\end{center}
+	\caption{\label{fig:bottomUpAgglomerative} Bottom up agglomerative clustering algorithm (dlib) applied on the medium-sized data set.}
+\end{figure}
 
 
 \section{Conclusion}
