@@ -416,7 +416,7 @@ To show up our algorithm results, we needed a suitable representation and a intu
 
 
 The visualization of MegaMol is displayed on the Powerwall.
-The  Powerwall is a merged Large High-Resolution Display made of five portraitoriented
+The  Powerwall is a merged Large High-Resolution Display made of five portrait- oriented
 strips . The setup has  a resolution of 10,800 x 4,096 pixels
 for each eye, and is projected onto a physical screen size of about 6 x 2.2 metres. 
 Two 4K LCoS projectors are projecting
@@ -431,7 +431,15 @@ All the transformations were synchronised over all views, while the interaction 
 
 
 \subsection{Goal of Visualization and Interaction}
-The main goal was to visualize the clusters as clear and seperated blocks in square area. In context to a good clairity it was suitable if we cluster the images into about three to ten clusters. For our subjective feeling it is clear to generate the count of the clusters in this area. Therefore the size of the clusters were adjusted to the square area. For the parameter assignment the configuration bar on the left can be changed by the user. Therein should be found all relevant parameters to manipulate the clustering and the visualization.
+Our main goal was to find the way to visualize different clusters as clearly as possible. In order to do this, we have extracted from every cluster an image that should represent it. If the clustering algorithm used the concept of centroids, we chose the image nearest to the centroid as a representative image of every cluster. If there was no such concept, we randomly chose an image from the cluster to represent it. 
+Representative images were then drawn onto the screen within the bounding box in MegaMol.
+To position the images on the screen we used techniques used from graph visualization. Every representative image was considered to be a node within an imaginary graph. To determine the positions of representative images we used one of the force directed graph drawing algorithms. 
+
+Force directed algorithms are based on the physical laws and try to imitate the effect of attractive and repulsive forces on the graph nodes, as if they were connected by springs. /todo{only some fdl do this}
+
+Because of the readability criteria \todo{cite}
+-------
+The main goal was to visualize the clusters as clear and separated blocks in square area. In context to a good clarity it was suitable if we cluster the images into about three to ten clusters. For our subjective feeling it is clear to generate the count of the clusters in this area. Therefore the size of the clusters were adjusted to the square area. For the parameter assignment the configuration bar on the left can be changed by the user. Therein should be found all relevant parameters to manipulate the clustering and the visualization.
 
 To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements for the interactions from our everyday life. If the Application is used on PC, the MegaMol Project is mainly interacting with the mouse. If we run Application at the Powerwall it is interacting with the tracking stick.
 
@@ -503,6 +511,8 @@ As we saw on the last few pages, we have written a plugin for MegaMol that takes
 
 \section{Conclusion}
 \todo{expand}
+In this paper we looked at different ways of clustering proteins by similarity, visualizing results of the clustering and allowing the user to interact with the data on Large High-Resolution Display POWERWALL. The result of our research was MegaMol Plugin MSMCluster. MSMCluster allows the user to cluster the protein images and visualize them. This plugin can be used with the Large High-Dimension Display POWERWALL. 
+These Proteins were represented by Molecular Surface Maps that were extracted using the MolecuralMaps plugin.
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
