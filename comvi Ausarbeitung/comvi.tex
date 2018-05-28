@@ -141,7 +141,7 @@ Since handling image files which give information about the protein in two dimen
 To prevent confusion further down the paper  the reader should be familiar with the following two terms: comvi - internal name of the clustering engine that can be used by the MegaMol Plugin \\
 MSMCluster - name of the Megamol plugin that was developed as the main part of the project 
 
-\todo{add an overview of the paper, describe here what is in which chapter} Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't.
+\todo{add an overview of the paper, describe here what is in which chapter} Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and Large High-Resolution Displays. In chapter five we present and discuss the results of applying MSMCluster plugin onto datasets of different sizes. In chapter we \todo{??} describe shortly MSMCluster plugin and discuss its strengths and limitations. In the end in the conclusion we shortly discuss possible future work.
 
 %-------------------------------------------------------------------------
 \section{Related Work}\label{sec:relatedWork}
@@ -342,11 +342,11 @@ This minimization is done by repeating the (4) reassignment and (5) recomputatio
 \end{equation}
 
 
-The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Its main advantage on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations.
+The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Another disadvantage is that K-means finds only spherical clusters because it adds an image only to the cluster whose corresponding  centroid is nearest to it \cite{jain2010data}. Its main advantages on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations. 
 
 MSMCluster plugin contains two implementations of k-Means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
 \item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. It then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However, in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it build cluster hierarchy that can be visualized with dendrograms. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level.
-\item [Mean-shift]
+\item [Mean-shift] is another clustering algorithm that uses the concept of centroids. 
 \end{description}
 
 
@@ -513,6 +513,9 @@ As we saw on the last few pages, we have written a plugin for MegaMol that takes
 \todo{expand}
 In this paper we looked at different ways of clustering proteins by similarity, visualizing results of the clustering and allowing the user to interact with the data on Large High-Resolution Display POWERWALL. The result of our research was MegaMol Plugin MSMCluster. MSMCluster allows the user to cluster the protein images and visualize them. This plugin can be used with the Large High-Dimension Display POWERWALL. 
 These Proteins were represented by Molecular Surface Maps that were extracted using the MolecuralMaps plugin.
+We found that clustering results obtained with different clustering algorithms did not differ significantly, because of that we assume that further improvements in clustering of protein images might be achieved in the research of features that are extracted from the images. Perhaps further \todo{Anpassung an} adjustments of features specifically for the Molecular Surface Maps would improve the results. 
+
+Furthermore, with the continuation of the Moore's Law Large High-Resolution Displays might become even more common. Because of that we 
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
