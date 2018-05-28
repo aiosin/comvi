@@ -61,7 +61,7 @@
  Wilhelm Buchmüller  & Shoma Kaiser \\
  \href{mailto:buch.willi@googlemail.com}{buch.willi@googlemail.com}     & \href{mailto:shoma.kaiser@googlemail.com}{shoma.kaiser@googlemail.com} \\
  Enis Spahiu & Damir Ravlija  \\
- \href{mailto:enis.spahiu@hotmail.de}{enis.spahiu@hotmail.de} & \href{mailto:st144286@stud.uni-stuttgart.de}{st144386@stud.uni-stuttgart.de}
+ \href{mailto:enis.spahiu@hotmail.de}{enis.spahiu@hotmail.de} & \href{mailto:st144386@stud.uni-stuttgart.de}{st144386@stud.uni-stuttgart.de}
 
 \end{tabular}
 }
@@ -96,7 +96,7 @@ extract and compare features  and rank the similarity of the molecular protein m
 % Uncomment below to include a teaser figure.
 \teaser{
 \centering
-\includegraphics[width=12cm]{MegaMolExample.png}
+\includegraphics[width=12cm]{teaser.png}
 \caption{Screenshot of a running MegaMol/MSMCLUSTER/comvi instance 
 }\label{fig:teaser}
 }
@@ -116,7 +116,7 @@ extract and compare features  and rank the similarity of the molecular protein m
 \maketitle
 %
 \firstsection{Introduction} 
-\todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
+%\todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
 Over the span of 6 months we, the authors of this paper,  have researched and implemented a comparative clustering  process for images of molecular maps.
 The task consisted of several parts: To generate images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol} to build up a dataset, to extract a strong feature vector from the image, to find a way to cluster similar feature vectors and to visualize the clustering on the Powerwall with a tracking device.
 
@@ -153,93 +153,109 @@ The paper \cite{kolesar} already had similar approaches to our results. Kolesar 
 
 Another approach for 3D protein data were 3D zernicke moments explored by La et al. in \cite{3dsurfer}. The approach is basically the same as in Kolesar et al. but La et al.  in \cite{3dsurfer} used Zernicke moments instead of traditional image moments and extended them to three dimensions. More about the comparison of the different methos in \ref{subsec:comparison}
 
-For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \url{https://www.ebi.ac.uk/Tools/sss/}}
+For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \\ \url{https://www.ebi.ac.uk/Tools/sss/}\\ Last retrieved \today}
 
 
 \section{Clustering}
-\todo{write some intrduction to clustering, aufteilen in subsections}
+%\todo{write some intrduction to clustering, aufteilen in subsections}
 \subsection{Approaches to the Clustering-Problem}
 
 Right of the start we had several ideas of how we could approach this problem. 
 With the recent trend in machine learning we had a couple of ideas of how we could determine a similarity metric between two images or classify an image into a more usable vector of data.
 
-We ended up using a higher dimensional feature vector described in \todo{give section label} to determine the similarirty between two protein maps because we didnt manage to train a custom model in the given timeframe, due to inexperience \todo{this can be said better}and non existance of labeled data.
+We ended up using a higher dimensional feature vector described in section \ref{sec:featurev} to  compute the similarirty between two protein maps because we didn't manage to train a custom model in the given timeframe, partly due to lack of knowledge in the field of machine learning and neural networks and also due to the lack of labelled data.
 
-But our relatively spartan results with a pretrained Imagenet \todo{cite imagenet} \cite{imagenet} \todo{cite darknet publication}  model let us to believe that given the knowledge on the subject and humanly labeled data (based on known featuresit \todo{LEFT OFF HERE}shoud be definetly possible for this specified task to find a machine learning  solution using neural networks/autoencoders.
+If one would have had labelled data one could easily train an autoencoder, SVM or simple neural net (if the number of classes is relatively low).
+
+Our relatively spartan results with a pretrained Imagenet \cite{imagenet}\footnote{\url{https://pjreddie.com/darknet/imagenet/} \\ Last retrieved: \today}  model let us to believe that given the knowledge on the subject and humanly or algorithmically determined labeled data (based on known features or descriptors)   it shoud be definetly possible for this specialized task to find a machine learning  solution using neural networks/autoencoders.
 
 
 
-\subsection{Finding a feature vector to cluster the images}
+\subsection{Finding a feature vector to cluster the images}\label{sec:featurev}
 
-The challenge of finding a good feature vector was/is to find good features which are \todo{aussagekräfting} about the image.
+The challenge of finding a good feature vector was/is to find good features which can give a lot of information about the image.
+If the extracted image features are bad the dimensionality reduction will give noisy results and the knowledge gained from the clustering will be not that much.
 
 The following procedure after finding/determining/calculating the feature vector for a given image is to apply some sort of dimensionality reduction to project a higher dimensional vector onto a 2D or 3D plane.
 
-This has multiuple advantages. First If the dimensionality reduction works as intented one find out after applying the dimensionality reduction if similar looking items are positioned next to each other.
+This has multiuple advantages. First If the dimensionality reduction works as intended one can easily find out after applying the dimensionality reduction if similar looking items are positioned next to each other.
 
-Another reason is the curse of dimensionality. As we all know in higher/infinite dimensional spaces, otherwise unexpected things start to happen such as the euclidian distance or mathimatically put the \begin{equation} L_2 \end{equation}-norm loses relevance since
+\subsubsection{Curse of dimensionality}
+Alternatively one could also find a similarity measure for higher dimensional vectors, but this problem has turned out harder than it seemed partly due to the \textit{curse of dimensionality}\footnote{\url{https://www.inf.fu-berlin.de/inst/ag-ki/rojas_home/documents/tutorials/dimensionality.pdf}\\ Last retrieved: \today}
+
+
+As we all know in higher/infinite dimensional spaces, otherwise unexpected things start to happen such as the euclidian distance or mathematically put the \(L_2\)-norm loses relevance since
 \begin{equation}
 \lim_{n\rightarrow \infty} x^n = 0 \quad \forall x \in [0,1)
 \end{equation}
 
-Simply put, otherwise very similar values get skewed to zero.
+Simply put, otherwise very dissimilar values get pushed to zero. For example between a vector with \(0.99\) in every dimension and a vector with \(0\)in every dimension the eucludian distance is: \(0.99^{100} = 0.33660\) which would put them closer than they really are.
 
-So we have to come up with other solutions to this problem discussed in \todo{put clustering section here}
+Feature vector \\
+So we have to come up with other solutions to this problem discussed in section \ref{}
 
-
-\todo{back to finding the feature vector}
 After looking at a small subset of molecular map images from a variety of proteins we determined that we needed to extract feature information about the follwoing properties of a given image: 
+\begin{itemize}
+  \item Color distribution
+  \item Shape
+  \item Texture
+  \item Invariant  image moments 
+\end{itemize}
 
-Color distribution, Shape, Texture and image moments 
 
-The initial idea was that the color distribution gives information about the color palette in the image, the extracted shape features should give information about the the biggest \( n \) shapes in the picture, the texture feature should differentiate between smooth and rough texture and everything in between.
+The initial idea was that the color distribution gives information about the color palette in the image, the extracted shape features should give information about the the biggest \( n \) shapes in the picture, the texture feature should differentiate between smooth and rough and coarse texture and everything in between.
 
-The image moments were chosen as a goto approach to extract invariant features from the image which has been proved to yield results as described in \cite{kolesar}
+The image moments were chosen as a goto approach to extract invariant features from the image which has been proved to yield valid results as described in Kolesar et al. \cite{kolesar}
 
 The exact image features that we extract from the image are the following:
-\subsection{Image Features/Descriptors}
-\subsection{Invariant Image Moments by Hu}\label{subsec:humom}
+\subsection{Image Features/Descriptors} 
+\subsubsection{Invariant Image Moments by Hu}\label{subsec:humom}
 
-The set of invariant Image Moments discovered by Hu et. al \todo{find out if hu moments just him or others or et al.} are rotation, translation, scale and trasformation \todo{find out if correct} invariant. This allows us to determine if an image$I_a$ is similar to another image $I_B$ if $I_B$ is equal $I_A$ and simply rotated by $30^°$ \todo{put the value in degrees there}
+The set of invariant Image Moments discovered by Hu et. al  are rotation, translation, scale and trasformation  invariant. This allows us to determine if an image$I_a$ is similar to another image $I_B$ if $I_B$ is equal $I_A$ and simply rotated by $30^°$.
 
-The (continouus (spelling?)  Image ) Moments  over two dimensions at their core are defined as such:
+The continouus  Image, defined over the domain \(\mathbb{R}^2\) Moments  over two dimensions at their core are defined as such:
 
-\[m_{i,j} = \int^\infty_{- \infty}\int^\infty_{- \infty} f(x,y) dy dx \]. When dealing with discrete values like we find them in an (RGB/GS) Image we use sums insteads of integral so we get this:
-\[m_{i,j} = \sum^n_{i=0}\sum^m_{j=0} f(i,y) \].\todo{get definition of moment}
+\[M_{p,q} = \int^\infty_{- \infty}\int^\infty_{- \infty} x^py^q f(x,y) dy dx \]
 
-Hu further defines his moments as such:
+Where \(f(x)\) is the signal of the image. 
 
-\todo{give the definition of all 7/8 moments (?) because this is going to take up a lot of space. }
+When dealing with discrete values like we find them in an discretized RGB/ greyscale (GS) Image we use sums insteads of integral so we get this:
 
-Kolesar ended up using these moments \todo{put in kolsar moments}, in our case the moments \todo{put the hu moments here}
+\[M_{i,j} = \sum^n_{i=0}\sum^m_{j=0} x^i y^j f(x,y) \]
 
-\subsection{Color palette/histogram }
+Hu further defines his invariant moments as such:
 
-The goal when extracting color palette was to reduce the big color space that is present in any of the molecular maps and get a few distinct \todo{aussagekräfting} colors from that range.
+
+
+
+Kolesar ended up using a collection of 10 experimentally determined moments to cluster the image. In our case the moments we used the standard Hu et al. invariant moments. 
+
+\subsubsection{Color palette/histogram }
+
+The goal when extracting color palette was to reduce the big color space that is present in any of the molecular maps and get a few distinct  colors that yield a lot of information from that range.
 
 To achieve this we extract a histogram of each color channel of the RGB images. Each channel is then represented as a greyscale image. We then create for each channel a histogram of the luminance intensities with in our case 16 bins. This "reduces" the \(128*128 = 16384\) dimensions to just \(48\) dimensions for our image.
 
-Alternatively you can take another approach described here
+An alternative approach we had to extract color information about the image is to split the image in to equally sized chunks and to extract simple color distribution features like average, min and max values.
 
-The results of both approaches will be discussed in \todo{cite}
+The results from both approaches will be discussed in \ref{}
 
-\subsection{Texture}
+\subsubsection{Texture}
 \todo{better introduction}
 After looking at a toy dataset of molecular maps we noticed that many samples had a distinct roughness that looked like they could be used to classify their texture.
 
-We ended up using the haralick textural features. The haralick features work with a grey level correlation matrix (GCM). The gcm for a given greyscale image is defined as such:
+We ended up using the haralick textural features. The haralick features work with a grey level correlation matrix (GCM). The GCM for a given greyscale image is defined as such:
 
-\[\text{put the formula here, this is spaceholder}\]
+\[{\displaystyle C_{\Delta x,\Delta y}(i,j)=\sum _{x=1}^{n}\sum _{y=1}^{m}{\begin{cases}1,&{\text{if }}I(x,y)=i{\text{ and }}I(x+\Delta x,y+\Delta y)=j\\0,&{\text{otherwise}}\end{cases}}}\]
 
-Also we can take more features from that gcm than just the \todo{what exactly} can be taken from this matrix which gives us more features to work with.
+Also we can take more features from that GCM which gives us more features to work with \todo{expand}.
 
-we also computed this on every channel yielding us another \(x\) features \todo{expand texture features}.
+we also computed this on every channel yielding us another \(3 \cdot 14 \) features.
 
-Alternatively one can also use the tamura texture features. the tamura features are different to the haralick featues because they \todo{what exactly}.
-They were primarily researched/developed/created to \todo{what exactly}. 	
+Alternatively one can also use the tamura texture features. the tamura features are different to the haralick featues because they \todo{expand tamura}
 
-\subsection{Shape}
-We did not end up using the shape features described here but, since we spent quite some time getting them to work \todo{rephrase} I think it is important show how and why they were created.
+\subsubsection{Shape}
+We did not end up using the shape features described here but, since we spent quite some time researching this problem, I think it is important show how and why they were created.
 
 The shape features we hoped to use were  fourier descriptors\footnote{\url{http://fourier.eng.hmc.edu/e161/lectures/fd/node1.html} } \footnote{\url{http://demonstrations.wolfram.com/FourierDescriptors/}}. In short, we get the centroid-distance curve of a distinct shape and take the fast (discrete) fourier transform of that curve. The technique has been proven to work for shape recognition  in earlier works \cite{fourierd}.
 
@@ -249,58 +265,56 @@ So our approach is to squash the color space down to a couple of colors.
 This proces is called color segmenatation. We use the k means algorithm to put every 
 
 Alternatively the mean-shift algorithm can be used. The algorithm is a kernel based clustering algorithm which operates sort of like the gradient descent algorithm.
-Each point has a weight and initally all the points are laid out on a grid (or your dimensions next best spatial representation) each value attracts with a constant force all other neighboring values so they all suck each other in discrete clusters depending on the parameters (bandwith size and kernel weight) A comparison of color segmentation of mean shift and  k menas can be seen here. \todo{give image for comparison}
+Each point has a weight and initally all the points are laid out on a grid (or your dimensions next best spatial representation) each value attracts with a constant force all other neighboring values so they all suck each other in discrete clusters depending on the parameters (bandwith size and kernel weight). A comparison of color segmentation of mean shift and  k means can be seen here\footnote{\url{https://spin.atomicobject.com/2015/05/26/mean-shift-clustering/} \\ Last retrieved: \today \\ \url{https://spin.atomicobject.com/2016/12/07/pixels-and-palettes-extracting-color-palettes-from-images/} \\ Last retrieved \today}. 
+
 
 But our problem of color segmenatation was stil not solved. Especially in the k means algorithm we encountered a lot of smaller ``irrelevant'' shapes that we didnt want.
 So one way of getting them out of the way was to squash the color space further down to two or three distint colors in the image.
 
-Else we'd have to dynamically dilate and erode \todo{give link to dilation and erosion} the image until we can detect with a matrix labeling algorithm /  floodfill algorithm that we really have only a handful of shapes in the image.
+Else we'd have to dynamically dilate and erode \footnote{\url{https://docs.opencv.org/2.4/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html}\\ Last retrieved \today}the image until we can detect with a matrix labeling algorithm /  floodfill algorithm that we really have only a handful of shapes in the image.
 
 For the shapes we then extract the contours and compute the centroid of that shape.
-The centroid is the geometric center of mass of the shape or in other areas of science known as ..... the first moment 
+The centroid is the geometric center of mass of the image which can be built up by the first central moments of the two dimensions.
 
 Now we have the centroid and the countour of the shape that we want to classify we need to form the contour centroid distance curve.
-The contour centroid distance curve is simply a disrete list of values of the contour \todo{clafiry} or the list of the euclidian (in two or three dimensions, why this doesnt work in higher dimensions look up \todo{curse of dimensionality}) distances.
+The contour centroid distance curve is simply a disrete list of values of the \(x\)and \(y\)  values of each item of the contour  or alternatively the list of the euclidian  distances from the centroid, both approaches have been shown to work.
 
 We then normalize the values by diving all the values by the biggest value in the array, resulting in a array that is in range(0,1]
 
-Without loss of generality depending on whhich curve we chose we take the fast discrete fourier transform of that signal, which gives us for each sine/cosine coefficient a weight how that component contributes/weighs in the signal.
+Without loss of generality depending on which curve we chose we take the fast discrete fourier transform of that signal, which gives us for each sine/cosine coefficient a weight how that component contributes/weighs in the signal.
 
-Without any proof that would go beyond the scope of this paper we can say that the gained features are rotation scale and translation invariant. Its rotation invariant because ... its scale invariant because we normalize it, its translation invariant because the distance curve is translation invariant (wihtout proof).
+Without any proof that would go beyond the scope of this paper we can say that the gained features are rotation scale and translation invariant. Its rotation invariant because the Fourier transform is shift invariant so it doesnt matter where we begin our centroid curve the fourier transform will be the same even if its rotatted. Its scale invariant because we normalize it, its translation invariant because the distance curve is trivially translation invariant (wihtout proof).
 
-Another shape feature can be won, if the shape object is given as a greyscale binary matrix. From this matrix one can extract Image Moment features like the one by Hu as described in \todo{give section to hu moments}
+Another shape feature can be won, under the condiciton that the shape object is given as a greyscale binary matrix. From this matrix one can extract Image Moment features like the one by Hu as described in section \ref{subsec:humom}.
 
-We did not end up using the shape features, because we could notice any improvement over the other features that we used, but it is important to note that they exist and what their capabilites are incase someone will continue our work on this topic. \todo{rephrase}.
-
-
+We did not end up using the shape features, because we could notice any improvement over the other features that we used, but we put substantial effort into getting these features to work, so we wanted to describe our process here.
 
 \subsection{Finding the best performing similarity measure}
 
-After our feature processing on an image we end up with an feature matrix where the rows are samples  and the columns are the features. aaaaa \[A \in \mathbb{R}\]
+After our feature processing on an image we end up with an feature matrix where the rows are samples  and the columns are the features.  \[A \in \mathbb{R}\] \todo{remove (?) }
 
 
-\subsection{Findin the best performign dimensionality reduction method}
+\subsection{Findin the best performing  dimensionality reduction method}
 For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on datasets of various sizes and content.
 
 We tested our results on the Oxford flower dataset and bmw dataset and our large (3000 images) molecular maps dataset and a medium version of that dataset (300 images) and a small dataset for fast testing purposes.
 
-As you will find in our comvi repository \todo{give link} the dimensionality reduction routine consists of passing it a features array with \todo{beautify shape samples*features}
-In the routine we additionally scale the data because \todo{why exactly ?!!??}.
-We then return the reduced feature array back to the callee. The callee can then apply further some functions on this....
+As you will find in our comvi repository \footnote{\url{https://github.com/aiosin/comvi}} the dimensionality reduction routine consists of passing it a features array of shape \(A^{n\times m}\) where \(n\) is the number of samples (i.e. the number of images) and \(m\) is the number of features per image.
+In the routine we additionally scale the data because we want to avoid potentially unwanted effects caused by very big values.\footnote{\url{https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e} \\ Last retrieved: \today}
+We then return the reduced feature array back to the callee. The callee can then apply further some functions on this reduced array.
 
-After inital testing with linear dimensionality reductions we notice that our results just wouldnt \todo{phrasing: converge }, so we again tried any non linear dimensionality reduction technique we could find.
+After inital testing with linear dimensionality reductions we notice that our results just wouldnt ``converge'', so we again tried with any non linear dimensionality reduction technique we could find.
 
-We tested our data with LLE, MDS, kernel PCA, ISOMAP and t-SNE.
-After testing with a small user group that would judge how good the clustering was done by the technique we concluded that t-SNE performed the best.
+We tested our data with Local Linear Embedding (LLE), Multi-Dimensional Scaling (MDS), Kernel-PCA, Isomap and t-distributed Stochastic Neighbor Embedding (t-SNE).
+After testing with a small non representative user group that would judge how good the clustering was done by the technique we concluded that t-SNE performed the best.
 
-Further testing leads us to believe that t-SNE is the best dimensionality reduction procedure for this problem.
+Further testing leads us to believe that t-SNE is the best dimensionality reduction procedure for this problem. t-SNE is discussed in more detail in section \ref{sec:clusteringa}
 
-t-SNE is a randomized t bla Stochasitc neighbor embedding process. Its works by ... . But because the process requires random variables we decided to set the random seed of our program sowe can get deterministically the same results across different machines.
 
-\subsection{Clustering - Algorithms and strategies }
-\todo{this will be the main section for the clustering topic }
+\subsection{Clustering - Algorithms and strategies }\label{sec:clusteringa}
+%\todo{this will be the main section for the clustering topic }
+Clustering of data is defined as the process of grouping $n$ distinct values into $m$ different classes. Clustering algorithms are algorithms that perform clustering. They can be subdivided in two different ways \cite{iir}.
 Because the given data was not labeled, only unsupervised machine learning techniques, like clustering, could be applied on it. 
-Clustering of data is defined as the process of grouping n distinct values into m different classes. Clustering algorithm are algorithms that perform clustering. They can be subdivided in two different ways \cite{iir}.
 
 Depending on the number of classes to which one data element can belong we differ between hard and soft clustering. In hard clustering one element can belong to only one class, whereas in soft clustering it can belong to many different classes. 
 On the other hand, depending on the way in which the data is clustered we differ between flat and hierarchical clustering. In flat clustering particular clusters have not relation to each other, whereas in hierarchical clustering considers the distance between clusters as well.
@@ -338,30 +352,30 @@ MSMCluster plugin contains two implementations of k-Means. We implemented one ve
 
 
 \subsection{Finding the best performing clustering algorithm}
-Our approach to finding a clustering algorihtm was the same as the one that we used \todo{sentence and grammer  !!! } to find the best performing dimensionality reduction algorithm.
+Our approach to finding a clustering algorihtm was the same as the one that we used  to find the best performing dimensionality reduction algorithm.
 
-Except with a little modification. Kolesar et al. \cite{kolesar} used the k nearest neighbors algorithm over their 10-dimensional feature vector to cluster their data, as they discuss their results. We decided to further use this approach to cluster our molecular maps instead of the molecular protein tunnels which Kolesar et al. analyzed. \todo{phrasin}.
+Except with a little modification. Kolesar et al. \cite{kolesar} used the k nearest neighbors algorithm over their 10-dimensional feature vector to cluster their data, as they discuss their results. We decided to further use this approach to cluster our molecular maps instead of the molecular protein tunnels which Kolesar et al. analyzed.
 
 
 In the early stages of the 0projcet we intended to use the DBSCAN clustering algoirtm. 
 The key feature to this algorithm is that it automatically determines the optimal number of clusters that it detects in the given data. 
 
-The algorithm is a density based spatial clustering algirhtm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
+The algorithm is a density based spatial clustering algorithm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
 
 
-You could use the euclidian distance between two feature vectors or the cosine distance or feed the two images to a siamese neural network/autoencoder \todo{give information about siamese neural networks and autoencoders} which will have learned the similarity metric between the images.
+You could use the euclidian distance between two feature vectors or the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages two both of these techniques is that both the siamese neural network and the autoencoder have to be trained.
 
-You could also usethe householder/hausdorff distancebetween two higher dimensional vectors.
+You could also usethe householder/hausdorff distancebetween two higher dimensional vectors.\todo{expand}
 
-We opted against DBSCAN for our primary clustering algorithm because in the early stages of the project the computation of the \(nxn\) similarity matrix was very computationally expensive and took quite a bit more time than the approaches that we demonstrate in the next paragraphs
+We opted against DBSCAN for our primary clustering algorithm because in the early stages of the project the computation of the \(n\times n\) similarity matrix was very computationally expensive and took quite a bit more time than the approaches that we demonstrate in the next paragraphs.
 
-There are similar approaches \todo{finish sentence}
+%There are similar approaches \todo{finish sentence} was wollte ich da schreiben ????
 
-For our testing we used k nearest neighbors with the elbow method and a cutoff at  ~85 \% \todo{what exactly}
+For our initial testing we used k-nearest neighbors with the elbow method and a cutoff at  ~85 \% \todo{elaborate on elbow method}
 
-spectral clustering, chinese whispers  ... 
+spectral clustering, chinese whispers  \todo{put in clustering algorithms descriptions}... 
 
-We ended up with the mean shift algorithm. It also is a density based algorithm and much like the DBSCAN algorithm is also determines the optimal number of clusters for the given parameters but it operates with a kernel sampled on each point in the plot and calculates the center of mass so to speak of the points clouds, for a animated demonstration lookt at \todo{give link to mean shift visualization}. For a demonstration of the mean shift algorithm look at Figure \ref{fig:tsne}. 
+We ended up with the mean shift algorithm. It also is a density based algorithm and much like the DBSCAN algorithm is also determines the optimal number of clusters for the given parameters but it operates with a kernel sampled on each point in the plot and calculates the center of mass so to speak of the points clouds\footnote{\url{https://spin.atomicobject.com/2015/05/26/mean-shift-clustering/}\\ Last retrieved: \today} . For a demonstration of the mean shift algorithm look at Figure \ref{fig:tsne}. 
 
 
 
@@ -394,43 +408,46 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 \end{figure}
 
 \section{Visualization and Interaction}
-\todo{write some introduction about Powerwall, trackingsystem, visus etc.}
 
-\subsection{Approaches to the Visualization-Task}
+To show up our algorithm results, we needed a suitable representation and a intuitive interaction for our generated clusters. In favor we used a configuration bar where you can set relevant parameters like the clustering algorithm or the images to cluster. \todo{megamol graphic} The represented clusters are shown in a square area. This application is finally shown on the POWERWALL in Visus. With a tracking stick it was possible to interact with the clusters on the POWERWALL.
 
-Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the Powerwall, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the Powerwall can be found \todo{cite Powerwall publicatoin here if available}. \cite{Powerwall}
+\subsection{Background MegaMol and Powerwall}
 
-If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the Powerwall.
 
-During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
-
-While the interactions with the data in 3D would have been more fun since we had more degrees of freedom to work with.
-But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen.
-
-... So we decided to settle for a 2D visualization. Our approach is rather boring but it works. On startup we display nothing, if the user chooses his supplied image data and the algorithms used to cluster the pictures he gets the option to start the visualization.
-
-The visualizatoin consists of displaying the image of a cluster representative with a simple rectangle. 
-This way the user knows exactly what to expect to be in the cluster.
-
-If the user wishes to have a closer look at the images in the given cluster he can click onto the representative and will get a view of all the images in that cluster.
-
-We decided after testing with toy test and real datasets that one level of subclustering is enough, after 2 levels of subclustering the clusters get \todo{find better expression}  noisy and ambiguous.
-
-In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
+The visualtion of MegaMol is displayed on the Powerwall.
+The  Powerwall is a merged Large High-Resolution Display made of five portraitoriented
+strips . The setup has  a resolution of 10,800 x 4,096 pixels
+for each eye, and is projected onto a physical screen size of about 6 x 2.2 metres. 
+Two 4K LCoS projectors are projecting
+the images for each strip.
+A pixel is about 0.56 mm  in size, which corresponds to about 50 ppi .
+The users interacted with the system using a 6DOF mid-air
+pointing Stick with two buttons (1 on each side), which was tracked by 14 camers
+using an optical tracking system from NaturalPoint. 
+All the transformations were synchronised over all views, while the interaction is runnig.
 
 
 
-\subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
 
-\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
-\todo{rephrase}
-The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
-Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
+\subsection{Goal of Visualization and Interaction}
+The main goal was to visualize the clusters as clear and seperated blocks in square area. In context to a good clairity it was suitable if we cluster the images into about three to ten clusters. For our subjective feeling it is clear to generate the count of the clusters in this area. Therefore the size of the clusters were adjusted to the square area. For the parameter assignment the configuration bar on the left can be changed by the user. Therein should be found all relevant parameters to manipulate the clustering and the visualization.
 
-The tracking stick also has two buttons that can be interacted with yielding a total of 4 buttons states (off off, off on, on off, on on ) that can be used.
+To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements for the interactions from our everyday life. If the Application is used on PC, the MegaMol Project is mainly interacting with the mouse. If we run Application at the Powerwall it is interacting with the tracking stick.
 
-Our design process of the interactions was first  laying out all of the possible actions that we wanted to cover and then experimentally incorporating them in to the implementation.
+With the four button states of the tracking sticks we focused on the most important interactions like ``selection'' or ``drag and drop'' To localize the aimung of the user  we should calculate a intersection coordinates of the tracking stick in direction to the Powerwall. While moving the tracking stick for interactions, these coordinates should be scaled for a user- friendly interactions.
 
+\subsection{Realization}
+
+To realize the ideas and goals we first discussed about the dimension of the cluster visualization. But a couple of reasons spoke up against a 3D visualization so we decided to do transform the 3D molecule into a 2D image. We would have more degrees of freedom to work with 3D molecules on the Powerwall. But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen. Furthermore the clustering and the interaction would be demanding. So we decided to settle for a 2D visualization. 
+The visualizatoin consists of displaying the image of a cluster representative with a simple rectangle. With clicking into a rectangle the user is able to get a view of all clustered images in that cluster. Even subclustering can be executed by splitting one cluster into two more. After testing we decided that one level of subclustering is enough. After 2 levels of subclustering the clusters get too  \todo{begriff}
+With the configuration bar the user is able to change several variants of clustering and execute some interactions too. 
+
+But mainly the interactions are executed by mouse or by the tracking stick. The tracking stick got As already mentioned four states. In the first state, if no button is pressed, should be no interaction. In the second state, if the first button is pressed, should be a 'drag and drop'-interaction as we know it from the Computer. With pressing the other button, the third state, the user can select an object like we know it from the Computer 'leftclick'. If both buttons are pressed, the user is able to zoom. \todo{wenn es klappt} For the zooming we used the third dimension of the tracking area in front of the Powerwall. With walking towards the Powerwall in the fourth state the user zooms in. Equally with walking away from the Powerwall the user zooms out. 
+All movements of the tracking stick in the tracking area have to be scaled for a user-friendly usage. To calculate them we tested the interactions exprimentally by changing the scalings. We adjust these parameters so that the user can operate with the whole interface without walking around in the tracking area.
+As a conclusion of this part we focused on user-friendly and intuitive interactions like we know it from our everyday life.
+
+
+\todo{where to put this ?}
 We wanted to be able to 
 \begin{enumerate}
   \item have a cursor 
@@ -439,56 +456,15 @@ We wanted to be able to
   \item display a cluster as a gridview if a) the cluster size allowed this and b)there was enough screen real estate available for this.
   
 \end{enumerate}
-\subsection{Approaches to the Visualization-Task}
-
-Our aproaches to visualizing the given clusters were the following, the reader is reminded that we are not just visualizing the clusters on a ''normal machine'' but rather the Powerwall, a projected display with effectively 6-24 times the resolution of a consumer grade display. Details on the Powerwall can be found \todo{cite Powerwall publicatoin here if available}. \cite{Powerwall}
-
-If we are given so much pixel real estate we are given the freedom to draw smaller pixels since we still will be able to see them on the Powerwall.
-
-During the duration of the project the idea of a 3D visualization was discussed among the team, but we settled for a 2D visualization. This had a couple of reasons.
-
-While the interactions with the data in 3D would have been more fun since we had more degrees of freedom to work with.
-But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen.
-
-... So we decided to settle for a 2D visualization. Our approach is rather boring but it works. On startup we display nothing, if the user chooses his supplied image data and the algorithms used to cluster the pictures he gets the option to start the visualization.
-
-The visualizatoin consists of displaying the image of a cluster +representative with a simple rectangle. 
-This way the user knows exactly what to expect to be in the cluster.
-
-If the user wishes to have a closer look at the images in the given cluster he can click onto the representative and will get a view of all the images in that cluster.
-
-We decided after testing with toy test and real datasets that one level of subclustering is enough, after 2 levels of subclustering the clusters get \todo{find better expression}  noisy and ambiguous.
-
-In both the main and subcluster view the representatives are visualized with "force directed layout", to avoid 
-
-\subsection{Approaches to the Interaction with and mouse and the Powerwall tracking stick (?) \todo{cite correct pub and use correct name}}
-
-\todo{@shoma @enis interaktionsmöglichkeiten schreiben}
-\todo{rephrase}
-The tracking system that was provided to us from the VISUS of the University of Stuttgart was the \todo{motive imsys (?)} tracking system which uses the \todo{vrpn natnet} protocol to send the interaction from the 6 DOF stick in the three dimensions to the client machine. 
-Since we are visualizing the data in two dimensions we have at least one spatial dimension that can be repurposed for secondary/other uses rather than tracking the position of the stick from world coordinates into screen coordinates.
-
-The tracking stick also has two buttons that can be interacted with yielding a total of 4 buttons states (off off, off on, on off, on on ) that can be used.
-
-Our design process of the interactions was first  laying out all of the possible actions that we wanted to cover and then experimentally incorporating them in to the implementation.
-
-We wanted to be able to 
-\begin{enumerate}
-  \item have a cursor 
-  \item zoom into the picture and  explore the different clusters
-  \item navigate into a cluster
-  \item display a cluster as a gridview if a) the cluster size allowed this and b)there was enough screen real estate available for this.
-  
-\end{enumerate}
-
 
 
 \section{Discussion of results}
 Because there were no labeled data sets we could not use external criteria like purity or rand index to evaluate the results of our clustering. Instead we applied internal criterion of residual sum of squares and also looked at the results and gave our own evaluation of them.
 As we saw on the last few pages, we have written a plugin for MegaMol that takes pdb datafile or already generated molecular maps as an input and clusters  the corresponding individual protein maps by similarity.
 
+
 \subsection{comparing our findings with other protein similarity practices}\label{subsec:comparison}
-Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} blah protein database simlilarity measure.
+\todo{expand} bla \cite{3dsurfer} protein database simlilarity measure.
 
 
 \begin{table}
@@ -504,10 +480,28 @@ Laa di daa bla blubb I am a placeholder aylmao, look at me. bla \cite{3dsurfer} 
   \end{tabular}
   \end{table}
 
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=.75\linewidth]{k-Means-mediumDataSet.png}
+	\end{center}
+	\caption{\label{fig:kmeans} Our implementation of k-means applied on the medium-sized data set.}
+\end{figure} 
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=.75\linewidth]{k-Means-dlib-mediumDataSet.png}
+	\end{center}
+	\caption{\label{fig:kmeans-dlib} Dlib k-means applied on the medium-sized data set.}
+\end{figure}
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=.75\linewidth]{bottomUpAgglomerative-mediumDataSet.png}
+	\end{center}
+	\caption{\label{fig:bottomUpAgglomerative} Bottom up agglomerative clustering algorithm (dlib) applied on the medium-sized data set.}
+\end{figure}
 
 
 \section{Conclusion}
-
+\todo{expand}
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
