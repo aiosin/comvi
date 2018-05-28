@@ -29,6 +29,7 @@
 \usepackage[normalem]{ulem}
 \usepackage{hyperref}
 \usepackage{footnote}
+\usepackage {adjustbox}
 
 % options for TODO: either use red bold font for litle annotations (which do not work very well)
 
@@ -118,7 +119,7 @@ extract and compare features  and rank the similarity of the molecular protein m
 \firstsection{Introduction} 
 %\todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
 Over the span of 6 months we,  have researched and implemented a comparative clustering  process for images of molecular maps.
-The task consisted of several parts: To generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a dataset, to extract a descriptive feature vector from the image, to find a way to cluster similar feature vectors and to visualize the clustering on the Powerwall with a tracking device.
+The task consisted of several parts: To generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster similar feature vectors and to visualize the clustering on the Powerwall with a tracking device.
 
 The result of this work is an \verb|MSMCLUSTER| plugin that should extend the functionality of the MegaMol\cite{MegaMol} visualization framework. MegaMol is a simulation tool developed by the Universit\"at Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that we are presenting with our work. 
 Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other.
@@ -141,7 +142,7 @@ Since handling image files which give information about the protein in two dimen
 To prevent confusion further down the paper  the reader should be familiar with the following two terms: comvi - internal name of the clustering engine that can be used by the MegaMol Plugin \\
 MSMCluster - name of the Megamol plugin that was developed as the main part of the project 
 
-\todo{add an overview of the paper, describe here what is in which chapter} Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and Large High-Resolution Displays. In chapter five we present and discuss the results of applying MSMCluster plugin onto datasets of different sizes. In chapter we \todo{??} describe shortly MSMCluster plugin and discuss its strengths and limitations. In the end in the conclusion we shortly discuss possible future work.
+\todo{add an overview of the paper, describe here what is in which chapter} Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and Large High-Resolution Displays. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In chapter we \todo{??} describe shortly MSMCluster plugin and discuss its strengths and limitations. In the end in the conclusion we shortly discuss possible future work.
 
 %-------------------------------------------------------------------------
 \section{Related Work}\label{sec:relatedWork}
@@ -243,7 +244,7 @@ The results from both approaches will be discussed in \ref{}
 
 \subsubsection{Texture}
 \todo{better introduction}
-After looking at a toy dataset of molecular maps we noticed that many samples had a distinct roughness that looked like they could be used to classify their texture.
+After looking at the smallest data set of molecular maps we noticed that many samples had a distinct roughness that looked like they could be used to classify their texture.
 
 We ended up using the haralick textural features. The haralick features work with a grey level correlation matrix (GCM). The GCM for a given greyscale image is defined as such:
 
@@ -296,9 +297,9 @@ After our feature processing on an image we end up with an feature matrix where 
 
 
 \subsection{Findin the best performing  dimensionality reduction method}
-For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on datasets of various sizes and content.
+For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on data sets of various sizes and content.
 
-We tested our results on the Oxford flower dataset and bmw dataset and our large (3000 images) molecular maps dataset and a medium version of that dataset (300 images) and a small dataset for fast testing purposes.
+We tested our results on the Oxford flower dataset and bmw data set and our large (3000 images) molecular maps dataset and a medium version of that dataset (300 images) and a small dataset for fast testing purposes.
 
 As you will find in our comvi repository \footnote{\url{https://github.com/aiosin/comvi}} the dimensionality reduction routine consists of passing it a features array of shape \(A^{n\times m}\) where \(n\) is the number of samples (i.e. the number of images) and \(m\) is the number of features per image.
 In the routine we additionally scale the data because we want to avoid potentially unwanted effects caused by very big values.\footnote{\url{https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e} \\ Last retrieved: \today}
@@ -332,7 +333,7 @@ Let $D = \{x_i'\}_{i=1}^n$ be a set of n vectors $x_i$ that represents some data
 K-Means minimizes the following loss function $L$:
 \begin{equation}
 L = \min_{c, \mu} \sum_{i=1}^{n}(x_i - \mu_{c(i)})^2
-\end{equation} 
+\end{equation} t
 This minimization is done by repeating the (4) reassignment and (5) recomputation step.
 \begin{equation}
 \forall i: c(i) := \operatorname*{arg\,min}_k (x_i - \mu_k)^2
@@ -467,21 +468,46 @@ We wanted to be able to
 \end{enumerate}
 
 
-\section{Discussion of results}
-Because there were no labeled data sets we could not use external criteria like purity or rand index to evaluate the results of our clustering. Instead we applied internal criterion of residual sum of squares and also looked at the results and gave our own evaluation of them.
-As we saw on the last few pages, we have written a plugin for MegaMol that takes pdb datafile or already generated molecular maps as an input and clusters  the corresponding individual protein maps by similarity.
+\section{Results}
+As we saw on the last few pages, we have written a plugin for MegaMol that takes a directory with generated Molecular Surface Maps as an input and clusters  them by similarity. In this section we present and discuss the results of testing three different data sets with MSMCluster plugin. 
+
+Data sets were ordered by size and were used for different purposes. The smallest data set contained only 12 images and could therefore be used to test changes in the program quickly on all kinds of hardware. Second data set was a medium-sized data set that contained 300 images. This data set was used to test the plugin and help us notice the areas where the system needed to be optimized. The largest data set contained all of the 3600 protein images that we created. This data set will be \todo{published, where?}
+
+During the creation of Molecular Surface Maps, some of the images were not created correctly and ended up being having black areas. Those images appeared as outlying data points in scatter plots. We opted against the removal of outliers because they were often clustered into one cluster and during plugin development this proved to be a good way to test whether the clustering algorithm is working correctly.
+
+Since there were no labeled data sets we could not use external criteria like purity or rand index to evaluate the results of our clustering. Instead we applied internal criterion of residual sum of squares to compare implementations of K-means algorithm and we also looked at the results and gave our own evaluation of them (see Table 1). We also tested the time needed to cluster and visualize the data.
+
+\todo{discussion of the results} 
+
 
 
 \subsection{comparing our findings with other protein similarity practices}\label{subsec:comparison}
 \todo{expand} bla \cite{3dsurfer} protein database simlilarity measure.
 
+\begin{center}
+\begin{adjustbox}{max width=8.5cm}
+\begin{tabular}{|l|l|l|l|l|}
 
-\begin{table}
+\multicolumn{1}{c}{\bfseries Clustering Algorithm}  &  \multicolumn{1}{c}{\bfseries Data set} & \multicolumn{1}{c}{\bfseries RSS} & \multicolumn{1}{c}{\bfseries Evaluation} & \multicolumn{1}{c}{\bfseries Performance (in ms)} \\
+\hline
+K-means & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
+\hline
+dlib K-means & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & &  \\ 
+\hline
+Bottom up agglomerative & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
+\hline
+MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\end{center}
+
+\begin{table}[!h]
   \caption{
   \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
   \centering
   \vspace{0.3em}
-  \begin{tabular}{lrr}{*{3}{p{3cm}}}
+  \begin{tabular}{lrr}
   dataset & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
   big (3k images) & 1,243 & 0.1 \\
   medium (300 image ) & 23 & 23 \\
@@ -512,10 +538,11 @@ As we saw on the last few pages, we have written a plugin for MegaMol that takes
 \section{Conclusion}
 \todo{expand}
 In this paper we looked at different ways of clustering proteins by similarity, visualizing results of the clustering and allowing the user to interact with the data on Large High-Resolution Display POWERWALL. The result of our research was MegaMol Plugin MSMCluster. MSMCluster allows the user to cluster the protein images and visualize them. This plugin can be used with the Large High-Dimension Display POWERWALL. 
-These Proteins were represented by Molecular Surface Maps that were extracted using the MolecuralMaps plugin.
-We found that clustering results obtained with different clustering algorithms did not differ significantly, because of that we assume that further improvements in clustering of protein images might be achieved in the research of features that are extracted from the images. Perhaps further \todo{Anpassung an} adjustments of features specifically for the Molecular Surface Maps would improve the results. 
 
-Furthermore, with the continuation of the Moore's Law Large High-Resolution Displays might become even more common. Because of that we 
+These Proteins were represented by Molecular Surface Maps that were extracted using the MolecuralMaps plugin.
+We found that clustering results obtained with different clustering algorithms did not differ significantly, because of that we assume that further improvements in clustering of protein images might be achieved in the research of features that are extracted from the images. Perhaps further adaption of features specifically to the Molecular Surface Maps would offer further improvements of the results. 
+
+Furthermore, with the continuation of the Moore's Law Large High-Resolution Displays might become even more common. Because of that, further research in this area and adaptation of visualization tools and other programs to these displays might play a significant role in the future.
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
