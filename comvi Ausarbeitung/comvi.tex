@@ -117,31 +117,31 @@ extract and compare features  and rank the similarity of the molecular protein m
 %
 \firstsection{Introduction} 
 %\todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
-Over the span of 6 months we, the authors of this paper,  have researched and implemented a comparative clustering  process for images of molecular maps.
-The task consisted of several parts: To generate images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol} to build up a dataset, to extract a strong feature vector from the image, to find a way to cluster similar feature vectors and to visualize the clustering on the Powerwall with a tracking device.
+Over the span of 6 months we,  have researched and implemented a comparative clustering  process for images of molecular maps.
+The task consisted of several parts: To generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a dataset, to extract a descriptive feature vector from the image, to find a way to cluster similar feature vectors and to visualize the clustering on the Powerwall with a tracking device.
 
-This work was based on the MegaMol\cite{MegaMol} project. MegaMol is a simulation tool developed by the Universit\"at Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that were presenting with our work. 
+The result of this work is an \verb|MSMCLUSTER| plugin that should extend the functionality of the MegaMol\cite{MegaMol} visualization framework. MegaMol is a simulation tool developed by the Universit\"at Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that we are presenting with our work. 
 Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other.
 In this paper we guide you through the \verb|MSMCLUSTER| plugin, its capabilities and inner workings.
 
-One tasks was to retrieve molecular image data through existing MegaMol plugins \cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project that will be publicly available starting \today \footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
-The next task was to extract a expressive feature vector from those images and to find a metric to cluster them by similarity.
+First task was to retrieve molecular image data through existing MegaMol plugins \cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project that will be publicly available starting \today \footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
+The next task was to extract an expressive feature vector from those images and to find a metric to cluster them by similarity.
 
-The last task which was also developed in a plugin in MagaMol was the visualization on the VISUS Powerwall. The Powerwall is a very high definition display \footnote{\url{https://www.visus.uni-stuttgart.de/institut/visualisierungslabor/technischer-aufbau.html} \\ Last retrieved: \today } that can be used to visualize large data(sets). Due to its size and resolution its possible to display much more information than on a regular consumer grade screen. 
+The last task which was also developed in a plugin in MegaMol was the visualization on the VISUS Powerwall. The Powerwall is a very high definition display \footnote{\url{https://www.visus.uni-stuttgart.de/institut/visualisierungslabor/technischer-aufbau.html} \\ Last retrieved: \today } that can be used to visualize large data(sets). Due to its size and resolution its possible to display much more information than on a regular consumer grade screen. 
 
-The Powerwall also supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more possibilities than with  traditional human interface  devices  (HIDs), if you would exclude devices like smartphones. For this last step we also researched the possible interactions with the unique tracking device  which can be used  with the  Powerwall.
+The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more possibilities than with traditional human interface  devices  (HIDs), if you would exclude devices like smartphones. For this last step we also researched the possible interactions with the unique tracking device  which can be used  with the  Powerwall.
 
-It is clear that the task required from us that we learn how to compare the images, measure the distances between the images, and cluster these images.
+The task required from us that we learn how to compare the images, measure the distances between the images, and cluster these images.
 The given task required that we use a similarity based clustering algorithm.
 
-Initially we were given the choice we could either chose to find similarities and cluster the proteins in the \verb|.pdb| format or given as bitmap image generated by the \verb|MolecularMaps| plugin in MegaMol \cite{molecularmaps}.
+Initially we were given the choice, we could either choose to find similarities between the proteins and cluster the proteins in the \verb|.pdb| format or using bitmap image generated by the \verb|MolecularMaps| plugin in MegaMol \cite{molecularmaps}.
 
-Since handling image files which give information about the protein in two dimensions was easier than dealing with the pdb file format which results in three dimensional visualizations we decided to start and carry out the task with the two dimensional approach.
+Since handling image files which give information about the protein in two dimensions was easier than dealing with the pdb file format which results in three dimensional visualizations we decided to start and carry out the task with the two dimensional approach. Kolesar et al. discuss the advantages of comparing and visualizing of proteins with their Molecular Surface Maps \cite{kolesar}.
 
 To prevent confusion further down the paper  the reader should be familiar with the following two terms: comvi - internal name of the clustering engine that can be used by the MegaMol Plugin \\
 MSMCluster - name of the Megamol plugin that was developed as the main part of the project 
 
-Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't.
+\todo{add an overview of the paper, describe here what is in which chapter} Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't.
 
 %-------------------------------------------------------------------------
 \section{Related Work}\label{sec:relatedWork}
@@ -160,21 +160,21 @@ For further information and more complex approaches to this problem one should c
 %\todo{write some intrduction to clustering, aufteilen in subsections}
 \subsection{Approaches to the Clustering-Problem}
 
-Right of the start we had several ideas of how we could approach this problem. 
+Right at the start we had several ideas of how we could approach this problem. 
 With the recent trend in machine learning we had a couple of ideas of how we could determine a similarity metric between two images or classify an image into a more usable vector of data.
 
-We ended up using a higher dimensional feature vector described in section \ref{sec:featurev} to  compute the similarirty between two protein maps because we didn't manage to train a custom model in the given timeframe, partly due to lack of knowledge in the field of machine learning and neural networks and also due to the lack of labelled data.
+We ended up using a higher dimensional feature vector described in section \ref{sec:featurev} to  compute the similarity between two protein maps because we didn't manage to train a custom model in the given timeframe, partly due to lack of knowledge in the field of machine learning and neural networks and also due to the lack of labeled data.
 
-If one would have had labelled data one could easily train an autoencoder, SVM or simple neural net (if the number of classes is relatively low).
+If one had labeled data, one could easily train an autoencoder, SVM or simple neural net (if the number of classes is relatively low).
 
-Our relatively spartan results with a pretrained Imagenet \cite{imagenet}\footnote{\url{https://pjreddie.com/darknet/imagenet/} \\ Last retrieved: \today}  model let us to believe that given the knowledge on the subject and humanly or algorithmically determined labeled data (based on known features or descriptors)   it shoud be definetly possible for this specialized task to find a machine learning  solution using neural networks/autoencoders.
+Our relatively spartan results with a pretrained Imagenet \cite{imagenet}\footnote{\url{https://pjreddie.com/darknet/imagenet/} \\ Last retrieved: \today}  model led us to believe that given the knowledge on the subject and humanly or algorithmically determined labeled data (based on known features or descriptors)   it should be definitely possible for this specialized task to find a machine learning  solution using neural networks/autoencoders.
 
 
 
 \subsection{Finding a feature vector to cluster the images}\label{sec:featurev}
 
 The challenge of finding a good feature vector was/is to find good features which can give a lot of information about the image.
-If the extracted image features are bad the dimensionality reduction will give noisy results and the knowledge gained from the clustering will be not that much.
+If the extracted image features are bad, that is they do not describe the images in a useful way, the dimensionality reduction will give noisy results and the clustering algorithms will not group the images in any meaningful way, so users will not be able to extract any new information from the clustering.
 
 The following procedure after finding/determining/calculating the feature vector for a given image is to apply some sort of dimensionality reduction to project a higher dimensional vector onto a 2D or 3D plane.
 
@@ -414,7 +414,7 @@ To show up our algorithm results, we needed a suitable representation and a intu
 \subsection{Background MegaMol and Powerwall}
 
 
-The visualtion of MegaMol is displayed on the Powerwall.
+The visualization of MegaMol is displayed on the Powerwall.
 The  Powerwall is a merged Large High-Resolution Display made of five portraitoriented
 strips . The setup has  a resolution of 10,800 x 4,096 pixels
 for each eye, and is projected onto a physical screen size of about 6 x 2.2 metres. 
