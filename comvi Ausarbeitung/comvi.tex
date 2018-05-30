@@ -32,7 +32,6 @@
 \usepackage{footnote}
 \usepackage{adjustbox}
 
-% options for TODO: either use red bold font for litle annotations (which do not work very well)
 
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
 
@@ -43,12 +42,6 @@
 %\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
 
 
-%\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
-%\newcommand{\unsure}[1]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,inline]{#1}}
-%\newcommand{\change}[1]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,inline]{#1}}
-%\newcommand{\info}[1]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,inline]{#1}}
-%\newcommand{\improvement}[1]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,inline]{#1}}
-%\newcommand{\thiswillnotshow}[1]{\todo[disable,inline]{#1}}
 
 
 %TODO: modified caption setup
@@ -154,8 +147,7 @@ The task required from us that we learn how to compare the images, measure the s
 To prevent confusion further down the paper  the reader should be familiar with the following two terms: \textsc{Comvi} - internal name of the clustering engine that can be used by the MegaMol Plugin \\
 \verb|MSMCluster| - name of the Megamol plugin that was developed as the main part of the project.
 
-% TODO: 
-Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays In this chapter we also describe shortly \verb"|MSMCluster| plugin and discuss its strengths and limitations. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In the end in the conclusion we shortly discuss possible future work.
+Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays In this chapter we also describe shortly \verb|MSMCluster| plugin and discuss its strengths and limitations. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In the end in the conclusion we shortly discuss possible future work.
 
 %-------------------------------------------------------------------------
 
@@ -245,7 +237,7 @@ The continuous  Image, defined over the domain \(\mathbb{R}^2\) Moments  over tw
 
 \[M_{p,q} = \int^\infty_{- \infty}\int^\infty_{- \infty} x^py^q f(x,y) dy dx \]
 
-Where \(f(x)\) is the signal of the image. 
+Where \(f(x)\) is the signal of the image.  
 
 When dealing with discrete values like we find them in a discretized RGB or greyscale (GS) image, we use sums instead of integrals, so we get the following formula:
 
@@ -393,19 +385,19 @@ The key feature to this algorithm is that it automatically determines the optima
 
 The algorithm is a density based spatial clustering algorithm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
 
-You could use the euclidian distance between two feature vectors, the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity, two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages two both of these techniques is that both the siamese neural network and the autoencoder have to be trained.
+You could use the euclidian distance between two feature vectors, the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity, two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages two both of these techniques is that both the siamese neural network and the autoencoder have to be trained. 
 
-You could also usethe householder/hausdorff distancebetween two higher dimensional vectors.\todo{expand and cite}
+You could also use the Haussdorff distance to compare two higher dimensional vectors. A detailed explanation would go beyond of the scope of this paper, but the the Haussdorff distance is simply put the ``maximum distance of a set to the nearest point in the other set''\footnote{\url{http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/98/normand/main.html}}.
 
-We opted against DBSCAN for our primary clustering algorithm because in the early stages of the project the computation of the \(n\times n\) similarity matrix was very computationally expensive and took quite a bit more time than the approaches that we demonstrate in the next paragraphs.
+We opted against DBSCAN for our primary clustering algorithm because in the early stages of the project the computation of the \(n\times n\) similarity matrix was  computationally expensive and took more time than the approaches that we demonstrate in the next paragraphs.
 
-%There are similar approaches \todo{finish sentence} was wollte ich da schreiben ????
+For our initial testing we used k-nearest neighbors with a preconfigured assumed number of clusters.
 
-For our initial testing we used k-nearest neighbors with the elbow method and a cutoff at  ~85 \% \todo{elaborate on elbow method}
+We further tried  a  spectral clustering  \footnote{\url{https://www.cs.cmu.edu/~aarti/Class/10701/readings/Luxburg06_TR.pdf}} and chinese whispers clustering algorithm\cite{chinesewhispers}. Both of these algorithms are graph based algorithms. The spectral clustering approach works with the eigenvalues (spectrum) of the similarity matrix (like DBSCAN), while the chinese whispers clustering does reachability analysis in a network of connected nodes.
+Both of these approaches yielded unusable results, since the chinese whispers algorithm for example  is not suitable for this task and performs poorly on any similarity matrix.
 
-spectral clustering, chinese whispers  \todo{put in clustering algorithms descriptions}... 
 
-We ended up with the mean shift algorithm. It also is a density based algorithm and much like the DBSCAN algorithm is also determines the optimal number of clusters for the given parameters but it operates with a kernel sampled on each point in the plot and calculates the center of mass so to speak of the points clouds\footnote{\url{https://spin.atomicobject.com/2015/05/26/mean-shift-clustering/}\\ Last retrieved: \today} . For a demonstration of the mean shift algorithm look at Figure \ref{fig:tsne}. 
+We ended up with the mean shift algorithm. It also is a density based algorithm and much like the DBSCAN algorithm is also determines the optimal number of clusters for the given parameters but it operates with a kernel sampled on each point in the plot and calculates the center of mass so to speak of the points clouds\footnote{\url{https://spin.atomicobject.com/2015/05/26/mean-shift-clustering/}\\ Last retrieved: \today}. For a demonstration of the results of the mean shift algorithm look at Figure \ref{fig:tsne}. 
 
 
 
@@ -456,7 +448,7 @@ To position the images on the screen we used techniques used from graph visualiz
 These parameters related to the layout were made available to the user, besides the internal energy of the top clustering level is shown to the user as well.
 
 
--------
+------- 
 
 To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements for the interactions from our everyday life. If the Application is used on PC, the MegaMol Project is mainly interacting with the mouse. If we run Application at the Powerwall it is interacting with the tracking stick.
 
