@@ -123,7 +123,7 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 \firstsection{Introduction} 
 %\todo{add sections to tasks in this section}%for journal use above \firstsection{..} insteadsss
 Over the span of the last 6 months we  have researched and implemented a comparative clustering  process for images of molecular maps.
-The task consisted of several parts: to generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster the extracted  feature vectors by similarity  and to visualize the resulting clustering on the large high-resolution display ``Powerwall''. The interaction with the Powerwall was do be done with  an existing tracking device.
+The task consisted of several parts: to generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster the extracted  feature vectors by similarity  and to visualize the resulting clustering on the large high-resolution display ``Powerwall''. The interaction with the Powerwall was to be done with  an existing tracking device.
 
 The result of this work is an \verb|MSMCLUSTER| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework.
 
@@ -136,7 +136,7 @@ The next task was to extract an expressive feature vector from those images and 
 
 The last task which was also developed in a plugin in MegaMol was the visualization on the VISUS Powerwall. The Powerwall is a very high resolution display \footnote{\url{https://www.visus.uni-stuttgart.de/institut/visualisierungslabor/technischer-aufbau.html} \\ Last retrieved: \today } that can be used to visualize large data(sets). Due to its size and resolution it is possible to display much more information than on a regular consumer grade screen. 
 
-The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more possibilities than with traditional human interface  devices  (HIDs), aside from devices like modern smartphones. For this last step we also researched the possible interactions with the unique tracking device  which can be used to interact the  Powerwall.
+The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more possibilities than with traditional human interface  devices  (HIDs), aside from devices like modern smartphones. For this last step we also researched the possible interactions with the unique tracking device  which can be used to interact the Powerwall.
 
 The task required from us that we learn how to compare the images, measure the similarity  distances between the images, and cluster them. Further it  required that we use a similarity based clustering algorithm.
 % added here to make it appear on the second page
@@ -155,7 +155,7 @@ To prevent confusion further down the paper  the reader should be familiar with 
 \verb|MSMCluster| - name of the Megamol plugin that was developed as the main part of the project.
 
 % TODO: 
-Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In chapter we \todo{??} describe shortly MSMCluster plugin and discuss its strengths and limitations. In the end in the conclusion we shortly discuss possible future work.
+Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays In this chapter we also describe shortly \verb"|MSMCluster| plugin and discuss its strengths and limitations. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In the end in the conclusion we shortly discuss possible future work.
 
 %-------------------------------------------------------------------------
 
@@ -172,9 +172,6 @@ Another approach for 3D protein data were 3D Zernicke moments explored by La et 
 For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm \todo{mail: expand} from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a one-dimensional sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \\ \url{https://www.ebi.ac.uk/Tools/sss/}\\ Last retrieved \today}ss
 
 Visualization of data on large high-resolution displays was discussed in Müller et al. \cite{powerwall}. System that they build could be used on large high-resolution displays as well as consumer grade desktops and allowed comparison of simulation results. They also conducted a user study where the participants could compare different views of the protein in the simulation. They had to choose the view that was closest to the baseline. Their results showed that depending on the data set, users were either more precise and also more confident that they found the correct solution when using large high-resolution ssdisplays, or users had the same precision and confidence as when they used visualization on conventional displays. System used for the user study was showed to the experts in the field of technical biochemistry as well. They said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
-
-They said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
-
 \section{Clustering}
 %\todo{write some intrduction to clustering, aufteilen in subsections}
 
@@ -183,7 +180,7 @@ Due to the given generated data  not being  labeled, only unsupervised machine l
 Clustering of data is defined as the process of grouping $n$ distinct values into $m \leq n$ different classes. Clustering algorithms are algorithms that perform clustering. They can be subdivided in two different ways \cite{iir}.
 
 Depending on the number of classes to which one data point can belong, one can differentiate  between hard and soft clustering. In hard clustering one element can belong to only one class, whereas in soft clustering it can belong to many different classes.
-On the other hand, depending on the way in which the data is clustered to  differ between flat and hierarchical clustering. In flat clustering particular clusters have no relation to each other, whereas in hierarchical clustering one considers the distance between clusters as well, resulting in a hierarchy.
+On the other hand, depending on the way in which the data is clustered one can differ between flat and hierarchical clustering. In flat clustering particular clusters have no relation to each other, whereas in hierarchical clustering one considers the distance between clusters as well, resulting in a hierarchy.
 
 
 \subsection{Approaches to the Clustering-Problem}
@@ -454,16 +451,12 @@ using an optical tracking system.
 
 
 \subsection{Goal of Visualization and Interaction}
-Our main goal was to find the way to visualize different clusters as clearly as possible. In order to do this, we have extracted from every cluster an image that should represent it. If the clustering algorithm used the concept of centroids, we chose the image nearest to the centroid as a representative image of every cluster. If there was no such concept, we randomly chose an image from the cluster to represent it. 
-Representative images were then drawn onto the screen within the bounding box in MegaMol.
-To position the images on the screen we used techniques used from graph visualization. Every representative image was considered to be a node within an imaginary graph. To determine the positions of representative images we used one of the force directed graph drawing algorithms. 
-
-Force directed algorithms are based on the physical laws and try to imitate the effect of attractive and repulsive forces on the graph nodes, as if they were connected by springs. /todo{only some fdl do this}
+Our main goal was to find the way to visualize different clusters as clearly as possible. In order to do this, we have extracted from every cluster an image that should represent it. If the clustering algorithm used the concept of centroids, we chose the image nearest to the centroid as a representative image of every cluster. If there was no such concept, we randomly chose an image from the cluster to represent it. Representative images were then drawn onto the screen within the bounding box in MegaMol. To make the representative images fit better in the bounding box, aspect ratio of the bounding box was set to 2:1, the same aspect ratio as images.
+To position the images on the screen we used techniques used from graph visualization. Every representative image was considered to be a node within an imaginary graph. To determine the positions of representative images we used the implementation of force directed graph drawing algorithm that was contained in MegaMol. Force directed algorithms are based on the physical laws and try to imitate the effect of attractive and repulsive forces on the graph nodes, as if they were connected by springs. An implementation contained in MegaMol uses repulsive forces based on Coulomb's law and attractive forces based on Hooke’s law. It also uses the concept of maximum internal energy. When internal energy becomes higher than the maximum internal energy movement of images stops. Further parameters that could be given to the force directed layout instance are damping that affects the how fast does the system calm down and integration step that defines the movement speed of the nodes. 
+These parameters related to the layout were made available to the user, besides the internal energy of the top clustering level is shown to the user as well.
 
 
-Because of the readability criteria \todo{cite}
 -------
-The main goal was to visualize the clusters as clear and separated blocks in square area. In context to a good clarity it was suitable if we cluster the images into about three to ten clusters. For our subjective feeling it is clear to generate the count of the clusters in this area. Therefore the size of the clusters were adjusted to the square area. For the parameter assignment the configuration bar on the left can be changed by the user. Therein should be found all relevant parameters to manipulate the clustering and the visualization.
 
 To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements for the interactions from our everyday life. If the Application is used on PC, the MegaMol Project is mainly interacting with the mouse. If we run Application at the Powerwall it is interacting with the tracking stick.
 
