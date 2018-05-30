@@ -79,12 +79,8 @@
 
 
 \abstract{
-The goal of this paper is to show the reader the abstract methods and concrete applications that were used to cluster similar looking molecular maps of proteins. The maps that were provided by Krone et al. represent the topology of a protein surface \cite{molecularmaps}.
-
-We researched different ways of extracting features. We determined the best performing features in combination with the provided Molecular Surface Maps.
-
-%Our task was to extract and compare features  and rank the similarity of the molecular protein maps. 
-Further we present a new method of how the won data can be visualized on high resolution and large displays with dynamic interactions. The paper describes the process and the approaches that were taken to solve this task. 
+The goal of this paper is to show the reader the abstract methods and concrete applications that were used to cluster the proteins by similarity. We built a plugin for MegaMol framework that visualizes the results of clustering in a novel way. As representations of protein surfaces we used Molecular Surface Maps that were provided by Krone et al. \cite{molecularmaps}. To extract the features from Molecular Surface Maps image moments were used. Using the extracted features we clustered the data using different clustering algorithms like K-means and hierarchical agglomerative clustering. To visualize the data we used representative images of clusters in a force directed layout. To further enable the user to analyze the results of clustering ability to perform and visualize the clustering one level deeper was included.  Since the researchers might work with large data sets, plugin was extended in order to include possible interactions with Large High-Resolution Display Powerwall.  In order to test the clustering results we created three different data sets of Molecural Surface Maps from 
+\todo{??} Solvent Excluded Surfaces of proteins. We compared the results of different clustering algorithms applied to those data sets. The paper describes the process and the approaches that were taken to solve this task. 
 } 
 
 
@@ -173,7 +169,7 @@ Another approach for 3D protein data were 3D Zernicke moments explored by La et 
 
 For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a one-dimensional sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \\ \url{https://www.ebi.ac.uk/Tools/sss/}\\ Last retrieved \today}
 
-Visualization of data on Large High-Resolution Displays was discussed in M\"uller et al. \cite{powerwall}. The system that they built could be used on large high-resolution displays as well as on consumer grade displays and allowed comparison of simulation results. They also conducted a user study where the participants could compare different views of the protein in the simulation. They had to choose the view that was closest to the baseline. Their results showed that depending on the dataset, users were either more precise and also more confident that they found the correct solution when using Large High-Resolution displays, or users had the same precision and confidence as when they used visualization on conventional displays. System used for the user study was showed to the experts in the field of technical biochemistry as well. 
+Visualization of data on Large High-Resolution Displays was discussed in Müller et al. \cite{powerwall}. System that they build could be used on large high-resolution displays as well as consumer grade desktops and allowed comparison of simulation results. They also conducted a user study where the participants could compare different views of the protein in the simulation. They had to choose the view that was closest to the baseline. Their results showed that depending on the data set, users were either more precise and also more confident that they found the correct solution when using Large High-Resolution displays, or users had the same precision and confidence as when they used visualization on conventional displays. System used for the user study was showed to the experts in the field of technical biochemistry as well. They said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
 
 They said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
 
@@ -328,7 +324,7 @@ After our feature processing on an image we end up with an feature matrix where 
 \subsection{Finding the best performing  dimensionality reduction method}\label{subsec:dimred}
 For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on data sets of various sizes and content.
 
-We tested our results on the Oxford flower dataset and bmw data set and our large (3000 images) molecular maps dataset and a medium version of that dataset (300 images) and a small dataset for fast testing purposes.
+We tested our results on the Oxford flower data set and bmw data set and our large (3000 images) molecular maps data set and a medium version of that data set (300 images) and a small data set for fast testing purposes.
 
 As you will find in our comvi repository \footnote{\url{https://github.com/aiosin/comvi}} the dimensionality reduction routine consists of passing it a features array of shape \(A^{n\times m}\) where \(n\) is the number of samples (i.e. the number of images) and \(m\) is the number of features per image.
 In the routine we additionally scale the data because we want to avoid potentially unwanted effects caused by very big values.\footnote{\url{https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e} \\ Last retrieved: \today}
@@ -346,13 +342,13 @@ Further testing leads us to believe that t-SNE is the best dimensionality reduct
 We applied the following clustering algorithms to image descriptors that were extracted from the protein images.
 
 \begin{description}
-\item [k-Means] takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters k-Means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
+\item [K-means] takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters K-means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
 
-To cluster the data k-Means uses the concept of centroids. Centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
-At first k-Means initializes the same number of centroids the same to the number of clusters. This can be done by choosing randomly that many points in the vector space. Since k-Means is an iterative algorithm it  it then repeats reassignment and recomputation steps until it minimizes the distance between the centroid and all of the elements of the corresponding cluster as follows. 
+To cluster the data K-means uses the concept of centroids. Centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
+At first K-means initializes the same number of centroids the same to the number of clusters. This can be done by choosing randomly that many points in the vector space. Since K-means is an iterative algorithm it  it then repeats reassignment and recomputation steps until it minimizes the distance between the centroid and all of the elements of the corresponding cluster as follows \cite{KI17}. 
 
 Let $D = \{x_i'\}_{i=1}^n$ be a set of n vectors $x_i$ that represents some data. This data should be clustered into $k$ clusters whose centroids are  $\mu_{c(i)}$. Now let $c: i \mapsto k$ be the assignment of the element i to the cluster $k$. 
-K-Means minimizes the following loss function $L$:
+K-means minimizes the following loss function $L$:
 \begin{equation}
 L = \min_{c, \mu} \sum_{i=1}^{n}(x_i - \mu_{c(i)})^2
 \end{equation} t
@@ -365,10 +361,15 @@ This minimization is done by repeating the (4) reassignment and (5) recomputatio
 \end{equation}
 
 
-The main weakness of k-Means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Another disadvantage is that K-means finds only spherical clusters because it adds an image only to the cluster whose corresponding  centroid is nearest to it \cite{jain2010data}. Its main advantages on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations. 
+The main weakness of K-means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Another disadvantage is that K-means finds only spherical clusters because it adds an image only to the cluster whose corresponding  centroid is nearest to it \cite{jain2010data}. Its main advantages on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations. 
 
-MSMCluster plugin contains two implementations of k-Means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
-\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. It then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However, in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it build cluster hierarchy that can be visualized with dendrograms. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level.
+MSMCluster plugin contains two implementations of K-means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
+\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. It then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However, in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it builds cluster hierarchy that can be visualized with dendrograms. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level \cite{iir} 
+
+\todo{advantages and disadv}.
+
+
+MSMCluster plugin uses implementation of hierarchical agglomerative clustering that is contained in dlib library. 
 \item [Mean-shift] is another clustering algorithm that uses the concept of centroids. 
 \end{description}
 
@@ -404,18 +405,18 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 
 
 
-\subsection{Testing the feature vector with other datasets}
+\subsection{Testing the feature vector with other data sets}
 \begin{figure}[tb]
 	\begin{center}
 		\includegraphics[width=.75\linewidth]{Figure1.png}
 	\end{center}
-	\caption{\label{fig:lorem} Early test wihh the Oxford flower dataset \todo{cite oxford flower dataset}}
+	\caption{\label{fig:lorem} Early test wihh the Oxford flower data set \todo{cite oxford flower data set}}
 \end{figure} 
 \begin{figure}[tb]
 	\begin{center}
 		\includegraphics[width=.75\linewidth]{Figure2.png}
 	\end{center}
-	\caption{\label{fig:bmw} Early test with the bmw car dataset \todo{cite stanford car dataset}\cite{stanfordcar}}
+	\caption{\label{fig:bmw} Early test with the bmw car data set \todo{cite stanford car data set}\cite{stanfordcar}}
 \end{figure}
 \begin{figure}[tb]
 	\begin{center}
@@ -515,6 +516,18 @@ MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & 
 \end{adjustbox}
 \end{center}
 
+\begin{table}[!h]
+  \caption{
+  \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
+  \centering
+  \vspace{0.3em}
+  \begin{tabular}{lrr}
+  data set & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
+  big (3k images) & 1,243 & 0.1 \\
+  medium (300 image ) & 23 & 23 \\
+  small (~12 images) & 23,312,134.3 & 22.1 \\
+  \end{tabular}
+  \end{table}
 %\begin{table}[!h]
 %  \caption{
 %  \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
@@ -532,13 +545,13 @@ MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & 
 	\begin{center}
 		\includegraphics[width=.75\linewidth]{k-Means-mediumDataSet.png}
 	\end{center}
-	\caption{\label{fig:kmeans} Our implementation of k-means applied on the medium-sized data set.}
+	\caption{\label{fig:kmeans} Our implementation of K-means applied on the medium-sized data set.}
 \end{figure} 
 \begin{figure}[h!]
 	\begin{center}
 		\includegraphics[width=.75\linewidth]{k-Means-dlib-mediumDataSet.png}
 	\end{center}
-	\caption{\label{fig:kmeans-dlib} Dlib k-means applied on the medium-sized data set.}
+	\caption{\label{fig:kmeans-dlib} Dlib K-means applied on the medium-sized data set.}
 \end{figure}
 \begin{figure}[h!]
 	\begin{center}
