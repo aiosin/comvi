@@ -51,8 +51,8 @@
 %\newcommand{\thiswillnotshow}[1]{\todo[disable,inline]{#1}}
 
 
-
-\captionsetup[table]{justification=justified,singlelinecheck=false}
+%TODO: modified caption setup
+%\captionsetup[table]{justification=justified,singlelinecheck=false}
 \captionsetup[figure]{justification=justified,singlelinecheck=false}
 
 \vgtcinsertpkg
@@ -273,63 +273,71 @@ The results from both approaches will be discussed in \ref{subsec:dimred}.
 %\todo{better introduction}
 After looking at the smallest data set of molecular maps we noticed that many samples had a distinct roughness that looked like they could be used to classify their texture.
 
-We ended up using the haralick textural features \todo{mail: reference} . The haralick features work with a grey level correlation matrix (GCM). The GCM for a given greyscale image is defined as such:
+We ended up using the Haralick textural features \cite{haralick}  . The Haralick features work with a grey level correlation matrix (GCM). The GCM for a given greyscale image is defined as such:
 
 \[{\displaystyle C_{\Delta x,\Delta y}(i,j)=\sum _{x=1}^{n}\sum _{y=1}^{m}{\begin{cases}1,&{\text{if }}I(x,y)=i{\text{ and }}I(x+\Delta x,y+\Delta y)=j\\0,&{\text{otherwise}}\end{cases}}}\]
+
+The Haralick features compute, based on this matrix, features that aim to describe the texture of the original source image.
+
+The features include eg. the angular second (image) Moment, entropy, sum variance/energy/average.\footnote{\url{http://murphylab.web.cmu.edu/publications/boland/boland_node26.html} \\ Last retrieved: \today}
 
 Also we can take more features from that GCM which gives us more features to work with.\footnote{\url{http://murphylab.web.cmu.edu/publications/boland/boland_node26.html} \\ Last retrieved: \today}
 
 We also computed this on every channel yielding us \(3 \times 14 \) features.
 
-Alternatively one can also use the tamura texture features \todo{mail: reference}. the tamura features are different to the haralick featues because they \todo{expand tamura}
+Alternatively one can also use the  texture features developed by Tamura et al.  in ``Textural Features Corresponding to Visual Perception''\cite{tamura}. The Tamura features are different to the Haralick featues since they were developed on a basis of psychological experiments. The Tamura features do not use a GCM, instead they used a combination of kernel convolutions that yield  the information about the coarseness, contrast, directionality, linelikeness, regularity and roughness.
 
 \subsubsection{Shape}
 We did not end up using the shape features described here but, since we spent quite some time researching this problem, I think it is important show how and why they were created.
 
 The shape features we hoped to use were  fourier descriptors\footnote{\url{http://fourier.eng.hmc.edu/e161/lectures/fd/node1.html} } \footnote{\url{http://demonstrations.wolfram.com/FourierDescriptors/}}. In short, we get the centroid-distance curve of a distinct shape and take the fast (discrete) fourier transform of that curve. The technique has been proven to work for shape recognition  in earlier works \cite{fourierd}.  
 
-Our approach was the following.  Since our molecular maps are extremely complex (image-wise) we first need to divide the image into discrete image region.  We preferably want to segment our image into $n$ colors. To recap: our everyday monitor does support \(24\) bit colors, \(8 \) 8 bit per channel. that yields us \(2^{24}=16.777.216 \) colors.
-We'd be lucky to find a countour in this color mess.
-So our approach is to squash the color space down to a couple of colors.
-This proces is called color segmenatation. We use the k-means algorithm to put every 
+Our approach was the following.  Since our molecular maps are extremely complex (image-wise) we first need to divide the image into discrete image region.  We preferably want to segment our image into $n$ colors. To recap: our everyday monitor does support \(24\) bit colors, \(8 \) bit per channel. This gives us \(2^{24}=16.777.216 \) total colors.
+To find a valid contour in that colorspace would be a coincidence in most cases.
+So our approach is to compress the color space down to a couple of colors.
+This proces is called color segmenatation. We use the k-means algorithm to put every color from our original image into a few bins.
 
-Alternatively the mean-shift algorithm can be used. The algorithm is a kernel based clustering algorithm which operates sort of like the gradient descent algorithm. The mean shift algorithm is explained in detail in section \ref{sec:clusteringa}
-Each point has a weight and initally all the points are laid out on a grid (or your dimensions next best spatial representation) each value attracts with a constant force all other neighboring values so they all suck each other in discrete clusters depending on the parameters (bandwith size and kernel weight). A comparison of color segmentation of mean shift and  k-means can be seen here\footnote{\url{https://spin.atomicobject.com/2015/05/26/mean-shift-clustering/} \\ Last retrieved: \today \\ \url{https://spin.atomicobject.com/2016/12/07/pixels-and-palettes-extracting-color-palettes-from-images/} \\ Last retrieved \today}. 
+Alternatively the mean-shift algorithm can be used. The algorithm is a kernel based clustering algorithm which operates sort of like the gradient descent algorithm. The mean shift algorithm is explained in detail in section \ref{sec:clusteringa}.
+Each point has a weight and initally all the points are laid out on a grid (or your dimensions next best spatial representation) each value attracts with a constant force all other neighboring values so they all suck each other in discrete clusters depending on the parameters (bandwith size and kernel weight). 
+
+A comparison of color segmentation of mean shift and  k-means can be seen here\footnote{\url{https://spin.atomicobject.com/2015/05/26/mean-shift-clustering/}} 
+\footnote{\url{https://spin.atomicobject.com/2016/12/07/pixels-and-palettes-extracting-color-palettes-from-images/} \\ Last retrieved \today}. 
 
 
-But our problem of color segmenatation was stil not solved. Especially in the k-means algorithm we encountered a lot of smaller ``irrelevant'' shapes that we didnt want.
+But our problem of color segmenatation was stil not solved. Especially in the k-means algorithm we encountered a lot of smaller ``irrelevant'' shape artifacts that we did not want.
 So one way of getting them out of the way was to squash the color space further down to two or three distint colors in the image.
 
-Else we'd have to dynamically dilate and erode \footnote{\url{https://docs.opencv.org/2.4/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html}\\ Last retrieved \today}the image until we can detect with a matrix labeling algorithm /  floodfill algorithm that we really have only a handful of shapes in the image.
+The other way is to  dynamically (depending on each image) dilate and erode \footnote{\url{https://docs.opencv.org/2.4/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html}\\ Last retrieved \today}the image until we can detect with a matrix labeling  or   floodfill algorithm that we really have only a handful of shapes in the image.
 
 For the shapes we then extract the contours and compute the centroid of that shape.
 The centroid is the geometric center of mass of the image which can be built up by the first central moments of the two dimensions.
 
-Now we have the centroid and the countour of the shape that we want to classify we need to form the contour centroid distance curve.
+Now we have the centroid and the contour of the shape that we want to classify we need to form the contour centroid distance curve.
 The contour centroid distance curve is simply a disrete list of values of the \(x\)and \(y\)  values of each item of the contour  or alternatively the list of the euclidian  distances from the centroid, both approaches have been shown to work.
 
 We then normalize the values by diving all the values by the biggest value in the array, resulting in a array that is in range $(0,1]$.
 
 Without loss of generality depending on which curve we chose we take the fast discrete fourier transform of that signal, which gives us for each sine/cosine coefficient a weight how that component contributes/weighs in the signal.
 
-Without any proof that would go beyond the scope of this paper we can say that the gained features are rotation scale and translation invariant. Its rotation invariant because the Fourier transform is shift invariant so it doesnt matter where we begin our centroid curve the fourier transform will be the same even if its rotatted. Its scale invariant because we normalize it, its translation invariant because the distance curve is trivially translation invariant (wihtout proof).
+Without any proof that would go beyond the scope of this paper we can say that the gained features are rotation scale and translation invariant. It is rotation invariant because the Fourier transform is shift invariant so it does not matter where we begin our centroid curve; the power spectra of the Fourier transform will be the same even if its rotated. Its scale invariant because we normalize it and it is translation invariant because the distance curve itself is  translation invariant.
 
-Another shape feature can be won, under the condiciton that the shape object is given as a greyscale binary matrix. From this matrix one can extract Image Moment features like the one by Hu as described in section \ref{subsec:humom}.
+Another shape feature can be won, under the condition that the shape object is given as a greyscale binary matrix. From this matrix one can extract Image Moment features like the one by Hu as described in section \ref{subsec:humom}.
 
 We did not end up using the shape features, because we could not notice any improvement over the other features that we used, but we put substantial effort into getting these features to work, so we wanted to describe our process here.
 
-\subsection{Finding the best performing similarity measure}\label{subsec:simmes}
+% \subsection{Finding the best performing similarity measure}\label{subsec:simmes}
 
-After our feature processing on an image we end up with an feature matrix where the rows are samples  and the columns are the features.  \[A \in \mathbb{R}\] \todo{remove (?) }
+% After our feature processing on an image we end up with an feature matrix where the rows are samples  and the columns are the features.  \[A \in \mathbb{R}\] \todo{remove (?) }
 
 
 \subsection{Finding the best performing  dimensionality reduction method}\label{subsec:dimred}
 For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on data sets of various sizes and content.
 
-We tested our results on the Oxford flower data set and bmw data set and our large (3000 images) molecular maps data set and a medium version of that data set (300 images) and a small data set for fast testing purposes.
+We tested our results on the medium sized Oxford flower data set\cite{flower}, the large sized car  \cite{stanfordcar}data set and our large ($\sim$3600 images) molecular maps data set. 
+We further extracted a smaller sized ($\sim$300 images) data set as our benchmark set  and an easy to benchmark and a small (12 images) data set for faster testing. 
 
-As you will find in our comvi repository \footnote{\url{https://github.com/aiosin/comvi}} the dimensionality reduction routine consists of passing it a features array of shape \(A^{n\times m}\) where \(n\) is the number of samples (i.e. the number of images) and \(m\) is the number of features per image.
-In the routine we additionally scale the data because we want to avoid potentially unwanted effects caused by very big values.\footnote{\url{https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e} \\ Last retrieved: \today}
+As you will find in our comvi repository \footnote{\url{https://github.com/aiosin/comvi}} the dimensionality reduction routine consists of passing it a feature array of shape \(A^{n\times m}\) where \(n\) is the number of samples (i.e. the number of images) and \(m\) is the number of features per sample.
+In the routine we additionally scale the data because we want to avoid potentially unwanted effects caused by very big feature values.\footnote{\url{https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e} \\ Last retrieved: \today}
 We then return the reduced feature array back to the callee. The callee can then apply further some functions on this reduced array.
 
 After inital testing with linear dimensionality reductions we notice that our results just wouldnt ``converge'', so we again tried with any non linear dimensionality reduction technique we could find.
@@ -344,18 +352,18 @@ Further testing leads us to believe that t-SNE is the best dimensionality reduct
 We applied the following clustering algorithms to image descriptors that were extracted from the protein images.
 
 \begin{description}
-\item [K-means] takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters K-means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
+\item [K-means] takes the number of clusters as an input and if the data set contains more elements than the wanted number of clusters groups elements into that many clusters. Since it always groups data into the specified number of clusters, K-means is a flat clustering algorithm. Owing to the fact every image is clustered into only one cluster it belongs to hard clustering algorithms. 
 
-To cluster the data K-means uses the concept of centroids. Centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
-At first K-means initializes the same number of centroids the same to the number of clusters. This can be done by choosing randomly that many points in the vector space. Since K-means is an iterative algorithm it  it then repeats reassignment and recomputation steps until it minimizes the distance between the centroid and all of the elements of the corresponding cluster as follows \cite{KI17}. 
+To cluster the data K-means uses the concept of centroids. A centroid is a point in vector space that is located in the middle of the corresponding cluster. There is therefore one centroid for every cluster. 
+At first K-means initializes the same number of centroids the same as the number of clusters. This can be done by choosing randomly $k$ samples  in the vector space. Since K-means is an iterative algorithm  it then repeats reassignment and recomputation steps until it minimizes the distance between the centroid and all of the elements of the corresponding cluster as follows \cite{KI17}: 
 
-Let $D = \{x_i'\}_{i=1}^n$ be a set of n vectors $x_i$ that represents some data. This data should be clustered into $k$ clusters whose centroids are  $\mu_{c(i)}$. Now let $c: i \mapsto k$ be the assignment of the element i to the cluster $k$. 
+Let $D = \{x_i\}_{i=1}^n$ be a set of $n$ vectors $x_i$ that represents some data. This data should be clustered into $k$ clusters whose centroids are  $\mu_{c(i)}$. Now let $c: i \mapsto k$ be the assignment of the element $i$ to the cluster $k$. 
 K-means minimizes the following loss function $L$:
 \begin{equation}
 \label{form: loss}
 L = \min_{c, \mu} \sum_{i=1}^{n}(x_i - \mu_{c(i)})^2
 \end{equation} 
-This minimization is done by repeating the reassignment \ref{form:reassignment} and recomputation \ref{form:recomputation} step.
+This minimization is done by repeating the reassignment (\ref{form:reassignment}) and recomputation (\ref{form:recomputation}) step.
 \begin{equation}
 \label{form:reassignment}
 \forall i: c(i) := \operatorname*{arg\,min}_k (x_i - \mu_k)^2
@@ -366,15 +374,15 @@ This minimization is done by repeating the reassignment \ref{form:reassignment} 
 \end{equation}
 
 
-The main weakness of K-means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but this then makes the algorithm non-deterministic. To find the best possible clustering peforming several restarts of the algorithm is sometimes needed.  Another disadvantage is that K-means finds only spherical clusters because it adds an image only to the cluster whose corresponding  centroid is nearest to it \cite{jain2010data}. Its main advantages on the other hand are that it often gives good results and is easy to setup. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations. 
+The main weakness of K-means is that it does not converge to a global minimum. In order to circumvent this problem centroids are usually initialized randomly, but makes  the algorithm non-deterministic. To find the best possible clustering  several restarts of the algorithm are  sometimes needed.  Another disadvantage is that K-means finds only spherical clusters because it adds an image only to the cluster whose corresponding  centroid is nearest to it \cite{jain2010data}. The main advantages of K-means  on the other hand are that it often gives good results and is easy to implement. It is also efficient because its time complexity is linear in the number of elements, number of clusters and number of iterations. 
 
-MSMCluster plugin contains two implementations of K-means. We implemented one version and the other version comes from the clustering part of the dlib library \cite{dlib09}.
-\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. It then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However, in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it builds cluster hierarchy that can be visualized with dendrograms. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level \cite{iir} 
+The \verb|MSMCluster| plugin contains two implementations of K-means. We implemented one version ourselves and the other version is part of the dlib library \cite{dlib09}.
+\item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. Then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it builds cluster hierarchy that can be visualized with dendrograms\footnote{A dendrogram (from Greek dendro "tree" and gramma "drawing") is a tree diagram}. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level \cite{iir}.
 
-Main advantages of hierarchical agglomerative clustering is the hiararchy of clusters that it creates and its stabililty over multiple executions of clustering. Its main weakness is on the other hand relatively high time complexity that is in worst case $O(n^3)$. 
+Main advantages of hierarchical agglomerative clustering is the hiararchy of clusters that it creates, and its stabililty over multiple executions of clustering. Its main weakness is on the other hand relatively high time complexity which is $O(n^3)$ in the worst case.
 
-MSMCluster plugin uses implementation of hierarchical agglomerative clustering that is contained in dlib library. 
-\item [Mean-shift] is another clustering algorithm that uses the concept of centroids. 
+The \verb|MSMCluster| plugin uses implementation of hierarchical agglomerative clustering that is contained in the dlib library. 
+\item [Mean-shift] is another clustering algorithm that uses the concept of centroids. %TODO: expand
 \end{description}
 
 \subsection{Finding the best performing clustering algorithm}
@@ -383,15 +391,14 @@ Our approach to finding a clustering algorihtm was the same as the one that we u
 Except with a little modification. Kolesar et al. \cite{kolesar} used the k nearest neighbors algorithm over their 10-dimensional feature vector to cluster their data, as they discuss their results. We decided to further use this approach to cluster our molecular maps instead of the molecular protein tunnels which Kolesar et al. analyzed.
 
 
-In the early stages of the 0projcet we intended to use the DBSCAN clustering algoirtm. 
+In the early stages of the projcet we intended to use the DBSCAN clustering algorithm. 
 The key feature to this algorithm is that it automatically determines the optimal number of clusters that it detects in the given data. 
 
 The algorithm is a density based spatial clustering algorithm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
 
+You could use the euclidian distance between two feature vectors, the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity, two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages two both of these techniques is that both the siamese neural network and the autoencoder have to be trained.
 
-You could use the euclidian distance between two feature vectors or the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages two both of these techniques is that both the siamese neural network and the autoencoder have to be trained.
-
-You could also usethe householder/hausdorff distancebetween two higher dimensional vectors.\todo{expand}
+You could also usethe householder/hausdorff distancebetween two higher dimensional vectors.\todo{expand and cite}
 
 We opted against DBSCAN for our primary clustering algorithm because in the early stages of the project the computation of the \(n\times n\) similarity matrix was very computationally expensive and took quite a bit more time than the approaches that we demonstrate in the next paragraphs.
 
@@ -406,18 +413,13 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 
 
 
-\subsection{Testing the feature vector with other data sets}
-\begin{figure}[tb]
-	\begin{center}
-		\includegraphics[width=.75\linewidth]{Figure1.png}
-	\end{center}
-	\caption{\label{fig:lorem} Early test wihh the Oxford flower data set \todo{cite oxford flower data set}}
-\end{figure} 
+%\subsection{Testing the feature vector with other data sets}
+
 \begin{figure}[tb]
 	\begin{center}
 		\includegraphics[width=.75\linewidth]{Figure2.png}
 	\end{center}
-	\caption{\label{fig:bmw} Early test with the bmw car data set \todo{cite stanford car data set}\cite{stanfordcar}}
+	\caption{\label{fig:bmw} Early test with the bmw car data set }
 \end{figure}
 \begin{figure}[tb]
 	\begin{center}
@@ -435,24 +437,20 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 
 \section{Visualization and Interaction}
 
-To show up our algorithm results, we needed a suitable representation and a intuitive interaction for our generated clusters. In favor we used a configuration bar where you can set relevant parameters like the clustering algorithm or the images to cluster. \todo{megamol graphic} The represented clusters are shown in a square area. This application is finally shown on the POWERWALL in Visus. With a tracking stick it was possible to interact with the clusters on the POWERWALL.
+To show up our algorithm results, we needed a suitable representation and a intuitive interaction for our generated clusters. A tweak bar is used to   set relevant parameters like the clustering algorithm or the images to cluster.  The represented clusters are shown in a bounding box. The MegaMol application can be displayed on the previously mentioned Powerwall. A tracking device can be used to interact with the application.
 
 \subsection{Background MegaMol and Powerwall}
 
 
 The visualization of MegaMol is displayed on the Powerwall.
 The  Powerwall is a merged large hgh-resolution display made of five portrait- oriented
-strips . The setup has  a resolution of 10,800 x 4,096 pixels
-for each eye, and is projected onto a physical screen size of about 6 x 2.2 metres. 
-Two 4K LCoS projectors are projecting
-the images for each strip.
-A pixel is about 0.56 mm  in size, which corresponds to about 50 ppi .
+strips . The setup has  a resolution of $10.800 \times 4.096 pixels$
+for each eye, and is projected onto a physical screen size of about $6 \times 2.2$ metres. 
+Two 4k (Liquid Crystal on Silicon) LCoS projectors are projecting the images for each strip for a total of five strips.
+A pixel is about 0.56 mm  in size, which corresponds to s density of about 50 ppi.
 The users interact with the system using a 6-DOF mid-air
-pointing Stick with two buttons (1 on each side), which was tracked by 14 camers
-using an optical tracking system from NaturalPoint. 
-All the transformations were synchronised over all views, while the interaction is runnig.
-
-
+pointing Stick with two buttons (1 on each side), which is tracked by 14 camers
+using an optical tracking system. 
 
 
 \subsection{Goal of Visualization and Interaction}
@@ -517,30 +515,19 @@ MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & 
 \end{adjustbox}
 \end{center}
 
-\begin{table}[!h]
-  \caption{
-  \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
-  \centering
-  \vspace{0.3em}
-  \begin{tabular}{lrr}
-  data set & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
-  big (3k images) & 1,243 & 0.1 \\
-  medium (300 image ) & 23 & 23 \\
-  small (~12 images) & 23,312,134.3 & 22.1 \\
-  \end{tabular}
-  \end{table}
-%\begin{table}[!h]
-%  \caption{
-%  \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
-%  \centering
-%  \vspace{0.3em}
-%  \begin{tabular}{lrr}
-%  dataset & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
-%  big (3k images) & 1,243 & 0.1 \\
-%  medium (300 image ) & 23 & 23 \\
-%  small (~12 images) & 23,312,134.3 & 22.1 \\
-%  \end{tabular}
-%  \end{table}
+% \begin{table}[!h]
+%   \caption{
+%   \label{tab:perf} placeholder comparisons of different protein similarity comparisons/algorithms}
+%   \centering
+%   \vspace{0.3em}
+%   \begin{tabular}{lrr}
+%   data set & full performance (fps) & half performance (ms)\\ \hline\\[-0.4em]
+%   big (3k images) & 1,243 & 0.1 \\
+%   medium (300 image ) & 23 & 23 \\
+%   small (~12 images) & 23,312,134.3 & 22.1 \\
+%   \end{tabular}
+%   \end{table}
+
 
 \begin{figure}[h!]
 	\begin{center}
@@ -573,9 +560,7 @@ Furthermore, with the continuation of the Moore's Law large high-resolution disp
 
 %% if specified like this the section will be ommitted in review mode
 \acknowledgments{
-We would like to thank our supervisors Michael Krone and Florian Fries as well as our project examiner Prof. Ertl, for giving us this opportunity to work on this project. We are grateful that we were able to improve our knowledge and learn new things. We are also grateful for the feedback we recieved on our work. \\
-This work was partially funded by cake and cookies.
-}
+We would like to thank our supervisors Michael Krone and Florian Fries as well as our project examiner Prof. Ertl, for giving us this opportunity to work on this project. We are grateful that we were able to improve our knowledge and learn new things. We are also grateful for the feedback we recieved on our work.}
 
 \bibliographystyle{unsrt}
 %%use following if all content of bibtex file should be shown
