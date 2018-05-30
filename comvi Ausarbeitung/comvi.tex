@@ -78,8 +78,9 @@
 %\shortauthortitle{Schmid \MakeLowercase{\textit{et\,al.}}: ProjINF for fun and profit}
 
 
-\abstract{
+\abstract{ssss
 The goal of this paper is to show the reader the abstract methods and concrete applications that were used to cluster the proteins by similarity. We built a plugin MSMCLUSTER for MegaMol framework that visualizes the results of clustering in a novel way. As representations of protein surfaces we used Molecular Surface Maps that were provided by Krone et al. \cite{molecularmaps}. To extract the features from Molecular Surface Maps image moments were used. Using the extracted features we clustered the data using different clustering algorithms like K-means and hierarchical agglomerative clustering. To visualize the data we used representative images of clusters in a force directed layout. To further enable the user to analyze the results of clustering ability to perform and visualize the clustering one level deeper was included.  Since the researchers might work with large data sets, plugin was extended in order to include possible interactions with Large High-Resolution Display Powerwall.  In order to test the clustering results we created three different data sets of Molecural Surface Maps from  Solvent Excluded Surfaces of proteins. We compared the results of different clustering algorithms applied to those data sets. The paper describes the process and the approaches that were taken to solve these tasks. 
+
 } 
 
 
@@ -120,7 +121,7 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 \maketitle
 %
 \firstsection{Introduction} 
-%\todo{add sections to tasks in this section}%for journal use above \firstsection{..} instead
+%\todo{add sections to tasks in this section}%for journal use above \firstsection{..} insteadsss
 Over the span of the last 6 months we  have researched and implemented a comparative clustering  process for images of molecular maps.
 The task consisted of several parts: to generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster the extracted  feature vectors by similarity  and to visualize the resulting clustering on the large high-resolution display ``Powerwall''. The interaction with the Powerwall was do be done with  an existing tracking device.
 
@@ -165,8 +166,9 @@ The paper ``Unfolding and interactive exploration of protein tunnels and their d
 
 
 Another approach for 3D protein data were 3D Zernicke moments explored by La et al. in \cite{3dsurfer}. The approach is basically the same as in Kolesar et al. but La et al.  in \cite{3dsurfer} used Zernicke moments instead of traditional image moments and extended them to three dimensions. More about the comparison of the different methods in \ref{subsec:comparison}.
+ 
 
-For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a one-dimensional sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \\ \url{https://www.ebi.ac.uk/Tools/sss/}\\ Last retrieved \today}
+For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm \todo{mail: expand} from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a one-dimensional sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here: \\ \url{https://www.ebi.ac.uk/Tools/sss/}\\ Last retrieved \today}ss
 
 Visualization of data on Large High-Resolution Displays was discussed in Müller et al. \cite{powerwall}. System that they build could be used on large high-resolution displays as well as consumer grade desktops and allowed comparison of simulation results. They also conducted a user study where the participants could compare different views of the protein in the simulation. They had to choose the view that was closest to the baseline. Their results showed that depending on the data set, users were either more precise and also more confident that they found the correct solution when using Large High-Resolution displays, or users had the same precision and confidence as when they used visualization on conventional displays. System used for the user study was showed to the experts in the field of technical biochemistry as well. They said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
 
@@ -211,7 +213,7 @@ This has multiuple advantages one of which is that if the dimensionality reducti
 Alternatively one could also find a similarity measure for higher dimensional vectors, but this problem has turned out harder than it seemed partly due to the \textit{curse of dimensionality}\footnote{\url{https://www.inf.fu-berlin.de/inst/ag-ki/rojas_home/documents/tutorials/dimensionality.pdf}\\ Last retrieved: \today}.
 
 
-As we all know in higher/infinite dimensional spaces, otherwise unexpected things start to happen such as the euclidian distance or mathematically put the \(L_2\)-norm loses relevance since
+Contrary to expectations, on very high or infinite dimensional spaces, unexpected things start to happen. If we  such as the euclidean distance or mathematically put the \(L_2\)-norm loses relevance since
 \begin{equation}
 \lim_{n\rightarrow \infty} x^n = 0 \quad \forall x \in [0,1)
 \end{equation}
@@ -239,22 +241,22 @@ This section explains the different image features that we used to build the fea
 For the length of this section the reader must know that we rescale all images to the size of $(128,128)$ after reading them into our routine.
 \subsubsection{Invariant Image Moments by Hu}\label{subsec:humom}
 
-The set of invariant Image Moments discovered by Hu et. al \cite{humoments}  are rotation, translation, scale and trasformation  invariant. This allows us to determine if an image $I_a$ is similar to another image $I_B$ if $I_B$ is equal $I_A$ and simply rotated by $30^°$.
+The set of invariant Image Moments discovered by Hu et. al  are rotation, translation, scale and transformation  invariant. This allows us for example to determine if an image $I_a$ is similar to another image $I_B$ if $I_B$ is equal to $I_A$ and simply rotated by $30^{°}$.
 
-The continouus  Image, defined over the domain \(\mathbb{R}^2\) Moments  over two dimensions at their core are defined as such:
+The continuous  Image, defined over the domain \(\mathbb{R}^2\) Moments  over two dimensions at their core are defined as such:
 
 \[M_{p,q} = \int^\infty_{- \infty}\int^\infty_{- \infty} x^py^q f(x,y) dy dx \]
 
 Where \(f(x)\) is the signal of the image. 
 
-When dealing with discrete values like we find them in an discretized RGB/ greyscale (GS) Image we use sums insteads of integral so we get this:
+When dealing with discrete values like we find them in a discretized RGB or greyscale (GS) image, we use sums instead of integrals, so we get the following formula:
 
 \[M_{i,j} = \sum^n_{i=0}\sum^m_{j=0} x^i y^j f(x,y) \]
 
 %TODO: damir add this 
+Kolesar et al. ended up using a collection of 10 experimentally determined moments to cluster the image. In our case the moments we used the standard Hu et al. invariant moments. 
 
-
-Kolesar ended up using a collection of 10 experimentally determined moments to cluster the image. In our case the moments we used the standard Hu et al. invariant moments. 
+To define the images internally in MSMCluster plugin we used image moments that were defined by Kolesar et al. They represented grayscale images using 10 dimensional vectors. 
 
 \subsubsection{Color palette/histogram }
 
@@ -270,7 +272,7 @@ The results from both approaches will be discussed in \ref{subsec:dimred}.
 %\todo{better introduction}
 After looking at the smallest data set of molecular maps we noticed that many samples had a distinct roughness that looked like they could be used to classify their texture.
 
-We ended up using the haralick textural features. The haralick features work with a grey level correlation matrix (GCM). The GCM for a given greyscale image is defined as such:
+We ended up using the haralick textural features \todo{mail: reference} . The haralick features work with a grey level correlation matrix (GCM). The GCM for a given greyscale image is defined as such:
 
 \[{\displaystyle C_{\Delta x,\Delta y}(i,j)=\sum _{x=1}^{n}\sum _{y=1}^{m}{\begin{cases}1,&{\text{if }}I(x,y)=i{\text{ and }}I(x+\Delta x,y+\Delta y)=j\\0,&{\text{otherwise}}\end{cases}}}\]
 
@@ -278,7 +280,7 @@ Also we can take more features from that GCM which gives us more features to wor
 
 We also computed this on every channel yielding us \(3 \times 14 \) features.
 
-Alternatively one can also use the tamura texture features. the tamura features are different to the haralick featues because they \todo{expand tamura}
+Alternatively one can also use the tamura texture features \todo{mail: reference}. the tamura features are different to the haralick featues because they \todo{expand tamura}
 
 \subsubsection{Shape}
 We did not end up using the shape features described here but, since we spent quite some time researching this problem, I think it is important show how and why they were created.
@@ -313,7 +315,7 @@ Without any proof that would go beyond the scope of this paper we can say that t
 
 Another shape feature can be won, under the condiciton that the shape object is given as a greyscale binary matrix. From this matrix one can extract Image Moment features like the one by Hu as described in section \ref{subsec:humom}.
 
-We did not end up using the shape features, because we could notice any improvement over the other features that we used, but since we put substantial effort into computing these features, so we wanted to describe our process here.
+We did not end up using the shape features, because we could not notice any improvement over the other features that we used, but we put substantial effort into getting these features to work, so we wanted to describe our process here.
 
 \subsection{Finding the best performing similarity measure}\label{subsec:simmes}
 
@@ -445,7 +447,7 @@ for each eye, and is projected onto a physical screen size of about 6 x 2.2 metr
 Two 4K LCoS projectors are projecting
 the images for each strip.
 A pixel is about 0.56 mm  in size, which corresponds to about 50 ppi .
-The users interacted with the system using a 6DOF mid-air
+The users interact with the system using a 6-DOF mid-air
 pointing Stick with two buttons (1 on each side), which was tracked by 14 camers
 using an optical tracking system from NaturalPoint. 
 All the transformations were synchronised over all views, while the interaction is runnig.
