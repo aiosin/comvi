@@ -485,23 +485,6 @@ Since there were no labeled data sets we could not use external criteria like pu
 \subsection{comparing our findings with other protein similarity practices}\label{subsec:comparison}
 \todo{expand} bla \cite{3dsurfer} protein database simlilarity measure.
 
-\begin{center}
-\begin{adjustbox}{max width=8.5cm}
-\begin{tabular}{|l|l|l|l|l|}
-
-\multicolumn{1}{c}{\bfseries Clustering Algorithm}  &  \multicolumn{1}{c}{\bfseries Data set} & \multicolumn{1}{c}{\bfseries RSS} & \multicolumn{1}{c}{\bfseries Evaluation} & \multicolumn{1}{c}{\bfseries Performance (in ms)} \\
-\hline
-K-means & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
-\hline
-dlib K-means & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & &  \\ 
-\hline
-Bottom up agglomerative & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
-\hline
-MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
-\hline
-\end{tabular}
-\end{adjustbox}
-\end{center}
 
 % \begin{table}[!h]
 %   \caption{
@@ -516,24 +499,11 @@ MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & 
 %   \end{tabular}
 %   \end{table}
 
-
 \begin{figure}[h!]
 	\begin{center}
-		\includegraphics[width=.75\linewidth]{k-Means-mediumDataSet.png}
+		\includegraphics[width= 1\linewidth]{plotMedium.png}
 	\end{center}
-	\caption{\label{fig:kmeans} Our implementation of K-means applied on the medium-sized data set.}
-\end{figure} 
-\begin{figure}[h!]
-	\begin{center}
-		\includegraphics[width=.75\linewidth]{k-Means-dlib-mediumDataSet.png}
-	\end{center}
-	\caption{\label{fig:kmeans-dlib} Dlib K-means applied on the medium-sized data set.}
-\end{figure}
-\begin{figure}[h!]
-	\begin{center}
-		\includegraphics[width=.75\linewidth]{bottomUpAgglomerative-mediumDataSet.png}
-	\end{center}
-	\caption{\label{fig:bottomUpAgglomerative} Bottom up agglomerative clustering algorithm (dlib) applied on the medium-sized data set.}
+	\caption{\label{fig:plot} Visualization of the clustering results using the ScatterPlotRenderer module when applying the following algorithms to the medium-sized data set (from top to bottom): (1) Hierarchical Agglomerative Clustering, (2) dlib implementation of K-means, (3) our implementation of K-means. Wanted number of clusters set was set to 4.}
 \end{figure}
 
 
