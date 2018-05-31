@@ -128,19 +128,13 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 Over the span of the last 6 months we  have researched and implemented a comparative clustering  process for images of molecular maps.
 The task consisted of several parts: to generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster the extracted  feature vectors by similarity  and to visualize the resulting clustering on the large high-resolution display ``Powerwall''. The interaction with the Powerwall was to be done with  an existing tracking device.
 
-The result of this work is an \verb|MSMCluster| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework. \verb|MSMCluster| contains two modules that cluster Molecural Surface Maps and visualize the results of the clustering. ClusterRenderer module visualizes the clustering using the force directed layout and in ScatterPlotRenderer individual images are represented as points in two-dimensional space and allow the user to see the distances between images.
+The results of this work are \verb|MSMCluster| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework and comvi \todo{which font?}, a clustering engine that can be called by MSMCluster, or used independently. . \verb|MSMCluster| contains two modules that cluster Molecural Surface Maps and visualize the results of the clustering. ClusterRenderer module visualizes the clustering using the force directed layout and in ScatterPlotRenderer individual images are represented as points in two-dimensional space and allow the user to see the distances between images. \todo{shortly describe comvi}
 
 MegaMol is a simulation tool developed by the University of Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that we are presenting in our work. 
 Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other.
 
 The first task was to retrieve molecular image data through existing MegaMol plugins \cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project that will be publicly available starting \today \footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
 The next task was to extract an expressive feature vector from those images and to cluster them by similarity.
-
-The last task which was also developed in a plugin in MegaMol was the visualization on the VISUS Powerwall. 
-
-The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction part we had more possibilities than with traditional human interface  devices  (HIDs), aside from devices like modern smartphones. For this last step we also researched the possible interactions with this unique tracking device  which can be used to interact the Powerwall.
-
-The task required from us that we learn how to compare the images, measure the similarity  distances between the images, and cluster them. Furthermore, it  required that we use a similarity based clustering algorithms.
 % added here to make it appear on the second page
 \begin{figure*}[htbp]
 	\begin{center}
@@ -150,6 +144,12 @@ The task required from us that we learn how to compare the images, measure the s
 	\end{center}
 	\caption{\label{fig:arch} Architecture of the system that was implemented in comvi and MSMCluster. 1.) describes the image generation routine with the precompiled binary of MegaMol 2.) describes the clustering and dimensionality routine 3) describes the visualization routine with the ClusterRenderer and optionally with the ScatterPlotRenderer or on the Powerwall }
 \end{figure*} 
+The last task which was also developed in a plugin in MegaMol was the visualization on the VISUS Powerwall. The Powerwall is a very high resolution display \footnote{\url{https://www.visus.uni-stuttgart.de/institut/visualisierungslabor/technischer-aufbau.html} \\ Last retrieved: \today } that can be used to visualize large data(sets). Due to its size and resolution it is possible to display much more information than on a regular consumer grade screen. 
+
+The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction part we had more possibilities than with traditional human interface  devices  (HIDs), aside from devices like modern smartphones. For this last step we also researched the possible interactions with this unique tracking device  which can be used to interact the Powerwall.
+
+The task required from us that we learn how to compare the images, measure the similarity  distances between the images, and cluster them. Furthermore, it  required that we use a similarity based clustering algorithms.
+
 %Initially we were given the choice, we could either choose to find similarities between the proteins and cluster the proteins jin the \verb|.pdb| format or using bitmap image generated by the \verb|MolecularMaps| plugin in MegaMol \cite{molecularmaps}.
 
 %Since handling image files, which give information about the protein in two dimensions was easier than dealing with the \verb|.pdb| file format which results in three dimensional structures, we decided to start and carry out the task with the two dimensional approach. Kolesar et al. discuss the advantages of comparing and visualizing of proteins with their Molecular Surface Maps \cite{kolesar}.
@@ -170,13 +170,13 @@ Clustering proteins by similarity or comparing individual proteins has been subj
 
 The paper ``Unfolding and interactive exploration of protein tunnels and their dynamics'' \cite{kolesar} from Kolesar et al.  already had similar approaches to ours. Kolesar et al. used a 10 dimensional feature vector based on invariant image moments defined by Hu \cite{humoments}. Hu-Moments are set of invariant moments defined over a two dimensional signal, that give unique features about the the object in the image. More about image moments and the Hu Moments in section \ref{subsec:humom}.
 
-
-Another approach for 3D protein data were 3D Zernicke moments explored by La et al. in \cite{3dsurfer}. The approach is basically the same as in Kolesar et al. but La et al.  in \cite{3dsurfer} used Zernicke moments instead of traditional image moments and extended them to three dimensions. More about the comparison of the different methods in \ref{subsec:comparison}.
+\todo{too conversational maybe}
+Another approach for 3D protein data were 3D Zernike moments explored by La et al. in \cite{3dsurfer}. The approach is basically the same as in Kolesar et al. but La et al.  used Zernike moments instead of traditional image moments and extended them to three dimensions. More about the comparison of the different methods in \ref{subsec:comparison}.
  
 
 For further information and more complex approaches to this problem one should consult the Smith Waterman algorithm from Smith and Waterman ``Identification of Common Molecular Subsequences''\cite{smithwater}. This work consideres the protein as a one-dimensional sequence of amino acids, rather than extracing two or three dimensional features over a two or three dimensional signal.\footnote{An overview can be found here:  \url{https://www.ebi.ac.uk/Tools/sss/} Last retrieved \today} A detailed description would go beyond the scope of the paper, but in short the algorithm calculates the optimal alignment of two sequences, for which a local similarity matrix of the two sequences is computed. The matrix is then used to backtrack the optimal global alignment from a local optimum. 
 
-Visualization of data on large high-resolution displays was discussed in Müller et al. \cite{powerwall}. System that they build could be used on large high-resolution displays as well as consumer grade desktops and allowed comparison of simulation results. They also conducted a user study where the participants could compare different views of the protein in the simulation. They had to choose the view that was closest to the baseline. Their results showed that depending on the data set, users were either more precise and also more confident that they found the correct solution when using large high-resolution ssdisplays, or users had the same precision and confidence as when they used visualization on conventional displays. System used for the user study was showed to the experts in the field of technical biochemistry as well. They said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
+Visualization of data on large high-resolution displays was discussed in M{\"u}ller et al. \cite{powerwall}. System that they built could be used on large high-resolution displays as well as consumer grade desktops. It allowed comparison of simulation results. They also conducted a user study where the participants could compare different views of the protein in the simulation. They had to choose the view that was closest to the baseline. Their results showed that, depending on the data set, users were either more or equally precise and confident that they found the correct solution when using large high-resolution displays, compared to when they used visualization on conventional displays. System used for the user study was showed to the experts in the field of technical biochemistry and they said that this way of visualizing the data would possibly allow new discoveries in some areas of their research.
 \section{Clustering}
 %\todo{write some intrduction to clustering, aufteilen in subsections}
 
@@ -185,7 +185,7 @@ Due to the given generated data  not being  labeled, only unsupervised machine l
 Clustering of data is defined as the process of grouping $n$ distinct values into $m \leq n$ different classes. Clustering algorithms are algorithms that perform clustering. They can be subdivided in two different ways \cite{iir}.
 
 Depending on the number of classes to which one data point can belong, one can differentiate  between hard and soft clustering. In hard clustering one element can belong to only one class, whereas in soft clustering it can belong to many different classes.
-On the other hand, depending on the way in which the data is clustered one can differ between flat and hierarchical clustering. In flat clustering particular clusters have no relation to each other, whereas in hierarchical clustering one considers the distance between clusters as well, resulting in a hierarchy.
+On the other hand, depending on the way in which the data is clustered one can differ between flat and hierarchical clustering. In flat clustering particular clusters have no relation to each other, whereas in hierarchical clustering one considers the distance between clusters as well, this results in a hierarchy.
 
 
 \subsection{Approaches to the Clustering-Problem}
@@ -193,24 +193,22 @@ On the other hand, depending on the way in which the data is clustered one can d
 At the start of the project we had several ideas of how we could approach this problem. 
 Trying to follow the recent trend in machine learning we researched possible ways to incorporate neural networks to compute a simlilarity metric between  two images or classify an image into a more usable vector of data.
 
-We ended up using a higher dimensional feature vector described in section \ref{sec:featurev} to  compute the similarity between two protein maps because we didn't manage to train a custom neural network model in the given timeframe, partly due to lack of knowledge in the field of machine learning and also due to the lack of labeled data, which would have been required.
+We ended up using a higher dimensional feature vector described in section \ref{sec:featurev} to  compute the similarity between two protein maps because we did not manage to train a custom neural network model in the given timeframe, partly due to lack of knowledge in the field of machine learning and also due to the lack of labeled data, which would have been required.
 
-If one had labeled data, one could easily train an autoencoder, SVM or simple neural net (if the number of classes is relatively low).
+If one had labeled data, one could train an autoencoder, SVM or simple neural net (if the number of classes is relatively low).
 
-Our relatively spartan results with a pretrained Imagenet \cite{imagenet}\footnote{\url{https://pjreddie.com/darknet/imagenet/} \\ Last retrieved: \today}  model led us to believe that given the knowledge on the subject, and  data labeled by the human experts or algorithms (based on known features or descriptors) in that field or   it should be possible for this specialized task to find a machine learning  solution using neural networks/autoencoders.
-
-
+Our relatively spartan results with a pretrained Imagenet \todo{reference and fusnote?} \cite{imagenet}\footnote{\url{https://pjreddie.com/darknet/imagenet/} \\ Last retrieved: \today}  model led us to believe that given the knowledge on the subject, and  data labeled by human experts in the field, it should be possible for this specialized task to find a machine learning  solution using neural networks/autoencoders.
 
 \subsection{Finding a feature vector to cluster the images}\label{sec:featurev}
 
-This section describes the process of finding a feature vector that describes the  Molecular Surface Maps. Some of those feature vectors were then used as an input to the clustering algorithms used by the  \verb|MSMCLUSTER| plugin (see  Figure \ref{fig:arch}).
+This section describes the process of finding a feature vector that describes the  Molecular Surface Maps. Some of those feature vectors were then used as an input to the clustering algorithms used by the  \verb|MSMCluster| plugin (see  Figure \ref{fig:arch}).
 
 The challenge of finding a good feature vector is to find good features which can give a lot of information about the image.
-If the extracted image features are bad, that is they do not describe the images in a useful way, the dimensionality reduction will give noisy results and the clustering algorithms will not group the images in any meaningful way, so users will not be able to extract any new information from the clustering.
+If the extracted image features do not describe the images in a useful way, dimensionality reduction will give noisy results and the clustering algorithms will not group the images in a meaningful way, so users will not be able to extract any new information from the clustering.
 
-The following procedure after finding the feature vector for a given image is to apply some sort of dimensionality reduction to project a higher dimensional vector onto a 2D or 3D space.
+After finding the feature vector for a given image, the following procedure is to apply some sort of dimensionality reduction to project a higher dimensional vector onto a 2D or 3D space.
 
-This has multiuple advantages one of which is that if the dimensionality reduction works as intended one can easily find out after applying the dimensionality reduction if similar looking items are positioned next to each other.
+This has multiple advantages one of which is that if the dimensionality reduction works as intended one can easily find out after applying the dimensionality reduction if similar looking items are positioned next to each other.
 
 \subsubsection{Curse of dimensionality}
 
@@ -220,7 +218,7 @@ Contrary to expectations, in very high or infinite dimensional spaces, unexpecte
 \lim_{n\rightarrow \infty} x^n = 0 \quad \forall x \in [0,1)
 \end{equation}
 
-Simply put, otherwise very dissimilar values have their distance drawn to zero. For example between a vector with \(0.99\) in every dimension and a vector with \(0\)in every dimension the eucludian distance is: \(0.99^{100} = 0.33660\) which would put them closer than one would assume them to be.
+Simply put, otherwise very dissimilar values have their distance drawn to zero. For example between a vector with \(0.99\) in every dimension and a vector with \(0\)in every dimension the euclidean distance is: \(0.99^{100} = 0.33660\) which would put them closer than one would assume them to be.
 
 So we have to come up with other solutions to this problem discussed in section \ref{subsec:dimred}. % TODO: maybe subsec:simmes ???
 
@@ -229,18 +227,18 @@ After looking at a small subset of molecular map images from a variety of protei
   \item Color distribution
   \item Shape
   \item Texture
-  \item Invariant  Image Mmoments 
+  \item Invariant  Image Moments 
 \end{itemize}
 
 
 The initial idea was that the color distribution gives information about the color palette and local color changes in the image, the extracted shape features should give information about the the biggest \( n \) shapes in the picture, the texture feature should differentiate between smooth and rough and coarse texture and everything in between.
 
-The image moments were chosen as a goto approach to extract invariant features from the image which has been proved to yield usable results as described in Kolesar et al. \cite{kolesar}.
+The image moments were chosen as a goto approach to extract invariant features from the image which has been proven to yield usable results as described in Kolesar et al. \cite{kolesar}.
 
-The exact image features that we extract from the image are the following:
+\todo{??}The exact image features that we extract from the image are the following:
 \subsection{Image Features/Descriptors}
 This section explains the different image features that we used to build the feature vector.
-For the length of this section the reader must know that we rescale all images to the size of $(128,128)$ after reading them into our routine.
+For the length of this section the reader should know that in \todo{how should we write it?} comvi we rescale \todo{in comvi} all images to the size of $(128,128)$ after reading them into our routine, whereas in \verb|MSMCluster| image moment calculation is applied on the original image.
 \subsubsection{Invariant Image Moments by Hu}\label{subsec:humom}
 
 The set of invariant Image Moments discovered by Hu et. al  are rotation, translation, scale and transformation  invariant. This allows us for example to determine if an image $I_a$ is similar to another image $I_B$ if $I_B$ is equal to $I_A$ and simply rotated by $30^{°}$.
@@ -249,19 +247,20 @@ The continuous  Image, defined over the domain \(\mathbb{R}^2\) Moments  over tw
 
 \[M_{p,q} = \int^\infty_{- \infty}\int^\infty_{- \infty} x^py^q f(x,y) dy dx \]
 
-Where \(f(x)\) is the signal of the image.  
+Where \(f(x, y)\) is the signal of the image.  
 
 When dealing with discrete values like we find them in a discretized RGB or greyscale (GS) image, we use sums instead of integrals, so we get the following formula:
 
 \[M_{i,j} = \sum^n_{i=0}\sum^m_{j=0} x^i y^j f(x,y) \]
 
-%TODO: damir add this 
-Kolesar et al. ended up using a collection of 10 experimentally determined moments to cluster the image. In our case the moments we used the standard Hu et al. invariant moments. 
 
-To define the images internally in MSMCluster plugin we used image moments that were defined by Kolesar et al. They represented grayscale images using 10 dimensional vectors. 
+\todo{rework, maybe add description of 10 dimensional moments}
+Since Kolesar et al. found that a set of 10 image moments invariant to translation was sufficient to describe the differences between grayscale images of protein surfaces, image representation in \verb|MSMCluster| was done using this set of image moments. However, since Molecular Surface Maps are color images, another image representation was included in \verb|MSMCluster|. This image representation used three ten-dimensional sets of image moments invariant to translation that were calculated for every RGB color channel. In \verb|comvi| on the other hand we used the standard Hu et al. invariant moments. \todo{standard? describe them maybe}
+
 
 \subsubsection{Color palette/histogram }
 
+\todo{only in comvi maybe describe this approach/technique and then at the end mention that it is used in comvi}
 The goal when extracting color palette was to reduce the big color space that is present in any of the molecular maps and get a few distinct  colors that describe the color space with a few representative colors.
 
 To achieve this we extract a histogram of each color channel of the RGB images. Each channel is then represented as a greyscale image. We then create for each channel a histogram of the luminance intensities with in our case 16 bins. This ``reduces'' the \(128*128 = 16.384\) dimensions to just \(48\) dimensions for our image.
@@ -289,7 +288,7 @@ We also computed this on every channel yielding us \(3 \times 14 \) features.
 Alternatively one can also use the  texture features developed by Tamura et al.  in ``Textural Features Corresponding to Visual Perception''\cite{tamura}. The Tamura features are different to the Haralick featues since they were developed on a basis of psychological experiments. The Tamura features do not use a GCM, instead they used a combination of kernel convolutions that yield  the information about the coarseness, contrast, directionality, linelikeness, regularity and roughness.
 
 \subsubsection{Shape}
-We did not end up using the shape features described here but, since we spent quite some time researching this problem, I think it is important show how and why they were created.
+We did not end up using the shape features described here but, since we spent quite some time researching this problem, we think it is important show how and why they were created.
 
 The shape features we hoped to use were  fourier descriptors\footnote{\url{http://fourier.eng.hmc.edu/e161/lectures/fd/node1.html} } \footnote{\url{http://demonstrations.wolfram.com/FourierDescriptors/}}. In short, we get the centroid-distance curve of a distinct shape and take the fast (discrete) fourier transform of that curve. The technique has been proven to work for shape recognition  in earlier works \cite{fourierd}.  
 
@@ -334,6 +333,7 @@ We did not end up using the shape features, because we could not notice any impr
 \subsection{Finding the best performing  dimensionality reduction method}\label{subsec:dimred}
 For testing purposes we used every dimensionality reduction method we could find that looked halfway promising. We tested on data sets of various sizes and content.
 
+\todo {to discussion maybe?}
 We tested our results on the medium sized Oxford flower data set\cite{flower}, the large sized car  \cite{stanfordcar}data set and our large ($\sim$3600 images) molecular maps data set. 
 We further extracted a smaller sized ($\sim$300 images) data set as our benchmark set  and an easy to benchmark and a small (12 images) data set for faster testing. 
 
@@ -349,7 +349,7 @@ After testing with a small non representative user group that would judge how go
 For a early test with linear dimensionality reduction rather than non-linear/manifold-learning techniques one should look at Figure \ref{fig:bmw}, where a linear dimensionality reduction technique was applied, opposed to Figure \ref{fig:tsne} and Figure \ref{fig:tsnef} where the t-SNE algorithm was applied.
 
 
-\subsection{Clustering - Algorithms and strategies }\label{sec:clusteringa}
+\subsection{Clustering Algorithms}\label{sec:clusteringa}
 We applied the following clustering algorithms to image descriptors that were extracted from the protein images.
 
 \begin{description}
@@ -387,6 +387,8 @@ The \verb|MSMCluster| plugin uses implementation of hierarchical agglomerative c
 Every point which represents a sample in two dimensions spans a circle around it with a preconfigured bandwidth size (this size can be algorithmically determined). In a single iteration step of the algorithm every sample is moved towards the centroid of all the points that the kernel of the sample contains. This step is repeated until we every cluster has reached a local minimum and no more points can be accomodated in that cluster. The bigger the bandwith of the kernel the smaller the amount of clusters.  %TODO: expand
 \end{description}
 
+Other clustering algorithms that we tested on our data sets were 
+
 \subsection{Finding the best performing clustering algorithm}
 Our approach to finding a clustering algorihtm was the same as the one that we used  to find the best performing dimensionality reduction algorithm.
 
@@ -398,7 +400,7 @@ The key feature to this algorithm is that it automatically determines the optima
 
 The algorithm is a density based spatial clustering algorithm that uses a similarity metric between two items that are to be  clustered defined over the domain \([0,1]\). So the ways of computing the similarity is given more freedom with this approach.
 
-You could use the euclidian distance between two feature vectors, the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity, two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages two both of these techniques is that both the siamese neural network and the autoencoder have to be trained. 
+You could use the euclidian distance between two feature vectors, the cosine distance or feed the two images to a siamese neural network/autoencoder. Siamese neural network are, for the sake of simplicity, two identical black box oracle machines which yield different valued vectors if you feed the two machines two different signals and  an autoencoder is a machine which will have learned to classify data into a few distinc categories. The main disadvantages these techniques is that both the siamese neural network and the autoencoder have to be trained. 
 
 You could also use the Haussdorff distance to compare two higher dimensional vectors. A detailed explanation would go beyond of the scope of this paper, but the the Haussdorff distance is simply put the ``maximum distance of a set to the nearest point in the other set''\footnote{\url{http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/98/normand/main.html}}.
 
@@ -439,14 +441,19 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 	\caption{\label{fig:tsnef} Test with the tsne dimensionality reduciton on our large ($\sim$ 3600 images) dataset}
 \end{figure}
 
-\section{Visualization and Interaction}
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width= \linewidth]{gridLayout.png}
+	\end{center}
+	\caption{\label{fig:grid} Visualization of all images within one cluster in a uniform grid layout. In the top left corner a tweak bar that contains configurable parameters can be seen.}
+\end{figure}
 
-To show up our algorithm results, we needed a suitable representation and a intuitive interaction for our generated clusters. A tweak bar is used to   set relevant parameters like the clustering algorithm or the images to cluster.  The represented clusters are shown in a bounding box. The MegaMol application can be displayed on the previously mentioned Powerwall. A tracking device can be used to interact with the application.
+\section{Visualization and Interaction}
+Screen of a running instance of MegaMol consists of a bounding box in which the content is drawn and a tweak bar that contains configurable parameters in named drop-down menus (see Figure \ref{fig:grid}). On conventional desktop monitors the user interacts with \verb|MSMCluster| plugin using mouse and keyboard.
 
 \subsection{Background MegaMol and Powerwall}
 
-
-The visualization of MegaMol is displayed on the Powerwall.
+The visualization of MegaMol can be displayed on the Powerwall.
 The  Powerwall is a merged large high-resolution display made of five portrait- oriented
 strips . The setup has  a resolution of $10.800 \times 4.096 pixels$
 for each eye, and is projected onto a physical screen size of about $6 \times 2.2$ metres. 
@@ -457,23 +464,26 @@ pointing Stick with two buttons (1 on each side), which is tracked by 14 camers
 using an optical tracking system. 
 
 
-\subsection{Goal of Visualization and Interaction}
-Afted clustering of Molecular Surface Maps, \verb|MSMCluster| plugin then visualizes results of the clustering. Both modules contained in the plugin deal with visualization of the clustering. 
+
+
+\subsection{Realization}
+
+Afted clustering of Molecular Surface Maps, \verb|MSMCluster| plugin then visualizes the results of clustering. Both modules contained in the plugin deal with visualization of the clustering. 
 %Our main goal was to find the way to visualize different clusters as clearly as possible. In order to do this, 
-In ClusterRenderer \todo{reformulate} we have extracted from every cluster an image that should represent it. If the clustering algorithm used the concept of centroids, we chose the image nearest to the centroid as a representative image of every cluster. If there was no such concept, we randomly chose an image from the cluster to represent it. Representative images were then drawn onto the screen within the bounding box in MegaMol. To make the representative images fit better in the bounding box, aspect ratio of the bounding box was set to 2:1, the same aspect ratio as images.
-To position the images on the screen we used techniques used from graph visualization. Every representative image was considered to be a node within an imaginary graph. To determine the positions of representative images we used the implementation of force directed graph drawing algorithm that was contained in MegaMol. Force directed algorithms are based on the physical laws and try to imitate the effect of attractive and repulsive forces on the graph nodes, as if they were connected by springs. An implementation contained in MegaMol uses repulsive forces based on Coulomb's law and attractive forces based on Hooke’s law. It also uses the concept of maximum internal energy. When internal energy becomes higher than the maximum internal energy movement of images stops. Further parameters that could be given to the force directed layout instance are damping that affects the how fast does the system calm down and integration step that defines the movement speed of the nodes. 
-These parameters related to the layout were made available to the user, besides the internal energy of the top clustering level is shown to the user as well.
 
-On conventional desktop monitors the user interacts with the 
+ClusterRenderer module first extracts from every cluster an image that represents it. If the clustering algorithm uses the concept of centroids, it chooses the nearest image to the centroid as a representative image of every cluster. If there is no such concept, ClusterRenderer randomly chooses an image from the cluster to represent it. Representative images are then drawn, with borders in different colors, onto the screen within the bounding box in MegaMol. To make the representative images fit better in the bounding box, aspect ratio of the bounding box was set to 2:1, the same aspect ratio as images.
 
+To position the images on the screen we used techniques from graph visualization. In ClusterRenderer every representative image is considered to be a node within an imaginary graph. To determine the positions of representative images the implementation of force directed graph drawing algorithm contained in MegaMol was used. Force directed algorithms are based on the physical laws and try to imitate the effect of attractive and repulsive forces on the graph nodes, as if they were connected by springs. An implementation contained in MegaMol uses repulsive forces based on Coulomb's law and attractive forces based on Hooke’s law. It also uses the concept of maximum internal energy. When internal energy becomes higher than the maximum internal energy movement of images stops. Further parameters that could be given to the force directed layout instance are damping that affects the how fast does the system calm down and integration step that defines the movement speed of the nodes. 
+These parameters related to the layout are configurable in tweak bar in drop-down menu layout. In this menu the curent internal energy of the top clustering level is shown to the user as well.
+Other parameters that are configurable in ClusterRenderer related to visualization are the size of the images for both levels of clustering. In the parameter tweak bar the currently selected image is shown as well. 
 
-------- 
+ClusterRenderer also supports (1) further clustering of the obtained clustering results (see Figure 1, smaller images around larger images) and (2) showing all of the images within one cluster using grid layout. Clicking with the right mouse button on the representative image of some cluster performs clustering only on the images contained in the clicked cluster. Result of every such deeper level of clustering is visualized using the representative images of internal clusters. Those images have the borders of are smaller than the image of the parent cluster and have the same border color as the parent cluster. They are positioned using another instance of force directed layout. This instance of force directed layout considers only repulsive and attractive forces between the image of the parent cluster and the images of the subclusters. If the user however clicks on the image using the left mouse button while holding the CTRL key, all of the images within the selected cluster are shown in a uniform grid layout (see Figure \todo{nubmer}). 
 
 To interact with the Application intuitively on PC and on the POWERWALL it was important that we use movements for the interactions from our everyday life. If the Application is used on PC, the MegaMol Project is mainly interacting with the mouse. If we run Application at the Powerwall it is interacting with the tracking stick.
 
 With the four button states of the tracking sticks we focused on the most important interactions like ``selection'' or ``drag and drop'' To localize the aimung of the user  we should calculate a intersection coordinates of the tracking stick in direction to the Powerwall. While moving the tracking stick for interactions, these coordinates should be scaled for a user- friendly interactions.
 
-\subsection{Realization}
+
 
 To realize the ideas and goals we first discussed about the dimension of the cluster visualization. But a couple of reasons spoke up against a 3D visualization so we decided to do transform the 3D molecule into a 2D image. We would have more degrees of freedom to work with 3D molecules on the Powerwall. But we could not find a way to present the data in a way such that with just a glance the user could intuitively interpret the data that would be displayed on the screen. Furthermore the clustering and the interaction would be demanding. So we decided to settle for a 2D visualization. 
 The visualizatoin consists of displaying the image of a cluster representative with a simple rectangle. With clicking into a rectangle the user is able to get a view of all clustered images in that cluster. Even subclustering can be executed by splitting one cluster into two more. After testing we decided that one level of subclustering is enough. After 2 levels of subclustering the clusters get too  \todo{begriff}
@@ -501,23 +511,6 @@ Since there were no labeled data sets we could not use external criteria like pu
 \subsection{comparing our findings with other protein similarity practices}\label{subsec:comparison}
 \todo{expand} bla \cite{3dsurfer} protein database simlilarity measure.
 
-\begin{center}
-\begin{adjustbox}{max width=8.5cm}
-\begin{tabular}{|l|l|l|l|l|}
-
-\multicolumn{1}{c}{\bfseries Clustering Algorithm}  &  \multicolumn{1}{c}{\bfseries Data set} & \multicolumn{1}{c}{\bfseries RSS} & \multicolumn{1}{c}{\bfseries Evaluation} & \multicolumn{1}{c}{\bfseries Performance (in ms)} \\
-\hline
-K-means & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
-\hline
-dlib K-means & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & &  \\ 
-\hline
-Bottom up agglomerative & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
-\hline
-MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & \\
-\hline
-\end{tabular}
-\end{adjustbox}
-\end{center}
 
 % \begin{table}[!h]
 %   \caption{
@@ -532,24 +525,11 @@ MeanShift & \begin{tabular}{@{}l@{}}small \\ medium \\ large\end{tabular} & & & 
 %   \end{tabular}
 %   \end{table}
 
-
 \begin{figure}[h!]
 	\begin{center}
-		\includegraphics[width=.75\linewidth]{k-Means-mediumDataSet.png}
+		\includegraphics[width= \linewidth]{plotMedium.png}
 	\end{center}
-	\caption{\label{fig:kmeans} Our implementation of K-means applied on the medium-sized data set.}
-\end{figure} 
-\begin{figure}[h!]
-	\begin{center}
-		\includegraphics[width=.75\linewidth]{k-Means-dlib-mediumDataSet.png}
-	\end{center}
-	\caption{\label{fig:kmeans-dlib} Dlib K-means applied on the medium-sized data set.}
-\end{figure}
-\begin{figure}[h!]
-	\begin{center}
-		\includegraphics[width=.75\linewidth]{bottomUpAgglomerative-mediumDataSet.png}
-	\end{center}
-	\caption{\label{fig:bottomUpAgglomerative} Bottom up agglomerative clustering algorithm (dlib) applied on the medium-sized data set.}
+	\caption{\label{fig:plot} Visualization of the clustering results using the ScatterPlotRenderer module when applying the following algorithms to the medium-sized data set (from top to bottom): (1) Hierarchical Agglomerative Clustering, (2) dlib implementation of K-means, (3) our implementation of K-means. Wanted number of clusters set was set to 4.}
 \end{figure}
 
 
