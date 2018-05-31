@@ -453,8 +453,8 @@ def main():
 	
 	X,Y = do_dimred(data_array, mode='tsne', components=2)
 	fig,ax = plt.subplots()
-	cid = fig.canvas.mpl_connect('button_press_event', handle_click)
-
+	#cid = fig.canvas.mpl_connect('button_press_event', handle_click)
+	
 	ms_array = np.array(list(zip(X,Y)))
 	scaler =  StandardScaler()
 	scaler.fit(ms_array)
@@ -468,6 +468,7 @@ def main():
 	print(shift.labels_)
 
 	ax.scatter(X,Y)
+	plt.savefig(str(arg_path)+"/cluster.png" , bbox_inches='tight')
 	#ax.title('tsne')
 	with open(arg_output, 'w') as file:
 		outwriter = csv.writer(file, delimiter=',',quotechar='|',)
@@ -527,7 +528,8 @@ def main():
 			for item in value:
 				outwriter.writerow(item)
 		outwriter.writerow(('END SUBCLUSTERS',))
-		plt.show()
+		#plt.show()
+		plt.savefig(str(arg_path)+"/colorcluster.png" , bbox_inches='tight')
 
 
 if __name__ == '__main__':

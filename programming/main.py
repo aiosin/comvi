@@ -3,7 +3,7 @@ import pip
 
 
 def main():
-    _dependencies = ['numpy','matplotlib','tensorflow','scipy','sklearn','skimage','mahotas','cv2','requests']
+    _dependencies = ['numpy','matplotlib','tensorflow','scipy','sklearn','scikit-image','mahotas','opencv-python','requests']
     try:
         from pip import main as pipmain
     except:
