@@ -250,7 +250,7 @@
 
 %%MEGHAN Comment from here
 \newcommand{\manuscriptnotetxt}{
-Student Project (ProjINF) started at 1 December 2017; finished 31 May 2018
+Student Project (ProjINF) started 1 December 2017; finished 31 May 2018
 }
 %% to here to not use the blank
 
