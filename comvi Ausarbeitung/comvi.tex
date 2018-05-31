@@ -72,7 +72,7 @@
 
 
 \abstract{
-The goal of this paper is to show the reader the abstract methods and concrete applications that were used to cluster the proteins by similarity. We built a plugin MSMCLUSTER for MegaMol framework that visualizes the results of clustering in a novel way. As representations of protein surfaces we used Molecular Surface Maps that were provided by Krone et al. \cite{molecularmaps}. To extract the features from Molecular Surface Maps image moments were used. Using the extracted features we clustered the data using different clustering algorithms like K-means and hierarchical agglomerative clustering. To visualize the data we used representative images of clusters in a force directed layout. To further enable the user to analyze the results of clustering ability to perform and visualize the clustering one level deeper was included.  Since the researchers might work with large data sets, plugin was extended in order to include possible interactions with large high-resolution display Powerwall.  In order to test the clustering results we created three different data sets of Molecural Surface Maps from  Solvent Excluded Surfaces of proteins. We compared the results of different clustering algorithms applied to those data sets. The paper describes the process and the approaches that were taken to solve these tasks. 
+The goal of this paper is to show the reader the abstract methods and concrete applications that were used to cluster the proteins by similarity. We built a plugin MSMCluster for MegaMol framework that visualizes the results of clustering in a novel way. As representations of protein surfaces we used Molecular Surface Maps \cite{molecularmaps}. To extract the features from Molecular Surface Maps image moments were used. Using the extracted features we clustered the data using different clustering algorithms like K-means and hierarchical agglomerative clustering. To visualize the data we used representative images of clusters in a force directed layout. To further enable the user to analyze the results of clustering, the ability to perform and visualize the clustering one level deeper was included.  Since the researchers might work with large data sets, plugin was extended in order to include the possibility of interacting with large high-resolution display Powerwall.  In order to test the clustering results we created three different data sets of Molecural Surface Maps. We compared the results of different clustering algorithms applied to those data sets. The paper describes the process and the approaches that were taken to solve these tasks. 
 
 } 
 
@@ -128,30 +128,19 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 Over the span of the last 6 months we  have researched and implemented a comparative clustering  process for images of molecular maps.
 The task consisted of several parts: to generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster the extracted  feature vectors by similarity  and to visualize the resulting clustering on the large high-resolution display ``Powerwall''. The interaction with the Powerwall was to be done with  an existing tracking device.
 
-The result of this work is an \verb|MSMCLUSTER| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework. The \verb|MSMCluster| plugin  contains two modules that cluster Molecural Surface Maps and visualize the results of the clustering. 
+The result of this work is an \verb|MSMCluster| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework. \verb|MSMCluster| contains two modules that cluster Molecural Surface Maps and visualize the results of the clustering. ClusterRenderer module visualizes the clustering using the force directed layout and in ScatterPlotRenderer individual images are represented as points in two-dimensional space and allow the user to see the distances between images.
 
-The  ClusterRenderer module visualizes the clustering using the force directed layout and in the ScatterPlotRenderer plugin individual images are represented as points on a  two-dimensional space plane  allow the user to see the distances between images.
+MegaMol is a simulation tool developed by the University of Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that we are presenting in our work. 
+Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other.
 
-MegaMol is a simulation tool developed by the Universit\"at Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that we are presenting with our work. 
-
-
-Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other. 
-
-
-In this paper we guide you through the \verb|MSMCLUSTER| plugin, its capabilities and inner workings.
-
-The first task was to retrieve molecular image data through existing MegaMol plugins \cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project that will be publicly available starting \today \footnote{\url{https://github.com/aiosin/comvi}}.
-
-
-The next task was to extract an expressive feature vector from those images and to find a metric to cluster them by similarity.
+The first task was to retrieve molecular image data through existing MegaMol plugins \cite{molecularmaps}. For this a special binary of megamol was compiled and will be released in a separate project that will be publicly available starting \today \footnote{\url{https://github.com/aiosin/comvi}\\ Last retrieved: \today}.
+The next task was to extract an expressive feature vector from those images and to cluster them by similarity.
 
 The last task which was also developed in a plugin in MegaMol was the visualization on the VISUS Powerwall. 
 
-The Powerwall is a very high resolution display \footnote{\url{https://www.visus.uni-stuttgart.de/institut/visualisierungslabor/technischer-aufbau.html} \\ Last retrieved: \today } that can be used to visualize large data(sets). Due to its size and resolution it is possible to display much more information than on a regular consumer grade screen. 
+The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction part we had more possibilities than with traditional human interface  devices  (HIDs), aside from devices like modern smartphones. For this last step we also researched the possible interactions with this unique tracking device  which can be used to interact the Powerwall.
 
-The Powerwall supports a tracker device that can transmit 6 degrees of freedom, so for the interaction step we had more possibilities than with traditional human interface  devices  (HIDs), aside from devices like modern smartphones. For this last step we also researched the possible interactions with the unique tracking device  which can be used to interact the Powerwall.
-
-The task required from us that we learn how to compare the images, measure the similarity  distances between the images, and cluster them. Further it  required that we use a similarity based clustering algorithm.
+The task required from us that we learn how to compare the images, measure the similarity  distances between the images, and cluster them. Furthermore, it  required that we use a similarity based clustering algorithms.
 % added here to make it appear on the second page
 \begin{figure*}[htbp]
 	\begin{center}
@@ -169,7 +158,9 @@ The task required from us that we learn how to compare the images, measure the s
 To prevent confusion further down the paper  the reader should be familiar with the following two terms: \textsc{Comvi} - internal name of the clustering engine that can be used by the MegaMol Plugin \\
 \verb|MSMCluster| - name of the Megamol plugin that was developed as the main part of the project.
 
-Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays In this chapter we also describe shortly \verb|MSMCluster| plugin and discuss its strengths and limitations. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In the end in the conclusion we shortly discuss possible future work.
+% TODO: 
+Over the course of the next few pages you will learn how we approached these challenges and how we  solved them. You will find out what  worked and what didn't. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays In this chapter we also describe shortly \verb"|MSMCluster| plugin and discuss its strengths and limitations. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In the end in the conclusion we shortly discuss possible future work.
+Over the course of the next few pages you will learn how we approached these challenges and how we (attempted) solved them. In the second chapter related work is presented. Chapter three is the main part of the paper and shows our approaches to clustering and extracting features from the protein images that were used in the clustering. In chapter four our approaches to the visualization of data on conventional desktop computers and large high-resolution displays In this chapter we also describe shortly \verb|MSMCluster| plugin and discuss its strengths and limitations. In chapter five we present and discuss the results of applying MSMCluster plugin onto data sets of different sizes. In the end in the conclusion we shortly discuss possible future work.
 
 %-------------------------------------------------------------------------
 
