@@ -250,8 +250,8 @@
 
 %%MEGHAN Comment from here
 \newcommand{\manuscriptnotetxt}{
-Student Project started at 1 December 2017; Manuscript received 31 June 2018; accepted XX June 2018; posted online XX June 2018.
-For further information about this article, please contact one of the authors.}
+Student Project (ProjINF) started at 1 December 2017; finished 31 May 2018
+}
 %% to here to not use the blank
 
 %% MEGHAN NOTE FOR BLANK SPACING

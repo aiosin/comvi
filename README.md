@@ -27,9 +27,7 @@ Comparative Visualization of Molecular Surfaces using Similarity-based Clusterin
         - skimage
         - scipy
         - cv2
-        - pickle (not sure if pickle in stdlib)
         - matplotlib for 2d plot-viz
-        - (rest should be in stdlib)
 - comvi C++:
     - not sure
     - probably only vanilla c++11/14 (?) apart from:
@@ -38,9 +36,9 @@ Comparative Visualization of Molecular Surfaces using Similarity-based Clusterin
         - glad
         - glm
         - std_image
-        - stdlib (duh)
-        - KHR (?)
-        - opengl in general
+        - stdlib 
+        - KHR 
+        - opengl
 
 # Folder Structure:
 - papers:
