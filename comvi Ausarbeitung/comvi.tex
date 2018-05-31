@@ -274,7 +274,7 @@ Also we can take more features from that GCM which gives us more features to wor
 
 We also computed this on every channel yielding us \(3 \times 14 \) features.
 
-Alternatively one can also use the  texture features developed by Tamura et al.  in ``Textural Features Corresponding to Visual Perception''\cite{tamura}. The Tamura features are different from the Haralick featues since they were developed on a basis of psychological experiments. The Tamura features do not use a GCM, instead they use a combination of kernel convolutions that yield  the information about the coarseness, contrast, directionality, linelikeness, regularity and roughness.
+Alternatively one can also use the  texture features developed by Tamura et al.  in ``Textural Features Corresponding to Visual Perception''\cite{tamura}. The Tamura features are different from the Haralick features since they were developed on a basis of psychological experiments. The Tamura features do not use a GCM, instead they use a combination of kernel convolutions that yield  the information about the coarseness, contrast, directionality, linelikeness, regularity and roughness.
 
 \subsubsection{Shape}
 
@@ -377,12 +377,12 @@ The \verb|MSMCluster| plugin contains two implementations of K-means. We impleme
 	\begin{center}
 		\includegraphics[width=.75\linewidth]{tsneFull.png}
 	\end{center}
-	\caption{\label{fig:tsnef} Test with the tsne dimensionality reduciton on our large ($\sim$ 3600 images) dataset}
+	\caption{\label{fig:tsnef} Test with the tsne dimensionality reduction on our large ($\sim$ 3600 images) dataset}
 \end{figure}
 
 \item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. Then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it builds cluster hierarchy that can be visualized with dendrograms\footnote{A dendrogram (from Greek dendro "tree" and gramma "drawing") is a tree diagram}. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level \cite{iir}.
 
-Main advantages of hierarchical agglomerative clustering is the hiararchy of clusters that it creates, and its stabililty over multiple executions of clustering. Its main weakness is on the other hand the high time ($O(n^2 log(n))$) and space complexity ($O(n^2)$) \cite{jain1999data}.
+Main advantages of hierarchical agglomerative clustering is the hierarchy of clusters that it creates, and its stability over multiple executions of clustering. Its main weakness is on the other hand the high time ($O(n^2 log(n))$) and space complexity ($O(n^2)$) \cite{jain1999data}.
 
 The \verb|MSMCluster| plugin uses implementation of hierarchical agglomerative clustering that is contained in the dlib library. 
 \item [Mean-shift] is another clustering algorithm that relies on the concept of centroids. It is a density based algorithm much like DBSCAN \cite{dlib09}.
