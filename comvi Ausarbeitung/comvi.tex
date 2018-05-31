@@ -118,7 +118,7 @@ The goal of this paper is to show the reader the abstract methods and concrete a
 Over the span of the last 6 months we  have researched and implemented a comparative clustering  process for images of molecular maps.
 The task consisted of several parts: to generate Molecular Surface Map images with the existing \verb|molecularmaps| plugin for MegaMol \cite{MegaMol}, to build up a data set, to extract a descriptive feature vector from the image, to find a way to cluster the extracted  feature vectors by similarity  and to visualize the resulting clustering on the large high-resolution display ``Powerwall''. The interaction with the Powerwall was to be done with  an existing tracking device.
 
-The result of this work is an \verb|MSMCLUSTER| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework.
+The result of this work is an \verb|MSMCLUSTER| plugin that  extends the functionality of the MegaMol\cite{MegaMol} visualization framework. \verb|MSMCluster| contains two modules that cluster Molecural Surface Maps and visualize the results of the clustering. ClusterRenderer module visualizes the clustering using the force directed layout and in ScatterPlotRenderer individual images are represented as points in two-dimensional space and allow the user to see the distances between images.
 
 MegaMol is a simulation tool developed by the Universit\"at Stuttgart and the TU Dresden. It can be used to visualize particle data, simulations on atomic scale and other molecular processes such as the one that we are presenting with our work. 
 Due to its modular nature, it can be extended with modules to either build standalone plugins or build modules that interact and interface with each other.
@@ -368,10 +368,10 @@ The main weakness of K-means is that it does not converge to a global minimum. I
 The \verb|MSMCluster| plugin contains two implementations of K-means. We implemented one version ourselves and the other version is part of the dlib library \cite{dlib09}.
 \item [Hierarchical agglomerative clustering] is a type of hierarchical clustering that clusters the data from the bottom up. As an input it takes the wanted number of clusters. It starts by making a cluster for every element in the data set. Then repeatedly merges clusters that are the most similar according to some metric until in the end there is only one cluster left. However in the course of every merging operation it takes a note of the similarity between the clusters that are merged. This way it builds cluster hierarchy that can be visualized with dendrograms\footnote{A dendrogram (from Greek dendro "tree" and gramma "drawing") is a tree diagram}. The given number of clusters is then obtained by cutting the tree on the right similarity level. This is done by descending from top of the tree and taking into account the number of siblings on every similarity level \cite{iir}.
 
-Main advantages of hierarchical agglomerative clustering is the hiararchy of clusters that it creates, and its stabililty over multiple executions of clustering. Its main weakness is on the other hand relatively high time complexity which is $O(n^3)$ in the worst case.
+Main advantages of hierarchical agglomerative clustering is the hiararchy of clusters that it creates, and its stabililty over multiple executions of clustering. Its main weakness is on the other hand high time ($O(n^2 log(n))$) and space complexity ($O(n^2)$) \cite{jain1999data}.
 
 The \verb|MSMCluster| plugin uses implementation of hierarchical agglomerative clustering that is contained in the dlib library. 
-\item [Mean-shift] is another clustering algorithm that uses the concept of centroids. %TODO: expand
+\item [Mean-shift] is another clustering algorithm that uses the concept of centroids \cite{dlib09}. %TODO: expand
 \end{description}
 
 \subsection{Finding the best performing clustering algorithm}
@@ -432,7 +432,7 @@ To show up our algorithm results, we needed a suitable representation and a intu
 
 
 The visualization of MegaMol is displayed on the Powerwall.
-The  Powerwall is a merged large hgh-resolution display made of five portrait- oriented
+The  Powerwall is a merged large high-resolution display made of five portrait- oriented
 strips . The setup has  a resolution of $10.800 \times 4.096 pixels$
 for each eye, and is projected onto a physical screen size of about $6 \times 2.2$ metres. 
 Two 4k (Liquid Crystal on Silicon) LCoS projectors are projecting the images for each strip for a total of five strips.
@@ -443,9 +443,13 @@ using an optical tracking system.
 
 
 \subsection{Goal of Visualization and Interaction}
-Our main goal was to find the way to visualize different clusters as clearly as possible. In order to do this, we have extracted from every cluster an image that should represent it. If the clustering algorithm used the concept of centroids, we chose the image nearest to the centroid as a representative image of every cluster. If there was no such concept, we randomly chose an image from the cluster to represent it. Representative images were then drawn onto the screen within the bounding box in MegaMol. To make the representative images fit better in the bounding box, aspect ratio of the bounding box was set to 2:1, the same aspect ratio as images.
+Afted clustering of Molecular Surface Maps, \verb|MSMCluster| plugin then visualizes results of the clustering. Both modules contained in the plugin deal with visualization of the clustering. 
+%Our main goal was to find the way to visualize different clusters as clearly as possible. In order to do this, 
+In ClusterRenderer \todo{reformulate} we have extracted from every cluster an image that should represent it. If the clustering algorithm used the concept of centroids, we chose the image nearest to the centroid as a representative image of every cluster. If there was no such concept, we randomly chose an image from the cluster to represent it. Representative images were then drawn onto the screen within the bounding box in MegaMol. To make the representative images fit better in the bounding box, aspect ratio of the bounding box was set to 2:1, the same aspect ratio as images.
 To position the images on the screen we used techniques used from graph visualization. Every representative image was considered to be a node within an imaginary graph. To determine the positions of representative images we used the implementation of force directed graph drawing algorithm that was contained in MegaMol. Force directed algorithms are based on the physical laws and try to imitate the effect of attractive and repulsive forces on the graph nodes, as if they were connected by springs. An implementation contained in MegaMol uses repulsive forces based on Coulomb's law and attractive forces based on Hooke’s law. It also uses the concept of maximum internal energy. When internal energy becomes higher than the maximum internal energy movement of images stops. Further parameters that could be given to the force directed layout instance are damping that affects the how fast does the system calm down and integration step that defines the movement speed of the nodes. 
 These parameters related to the layout were made available to the user, besides the internal energy of the top clustering level is shown to the user as well.
+
+On conventional desktop monitors the user interacts with the 
 
 
 ------- 
