@@ -425,8 +425,15 @@ We ended up with the mean shift algorithm. It also is a density based algorithm 
 	\caption{\label{fig:tsnef} final test with the tsne dimensionality reduciton and the mean shift clustering algorithm }
 \end{figure}
 
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width= \linewidth]{gridLayout.png}
+	\end{center}
+	\caption{\label{fig:grid} Visualization of all images within one cluster in a uniform grid layout. In the top left corner a tweak bar that contains configurable parameters can be seen.}
+\end{figure}
+
 \section{Visualization and Interaction}
-Screen of a running instance of MegaMol consists of a bounding box in which the content is drawn and a tweak bar that contains configurable parameters in named drop-down menus (see Figure 1). On conventional desktop monitors the user interacts with \verb|MSMCluster| plugin using mouse and keyboard.
+Screen of a running instance of MegaMol consists of a bounding box in which the content is drawn and a tweak bar that contains configurable parameters in named drop-down menus (see Figure \ref{fig:grid}). On conventional desktop monitors the user interacts with \verb|MSMCluster| plugin using mouse and keyboard.
 
 \subsection{Background MegaMol and Powerwall}
 
@@ -439,6 +446,9 @@ A pixel is about 0.56 mm  in size, which corresponds to s density of about 50 pp
 The users interact with the system using a 6-DOF mid-air
 pointing Stick with two buttons (1 on each side), which is tracked by 14 camers
 using an optical tracking system. 
+
+
+
 
 \subsection{Realization}
 
@@ -501,7 +511,7 @@ Since there were no labeled data sets we could not use external criteria like pu
 
 \begin{figure}[h!]
 	\begin{center}
-		\includegraphics[width= 1\linewidth]{plotMedium.png}
+		\includegraphics[width= \linewidth]{plotMedium.png}
 	\end{center}
 	\caption{\label{fig:plot} Visualization of the clustering results using the ScatterPlotRenderer module when applying the following algorithms to the medium-sized data set (from top to bottom): (1) Hierarchical Agglomerative Clustering, (2) dlib implementation of K-means, (3) our implementation of K-means. Wanted number of clusters set was set to 4.}
 \end{figure}
